@@ -1,73 +1,35 @@
-# React + TypeScript + Vite
+# 🔬 自主实验室与闭环发现 — SDL 讲座交互式网页应用
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+面向材料科学研究生的 2–3 小时专题讲座交互工具，以 A-Lab 为核心案例，系统讲解 Self-driving Labs 的概念、技术栈与前沿进展。
 
-Currently, two official plugins are available:
+## 功能模块
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. **首页** — 讲座概览 + 传统 vs SDL 效率对比
+2. **背景知识** — 实验史时间轴 + MSE 工序全景 + 交互式知识图谱（60+ 节点）
+3. **SDL 核心概念** — 闭环流程图 + 关键组件解析
+4. **A-Lab 案例** — 时间线 + 设备画廊 + 合成材料数据
+5. **互动演示** — 7 个 Live Cases 的 BO 仿真 + DOE 对比 + Deepseek LLM 实验规划 + Quiz
+6. **挑战与未来** — 局限性分析 + 课题 SDL 化评估
+7. **资源总结** — 论文 + 工具 + BibTeX 下载
 
-## React Compiler
+## 技术栈
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+React 19 + TypeScript + Vite 7 + Tailwind CSS + Framer Motion + Plotly.js + D3-force + Three.js
 
-## Expanding the ESLint configuration
+## 开发
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 部署
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+# dist/ 目录可部署到 Vercel / Netlify / GitHub Pages
 ```
+
+## LLM 配置
+
+互动演示中的 AI 实验规划助手使用 Deepseek API。在应用内输入 API Key（仅存储在本地浏览器 localStorage 中）。无 Key 时自动切换到离线预设回答模式。

@@ -40,6 +40,129 @@ const CARDS = [
   },
 ];
 
+interface AnalysisResult {
+  scores: { dim: string; score: number; desc: string }[];
+  overall: number;
+  suggestion: string;
+  tools: string[];
+}
+
+function sdlOfflineAnalysis(topic: string): AnalysisResult {
+  const p = topic.toLowerCase();
+  const scores = [
+    { dim: '实验可自动化', score: p.includes('合成') || p.includes('烧结') || p.includes('沉积') ? 85 : p.includes('电镜') || p.includes('tem') ? 40 : 65, desc: '合成步骤标准化程度' },
+    { dim: '参数空间明确', score: p.includes('温度') || p.includes('时间') || p.includes('比例') ? 90 : 70, desc: '参数是否连续可量化' },
+    { dim: '目标可量化', score: p.includes('导电') || p.includes('产率') || p.includes('效率') || p.includes('强度') ? 95 : 75, desc: '性能指标是否可数值化' },
+    { dim: '数据可闭环', score: p.includes('xrd') || p.includes('电导') || p.includes('光谱') ? 90 : 60, desc: '表征→数据→AI 反馈可行性' },
+    { dim: '改造成本可控', score: p.includes('高温') || p.includes('高压') || p.includes('真空') ? 50 : 80, desc: '设备与环境要求复杂度' },
+  ];
+  const overall = Math.round(scores.reduce((s, d) => s + d.score, 0) / scores.length);
+  let suggestion = '';
+  let tools: string[] = [];
+
+  if (overall >= 80) {
+    suggestion = '你的课题非常适合 SDL 化！建议直接搭建全自动化闭环，使用 BayBE 或 Honegumi 生成 BO 代码框架。';
+    tools = ['BayBE', 'Honegumi', 'A-Lab（硬件参考）', 'ChemOS（编排软件）'];
+  } else if (overall >= 60) {
+    suggestion = '课题具备 SDL 化潜力，建议从半自动化开始：先实现自动取样+手动分析，逐步集成表征设备和 AI 决策。';
+    tools = ['Honegumi', 'self-driving-lab-demo', 'Olympus（基准框架）'];
+  } else {
+    suggestion = '当前课题的 SDL 化难度较高，建议先聚焦数据标准化和参数量化，等实验流程成熟后再考虑自动化。';
+    tools = ['EDBO+（多目标优化）', '手动记录 + 后处理'];
+  }
+
+  return { scores, overall, suggestion, tools };
+}
+
+function SDLAnalysisPanel() {
+  const [topic, setTopic] = useState('');
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+
+  const handleAnalyze = () => {
+    if (topic.trim().length < 10) return;
+    setAnalyzing(true);
+    setTimeout(() => {
+      setResult(sdlOfflineAnalysis(topic));
+      setAnalyzing(false);
+    }, 800);
+  };
+
+  const getColor = (score: number) => score >= 80 ? '#00f5d4' : score >= 60 ? '#fee440' : '#ff6b6b';
+
+  return (
+    <div className="glass-panel p-6">
+      <div className="flex items-center gap-2 mb-3">
+        <svg className="w-5 h-5 text-[#fee440]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+        </svg>
+        <h3 className="text-base font-semibold font-mono text-[#d0d4dc]">你的课题如何 SDL 化？</h3>
+      </div>
+      <p className="text-xs text-[#8a92a3] mb-4">用一段话描述你的研究方向（≥10 字），AI 将评估 SDL 适用性。</p>
+
+      {!result ? (
+        <div className="space-y-3">
+          <textarea value={topic} onChange={(e) => setTopic(e.target.value)}
+            placeholder="例如：我正在研究钙钛矿太阳能电池中电子传输层的优化，需要调节退火温度和掺杂比例..."
+            rows={3}
+            className="w-full bg-[#0a1628] border border-[rgba(67,97,238,0.2)] rounded-lg px-4 py-3 text-sm text-[#d0d4dc] font-mono placeholder:text-[#8a92a3]/50 focus:border-[#00f5d4] outline-none resize-none" />
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-[#8a92a3] font-mono">{topic.length} 字 {topic.length > 0 && topic.length < 10 ? '（还需 ' + (10 - topic.length) + ' 字）' : ''}</span>
+            <button onClick={handleAnalyze} disabled={topic.trim().length < 10 || analyzing}
+              className="btn-glow px-5 py-2 border border-[rgba(67,97,238,0.3)] text-[#00f5d4] text-sm font-mono rounded-lg disabled:opacity-40">
+              {analyzing ? '分析中...' : '分析'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Overall score */}
+          <div className="flex items-center gap-4 mb-4 p-3 rounded-lg border border-[rgba(0,245,212,0.15)] bg-[rgba(0,245,212,0.03)]">
+            <div className="text-center">
+              <div className="text-2xl font-mono-title" style={{ color: getColor(result.overall) }}>{result.overall}</div>
+              <div className="text-[9px] text-[#8a92a3] font-mono">综合评分</div>
+            </div>
+            <div className="flex-1">
+              <div className="text-xs text-[#d0d4dc] leading-relaxed">{result.suggestion}</div>
+            </div>
+          </div>
+
+          {/* Dimension scores */}
+          <div className="space-y-2 mb-4">
+            <div className="text-[10px] text-[#8a92a3] font-mono mb-2">五维度评估</div>
+            {result.scores.map((s) => (
+              <div key={s.dim}>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-[#d0d4dc]">{s.dim}</span>
+                  <span className="font-mono" style={{ color: getColor(s.score) }}>{s.score}</span>
+                </div>
+                <div className="h-1.5 bg-[rgba(67,97,238,0.1)] rounded-full overflow-hidden">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${s.score}%` }} transition={{ duration: 0.8 }}
+                    className="h-full rounded-full" style={{ background: getColor(s.score) }} />
+                </div>
+                <div className="text-[9px] text-[#8a92a3] mt-0.5">{s.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Recommended tools */}
+          <div className="border-t border-[rgba(67,97,238,0.1)] pt-3">
+            <div className="text-[10px] text-[#8a92a3] font-mono mb-2">推荐工具</div>
+            <div className="flex flex-wrap gap-2">
+              {result.tools.map((tool) => (
+                <span key={tool} className="px-2 py-1 text-[10px] font-mono border border-[rgba(0,245,212,0.2)] rounded text-[#00f5d4] bg-[rgba(0,245,212,0.05)]">{tool}</span>
+              ))}
+            </div>
+          </div>
+
+          <button onClick={() => { setResult(null); setTopic(''); }}
+            className="mt-4 text-xs text-[#8a92a3] hover:text-[#d0d4dc] font-mono transition-colors">← 重新输入</button>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
 const FUTURE_ROADMAP = [
   { year: '2026', title: '标准化接口', desc: '统一 SDL 数据格式与 API 规范', status: 'current' },
   { year: '2027', title: '多智能体协同', desc: '多个 LLM Agent 分工执行复杂实验', status: 'planned' },
@@ -51,8 +174,7 @@ const FUTURE_ROADMAP = [
 export default function ChallengesSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-20%' });
-  const [brainstorm, setBrainstorm] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   return (
@@ -184,70 +306,9 @@ export default function ChallengesSection() {
           </div>
         </motion.div>
 
-        {/* SDL-ization brainstorm */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.7 }}
-        >
-          <div className="glass-panel p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <svg className="w-5 h-5 text-[#fee440]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
-              </svg>
-              <h3 className="text-base font-semibold font-mono text-[#d0d4dc]">
-                你的课题如何 SDL 化？
-              </h3>
-            </div>
-            <p className="text-xs text-[#8a92a3] mb-4">
-              简要描述你的研究方向，AI 将分析 SDL 适用性并给出关键建议。
-            </p>
-            {!submitted ? (
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={brainstorm}
-                  onChange={(e) => setBrainstorm(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && brainstorm.trim() && setSubmitted(true)}
-                  placeholder="例如：我正在研究固态电池电解质..."
-                  className="flex-1 bg-[#0a1628] border border-[rgba(67,97,238,0.2)] rounded-lg px-4 py-2.5 text-sm text-[#d0d4dc] font-mono placeholder:text-[#8a92a3]/50 focus:border-[#00f5d4] outline-none"
-                />
-                <button
-                  onClick={() => brainstorm.trim() && setSubmitted(true)}
-                  className="btn-glow px-5 py-2.5 border border-[rgba(67,97,238,0.3)] text-[#00f5d4] text-sm font-mono rounded-lg"
-                >
-                  分析
-                </button>
-              </div>
-            ) : (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-[#0a1628] border border-[rgba(0,245,212,0.15)] rounded-lg p-4">
-                <div className="text-xs text-[#00f5d4] font-mono mb-2">SDL 适用性分析</div>
-                <p className="text-sm text-[#d0d4dc] leading-relaxed mb-3">
-                  基于「{brainstorm}」，以下是 SDL 化的关键切入点：
-                </p>
-                <ul className="space-y-2 text-xs text-[#8a92a3]">
-                  {[
-                    '识别可自动化的实验步骤（称量、混合、加热等）',
-                    '定义明确的性能目标函数用于 Bayesian Optimization',
-                    '调研开源工具（A-Lab、Honegumi、BayBE）进行适配',
-                    '评估数据流闭环的可行性（合成→表征→AI决策）',
-                    '考虑与 Materials Project 等数据库的集成',
-                  ].map((tip, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className="text-[#00f5d4] mt-0.5">→</span>
-                      <span>{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => { setSubmitted(false); setBrainstorm(''); }}
-                  className="mt-4 text-xs text-[#8a92a3] hover:text-[#d0d4dc] font-mono transition-colors"
-                >
-                  ← 重新输入
-                </button>
-              </motion.div>
-            )}
-          </div>
+        {/* SDL-ization Analysis Panel */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.7 }}>
+          <SDLAnalysisPanel />
         </motion.div>
       </div>
 

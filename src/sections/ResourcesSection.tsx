@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 const PAPERS = [
@@ -76,6 +76,26 @@ export default function ResourcesSection() {
   const isInView = useInView(sectionRef, { once: true, margin: '-20%' });
   const [copiedBibtex, setCopiedBibtex] = useState<string | null>(null);
   const [shareTooltip, setShareTooltip] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const sections = ['home', 'background', 'concept', 'casestudy', 'demos', 'challenges', 'resources'];
+    const visited = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) visited.add(entry.target.id);
+        });
+        setProgress(Math.round((visited.size / sections.length) * 100));
+      },
+      { threshold: 0.2 }
+    );
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
 
   const handleCopyBibtex = (bibtex: string, doi: string) => {
     navigator.clipboard.writeText(bibtex).then(() => {
@@ -107,11 +127,22 @@ export default function ResourcesSection() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }} className="mb-12">
           <div className="flex items-center justify-between mb-4">
             <div className="text-xs text-[#00f5d4] font-mono tracking-wider">KEY PAPERS</div>
-            <button onClick={() => { const all = PAPERS.map(p => p.bibtex).join('\n\n'); navigator.clipboard.writeText(all); setShareTooltip(true); setTimeout(() => setShareTooltip(false), 2000); }}
-              className="text-[10px] text-[#8a92a3] hover:text-[#00f5d4] font-mono transition-colors flex items-center gap-1">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
-              复制全部 BibTeX
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => { navigator.clipboard.writeText(PAPERS.map(p => p.bibtex).join('\n\n')); }}
+                className="text-[10px] text-[#8a92a3] hover:text-[#00f5d4] font-mono transition-colors flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+                复制全部
+              </button>
+              <button onClick={() => {
+                const blob = new Blob([PAPERS.map(p => p.bibtex).join('\n\n')], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'sdl_references.bib'; a.click();
+                URL.revokeObjectURL(url);
+              }} className="text-[10px] text-[#00f5d4] hover:text-[#fee440] font-mono transition-colors flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                下载 .bib
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
             {PAPERS.map((paper, i) => (
@@ -203,6 +234,17 @@ export default function ResourcesSection() {
               </svg>
               生成二维码
             </button>
+          </div>
+
+          {/* Learning progress */}
+          <div className="glass-panel p-4 max-w-2xl mx-auto mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] text-[#8a92a3] font-mono">学习进度</span>
+              <span className="text-[10px] text-[#00f5d4] font-mono">{progress}% 完成</span>
+            </div>
+            <div className="h-1.5 bg-[rgba(67,97,238,0.1)] rounded-full overflow-hidden">
+              <div className="h-full rounded-full bg-[#00f5d4] transition-all duration-500" style={{ width: `${progress}%` }} />
+            </div>
           </div>
 
           {/* Summary takeaway */}

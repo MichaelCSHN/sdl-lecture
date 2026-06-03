@@ -62,6 +62,117 @@ const DEEPSEEK_SYSTEM_PROMPT = `你是一位材料科学领域的 AI 实验规�
 
 回复使用 Markdown 格式，保持专业但易懂的风格。`;
 
+function offlineResponse(prompt: string): string {
+  const p = prompt.toLowerCase();
+  let response = '';
+
+  if (p.includes('bo') || p.includes('bayesian') || p.includes('贝叶斯') || p.includes('优化')) {
+    response = `## 贝叶斯优化实验方案
+
+**目标函数设计**：
+- 明确你想要最大化/最小化的性能指标
+- 例如：导电率 → 最大化；合成时间 → 最小化
+
+**参数空间定义**：
+- 连续参数：温度、时间、浓度、比例等
+- 离散参数：催化剂类型、溶剂种类等
+- 设定合理的上下界（参考文献或预实验）
+
+**推荐工具**：
+- **BayBE**（Merck 开源，材料科学专用）
+- **Honegumi**（BO 代码生成器）
+- **Ax / BoTorch**（Meta 开源，工业级）
+
+**实验流程**：
+1. 用 LHS 或 Sobol 做 5-10 次初始实验
+2. 拟合高斯过程（GP）代理模型
+3. 用 EI 或 UCB 选择下一个实验点
+4. 重复步骤 2-3 直到收敛或预算用完`;
+  } else if (p.includes('sdl') || p.includes('自主') || p.includes('闭环') || p.includes('self-driving')) {
+    response = `## 课题 SDL 化分析
+
+**自动化程度评估**：
+- 合成步骤是否可标准化？（固相反应、溶胶-凝胶等较易自动化）
+- 表征是否可以原位/在线完成？（XRD、电导率测试等）
+- 数据是否可以自动采集和传输？
+
+**改造成本 vs 收益**：
+- 低投入：半自动化（自动取样 + 手动分析）
+- 中投入：全自动闭环（机器人 + 原位表征 + AI 决策）
+- 高投入：多站点云端 SDL 网络
+
+**推荐路径**：
+1. 先用 Honegumi 生成 BO 代码框架
+2. 用 self-driving-lab-demo 做光学模拟验证
+3. 逐步集成机器人硬件和表征设备`;
+  } else if (p.includes('钙钛矿') || p.includes('perovskite')) {
+    response = `## 钙钛矿合成优化建议
+
+**前驱体选择**：
+- ABX₃ 型：PbI₂ + MAI（有机-无机杂化）或 CsPbI₃（全无机）
+- 掺杂策略：Sn²⁺ 部分替代 Pb²⁺ 可降低毒性
+
+**关键参数空间**：
+- 退火温度：100–180°C（步长 10°C）
+- 退火时间：5–60 min（步长 5 min）
+- 前驱体浓度：0.5–2.0 M（步长 0.1 M）
+- 添加剂：DMSO 体积比 0–30%
+
+**目标函数**：
+- 最大化：PLQY、载流子寿命、器件效率
+- 最小化：缺陷密度、铅泄漏
+
+**表征建议**：
+- XRD（相纯度）、UV-Vis（带隙）、PL（缺陷态）
+- TGA（热稳定性）、SEM（形貌）`;
+  } else if (p.includes('电池') || p.includes('battery') || p.includes('电解液') || p.includes('electrolyte')) {
+    response = `## 电池材料优化建议
+
+**固态电解质**：
+- 硫化物：Li₆PS₅Cl（高离子电导率，但对水分敏感）
+- 氧化物：LLZO（稳定，但界面阻抗高）
+- NASICON：Li₁.₃Al₀.₃Ti₁.₇(PO₄)₃（综合性能均衡）
+
+**关键参数空间**：
+- 烧结温度：700–1200°C
+- 烧结时间：2–24 h
+- 掺杂比例：Al³⁺ 0–0.5 mol, Ta⁵⁺ 0–0.3 mol
+- 压片压力：50–400 MPa
+
+**目标函数**：
+- 最大化：离子电导率（室温 > 10⁻⁴ S/cm）
+- 最小化：电子电导率、界面阻抗
+
+**BO 工具推荐**：
+- 使用 BayBE 的混合参数类型支持（连续 + 分类）
+- 分类变量：合成方法（固相/溶胶-凝胶/熔融淬火）`;
+  } else {
+    response = `## 通用实验设计框架
+
+**步骤 1：明确研究问题**
+- 你的核心科学问题是什么？
+- 哪些参数可能影响因素？
+- 性能指标如何量化？
+
+**步骤 2：设计参数空间**
+- 列出所有相关参数（温度、时间、浓度、比例等）
+- 为每个参数设定合理的上下界
+- 区分连续参数和离散/分类参数
+
+**步骤 3：选择实验策略**
+- 预算 < 20 次：用 BO（推荐 EI 采集函数）
+- 预算 20-100 次：用 LHS 或 Sobol 做初始采样 + BO
+- 预算 > 100 次：全因子设计或自适应网格
+
+**步骤 4：执行与迭代**
+- 每次实验后更新 GP 模型
+- 监控收敛曲线
+- 如 GP 不确定性集中在小区域，可考虑缩小搜索空间`;
+  }
+
+  return response + '\n\n*（离线模式 — 配置 Deepseek API Key 以启用在线 AI）*';
+}
+
 // ===================== Quiz Panel =====================
 
 function QuizPanel() {
@@ -142,12 +253,15 @@ function BOSimulatorPanel() {
   const [gp, setGp] = useState<GaussianProcess | null>(null);
   const [acqType, setAcqType] = useState<'ei' | 'ucb'>('ei');
   const [kappa, setKappa] = useState(2.0);
+  const [xi, setXi] = useState(0.01);
+  const [lengthScale, setLengthScale] = useState(1.0);
+  const [showHyperPanel, setShowHyperPanel] = useState(false);
   const [gridData, setGridData] = useState<any>(null);
   const [isRunning, setIsRunning] = useState(false);
 
   // Initialize GP on case change
   useEffect(() => {
-    const newGp = new GaussianProcess(activeCase.lengthScale || 1.0, 1.0, 0.01);
+    const newGp = new GaussianProcess(lengthScale, 1.0, 0.01);
     setGp(newGp);
     setExperiments([]);
     setParamValues(activeCase.params.map((p) => p.default));
@@ -159,13 +273,13 @@ function BOSimulatorPanel() {
     if (!gp || experiments.length < 2) { setGridData(null); return; }
     const X = experiments.map((e) => e.params);
     const y = experiments.map((e) => e.result);
-    const gpCopy = new GaussianProcess(activeCase.lengthScale || 1.0, 1.0, 0.01);
+    const gpCopy = new GaussianProcess(lengthScale, 1.0, 0.01);
     gpCopy.fit(X, y);
 
     // Use first 2 params for visualization
     const grid = computeGPGrid(gpCopy, activeCase, paramValues, 0, 1, 25);
     setGridData(grid);
-  }, [experiments, activeCase, paramValues]);
+  }, [experiments, activeCase, paramValues, lengthScale]);
 
   const runExperiment = () => {
     if (!gp || isRunning) return;
@@ -179,7 +293,7 @@ function BOSimulatorPanel() {
       // Re-fit GP
       const X = newExps.map((e) => e.params);
       const y = newExps.map((e) => e.result);
-      const newGp = new GaussianProcess(activeCase.lengthScale || 1.0, 1.0, 0.01);
+      const newGp = new GaussianProcess(lengthScale, 1.0, 0.01);
       newGp.fit(X, y);
       setGp(newGp);
 
@@ -199,7 +313,7 @@ function BOSimulatorPanel() {
         for (const v1 of grids[0]) {
           for (const v2 of grids[1]) {
             const pred = newGp.predict([v1, v2]);
-            const acq = acqType === 'ei' ? expectedImprovement(pred.mean, pred.std, yBest) : upperConfidenceBound(pred.mean, pred.std, kappa);
+            const acq = acqType === 'ei' ? expectedImprovement(pred.mean, pred.std, yBest, xi) : upperConfidenceBound(pred.mean, pred.std, kappa);
             if (acq > bestVal) { bestVal = acq; bestParams = [v1, v2]; }
           }
         }
@@ -219,7 +333,7 @@ function BOSimulatorPanel() {
   };
 
   const reset = () => {
-    const newGp = new GaussianProcess(activeCase.lengthScale || 1.0, 1.0, 0.01);
+    const newGp = new GaussianProcess(lengthScale, 1.0, 0.01);
     setGp(newGp);
     setExperiments([]);
     setParamValues(activeCase.params.map((p) => p.default));
@@ -290,7 +404,38 @@ function BOSimulatorPanel() {
               </div>
             )}
 
-            <div className="flex gap-2">
+            {/* Hyperparameter panel (collapsible) */}
+            <div className="border-t border-[rgba(67,97,238,0.1)] pt-3 mt-3">
+              <button onClick={() => setShowHyperPanel(!showHyperPanel)} className="flex items-center gap-2 text-[10px] text-[#8a92a3] font-mono hover:text-[#d0d4dc] transition-colors">
+                <span className={`transition-transform ${showHyperPanel ? 'rotate-90' : ''}`}>▶</span>
+                超参数面板
+              </button>
+              {showHyperPanel && (
+                <div className="mt-2 space-y-2">
+                  {acqType === 'ei' && (
+                    <div>
+                      <div className="flex justify-between text-[10px] text-[#8a92a3] font-mono mb-0.5">
+                        <span>xi (EI exploration)</span><span className="text-[#00f5d4]">{xi.toFixed(2)}</span>
+                      </div>
+                      <input type="range" min="0" max="0.5" step="0.01" value={xi} onChange={(e) => setXi(parseFloat(e.target.value))}
+                        className="w-full h-1 bg-[rgba(67,97,238,0.2)] rounded-full appearance-none cursor-pointer accent-[#00f5d4]" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex justify-between text-[10px] text-[#8a92a3] font-mono mb-0.5">
+                      <span>length scale (kernel)</span><span className="text-[#00f5d4]">{lengthScale.toFixed(1)}</span>
+                    </div>
+                    <input type="range" min="0.1" max="5.0" step="0.1" value={lengthScale} onChange={(e) => setLengthScale(parseFloat(e.target.value))}
+                      className="w-full h-1 bg-[rgba(67,97,238,0.2)] rounded-full appearance-none cursor-pointer accent-[#00f5d4]" />
+                  </div>
+                  <p className="text-[9px] text-[#8a92a3] leading-tight">
+                    kappa 越大，UCB 越倾向探索未知区域；length scale 越大，GP 假设函数越平滑。
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2 mt-3">
               <button onClick={runExperiment} disabled={isRunning}
                 className="flex-1 btn-glow py-2 border border-[rgba(67,97,238,0.3)] text-[#00f5d4] text-xs font-mono rounded disabled:opacity-40">
                 {isRunning ? 'Computing GP...' : `Run Experiment #${experiments.length + 1}`}
@@ -445,7 +590,6 @@ function LLMPlannerPanel() {
 
   const handleSend = async () => {
     if (!query.trim() || streaming) return;
-    if (!apiKey) { setShowKeyInput(true); return; }
 
     const userMsg = { role: 'user', content: query };
     const newMessages = [...messages, userMsg];
@@ -453,6 +597,23 @@ function LLMPlannerPanel() {
     setQuery('');
     setStreaming(true);
 
+    // Offline mode: no API key
+    if (!apiKey) {
+      const offlineReply = offlineResponse(query);
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+      // Typewriter effect for offline response
+      let displayed = '';
+      const chars = offlineReply.split('');
+      for (let i = 0; i < chars.length; i++) {
+        displayed += chars[i];
+        setMessages((prev) => { const u = [...prev]; u[u.length - 1] = { role: 'assistant', content: displayed }; return u; });
+        await new Promise((r) => setTimeout(r, 15));
+      }
+      setStreaming(false);
+      return;
+    }
+
+    // Online mode: Deepseek API
     const allMessages = [
       { role: 'system', content: DEEPSEEK_SYSTEM_PROMPT },
       ...newMessages,
@@ -573,7 +734,14 @@ function LLMPlannerPanel() {
 }
 
 function formatMarkdown(text: string): string {
-  return text
+  // 先 escape 所有 HTML 标签，防止 XSS
+  let safe = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  // 再做 Markdown 转换（这些转换引入的 HTML 是安全的）
+  return safe
+    .replace(/&lt;h4&gt;(.*?)&lt;\/h4&gt;/g, '<h4 class="text-[#00f5d4] font-mono text-xs mt-2 mb-1">$1</h4>')
     .replace(/## (.*)/g, '<h4 class="text-[#00f5d4] font-mono text-xs mt-2 mb-1">$1</h4>')
     .replace(/### (.*)/g, '<h5 class="text-[#fee440] font-mono text-[10px] mt-1 mb-0.5">$1</h5>')
     .replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#d0d4dc]">$1</strong>')
@@ -582,12 +750,174 @@ function formatMarkdown(text: string): string {
     .replace(/\n/g, '<br/>');
 }
 
+// ===================== DOE Panel =====================
+
+import { generateRandom, generateLHS, generateSobol, generateFullFactorial, runRace, type RaceResult } from '../lib/doe_engine';
+
+const BRANIN_OPTIMAL = 0.3979;
+
+function DOEPanel() {
+  const [n, setN] = useState(30);
+  const [raceIters, setRaceIters] = useState(30);
+  const [raceResults, setRaceResults] = useState<RaceResult[] | null>(null);
+  const [racing, setRacing] = useState(false);
+
+  // Sampling data for visualization
+  const randomPts = generateRandom(n);
+  const lhsPts = generateLHS(n);
+  const sobolPts = generateSobol(n);
+  const ffPts = generateFullFactorial(n);
+
+  const makeScatter = (pts: number[][], name: string, color: string): any => ({
+    type: 'scatter', mode: 'markers', x: pts.map((p) => p[0]), y: pts.map((p) => p[1]),
+    name, marker: { size: 6, color, opacity: 0.8, line: { color: '#fff', width: 0.5 } },
+    hovertemplate: 'x: %{x:.3f}<br>y: %{y:.3f}<extra></extra>',
+  });
+
+  const samplingData = [
+    makeScatter(randomPts, 'Random', '#8a92a3'),
+    makeScatter(lhsPts, 'LHS', '#00f5d4'),
+    makeScatter(sobolPts, 'Sobol', '#fee440'),
+    makeScatter(ffPts, 'Full Factorial', '#4361ee'),
+  ];
+
+  const samplingLayout = {
+    grid: { rows: 2, columns: 2, pattern: 'independent' },
+    showlegend: false,
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#d0d4dc', size: 10, family: 'JetBrains Mono, monospace' },
+    xaxis: { domain: [0, 0.45], title: { text: 'x₁' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    yaxis: { domain: [0.55, 1], title: { text: 'x₂' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    xaxis2: { domain: [0.55, 1], title: { text: 'x₁' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    yaxis2: { domain: [0.55, 1], anchor: 'x2', title: { text: 'x₂' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    xaxis3: { domain: [0, 0.45], title: { text: 'x₁' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    yaxis3: { domain: [0, 0.4], anchor: 'x3', title: { text: 'x₂' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    xaxis4: { domain: [0.55, 1], title: { text: 'x₁' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    yaxis4: { domain: [0, 0.4], anchor: 'x4', title: { text: 'x₂' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    annotations: [
+      { x: 0.22, y: 1.0, xref: 'paper', yref: 'paper', text: '<b>Random</b>', showarrow: false, font: { size: 11, color: '#8a92a3' } },
+      { x: 0.78, y: 1.0, xref: 'paper', yref: 'paper', text: '<b>LHS</b>', showarrow: false, font: { size: 11, color: '#00f5d4' } },
+      { x: 0.22, y: 0.45, xref: 'paper', yref: 'paper', text: '<b>Sobol</b>', showarrow: false, font: { size: 11, color: '#fee440' } },
+      { x: 0.78, y: 0.45, xref: 'paper', yref: 'paper', text: '<b>Full Factorial</b>', showarrow: false, font: { size: 11, color: '#4361ee' } },
+    ],
+    margin: { t: 20, r: 20, b: 40, l: 50 },
+    hoverlabel: { bgcolor: 'rgba(6,22,42,0.95)', bordercolor: 'rgba(0,245,212,0.3)', font: { size: 10 } },
+  };
+
+  const startRace = () => {
+    setRacing(true);
+    setRaceResults(null);
+    setTimeout(() => {
+      const strategies: { name: string; key: 'bo' | 'random' | 'lhs' | 'sobol'; color: string }[] = [
+        { name: 'BO (EI)', key: 'bo', color: '#00f5d4' },
+        { name: 'Random', key: 'random', color: '#8a92a3' },
+        { name: 'LHS', key: 'lhs', color: '#fee440' },
+        { name: 'Sobol', key: 'sobol', color: '#4361ee' },
+      ];
+      const results: RaceResult[] = strategies.map((s) => {
+        const bestValues = runRace(s.key, raceIters);
+        return { name: s.name, color: s.color, bestValues, finalBest: bestValues[bestValues.length - 1] };
+      });
+      // Rank by final best
+      results.sort((a, b) => b.finalBest - a.finalBest);
+      setRaceResults(results);
+      setRacing(false);
+    }, 100);
+  };
+
+  const racePlotData = raceResults
+    ? raceResults.map((r) => ({
+        type: 'scatter', mode: 'lines', x: Array.from({ length: r.bestValues.length }, (_, i) => i + 1),
+        y: r.bestValues, name: r.name, line: { color: r.color, width: 2 },
+      }))
+    : [];
+
+  const racePlotLayout = {
+    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#d0d4dc', size: 11, family: 'JetBrains Mono, monospace' },
+    xaxis: { title: { text: '实验次数' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    yaxis: { title: { text: '累计最优值' }, gridcolor: 'rgba(67,97,238,0.1)', zerolinecolor: 'rgba(67,97,238,0.15)' },
+    shapes: raceResults ? [{
+      type: 'line' as const, x0: 1, x1: raceIters, y0: BRANIN_OPTIMAL, y1: BRANIN_OPTIMAL,
+      line: { color: 'rgba(255,107,107,0.5)', width: 1, dash: 'dash' as const },
+    }] : [],
+    annotations: raceResults ? [{
+      x: raceIters, y: BRANIN_OPTIMAL, xref: 'x', yref: 'y', text: `全局最优 ${BRANIN_OPTIMAL}`,
+      showarrow: false, ax: 0, ay: -10, font: { size: 9, color: '#ff6b6b' },
+    }] : [],
+    legend: { font: { size: 9 }, x: 0.02, y: 0.98, bgcolor: 'rgba(6,22,42,0.7)' },
+    margin: { t: 30, r: 20, b: 50, l: 60 },
+    hoverlabel: { bgcolor: 'rgba(6,22,42,0.95)', bordercolor: 'rgba(0,245,212,0.3)', font: { size: 10 } },
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Sampling comparison */}
+      <div className="glass-panel p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-[10px] text-[#00f5d4] font-mono tracking-wider">SAMPLING COMPARISON</div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[#8a92a3] font-mono">n = {n}</span>
+            <input type="range" min="10" max="100" step="5" value={n} onChange={(e) => setN(parseInt(e.target.value))}
+              className="w-32 h-1 bg-[rgba(67,97,238,0.2)] rounded-full appearance-none cursor-pointer accent-[#00f5d4]" />
+          </div>
+        </div>
+        <Suspense fallback={<div className="text-xs text-[#8a92a3] text-center py-12">Loading Plotly...</div>}>
+          <Plot data={samplingData} layout={samplingLayout} config={{ responsive: true, displayModeBar: false }} style={{ width: '100%', height: 400 }} />
+        </Suspense>
+        <p className="text-[10px] text-[#8a92a3] mt-2 leading-relaxed">
+          LHS 和 Sobol 的采样更均匀地覆盖参数空间，Random 容易出现聚集和空白区域。在实验预算有限时，空间填充设计优于随机采样。
+        </p>
+      </div>
+
+      {/* Convergence race */}
+      <div className="glass-panel p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-[10px] text-[#00f5d4] font-mono tracking-wider">CONVERGENCE RACE</div>
+            <div className="text-[10px] text-[#8a92a3] font-mono">Branin 函数 — BO (EI) vs Random vs LHS vs Sobol</div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[#8a92a3] font-mono">iter = {raceIters}</span>
+            <input type="range" min="10" max="100" step="5" value={raceIters} onChange={(e) => setRaceIters(parseInt(e.target.value))}
+              className="w-24 h-1 bg-[rgba(67,97,238,0.2)] rounded-full appearance-none cursor-pointer accent-[#00f5d4]" />
+            <button onClick={startRace} disabled={racing}
+              className="btn-glow px-4 py-1.5 border border-[rgba(67,97,238,0.3)] text-[#00f5d4] text-xs font-mono rounded disabled:opacity-40">
+              {racing ? 'Running...' : '开始比赛'}
+            </button>
+          </div>
+        </div>
+        {raceResults ? (
+          <>
+            <Suspense fallback={<div className="text-xs text-[#8a92a3] text-center py-12">Loading Plotly...</div>}>
+              <Plot data={racePlotData} layout={racePlotLayout} config={{ responsive: true, displayModeBar: false }} style={{ width: '100%', height: 350 }} />
+            </Suspense>
+            <div className="mt-3 flex flex-wrap gap-3">
+              {raceResults.map((r, i) => (
+                <div key={r.name} className="flex items-center gap-2 glass-panel px-3 py-1.5">
+                  <span className="text-xs font-mono" style={{ color: r.color }}>#{i + 1}</span>
+                  <span className="text-xs text-[#d0d4dc] font-mono">{r.name}</span>
+                  <span className="text-xs text-[#fee440] font-mono">{r.finalBest.toFixed(3)}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="h-[200px] flex items-center justify-center text-xs text-[#8a92a3] font-mono">
+            点击"开始比赛"运行 Branin 函数上的策略对比
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ===================== Main Demo Section =====================
 
 export default function DemoSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-20%' });
-  const [activeTab, setActiveTab] = useState<'bo' | 'llm' | 'quiz'>('bo');
+  const [activeTab, setActiveTab] = useState<'bo' | 'llm' | 'quiz' | 'doe'>('bo');
 
   return (
     <section id="demos" ref={sectionRef} className="relative py-32 md:py-40" style={{ background: '#000d1d' }}>
@@ -603,6 +933,7 @@ export default function DemoSection() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="flex gap-2 mb-8">
           {[
             { key: 'bo' as const, label: 'BO 模拟器', labelEn: 'Bayesian Optimization · 7 Cases' },
+            { key: 'doe' as const, label: 'DOE 对比', labelEn: 'Sampling · Convergence Race' },
             { key: 'llm' as const, label: 'AI 规划助手', labelEn: 'Deepseek V3 · Streaming' },
             { key: 'quiz' as const, label: '知识测试', labelEn: 'Quiz · 5 Questions' },
           ].map((tab) => (
@@ -616,6 +947,7 @@ export default function DemoSection() {
 
         <AnimatePresence mode="wait">
           {activeTab === 'bo' && <motion.div key="bo" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><BOSimulatorPanel /></motion.div>}
+          {activeTab === 'doe' && <motion.div key="doe" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><DOEPanel /></motion.div>}
           {activeTab === 'llm' && <motion.div key="llm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><LLMPlannerPanel /></motion.div>}
           {activeTab === 'quiz' && <motion.div key="quiz" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="max-w-2xl mx-auto"><QuizPanel /></motion.div>}
         </AnimatePresence>

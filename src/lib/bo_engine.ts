@@ -34,7 +34,7 @@ export interface GPPosterior {
 export class GaussianProcess {
   private X: number[][] = [];
   private y: number[] = [];
-  private lengthScale: number;
+  public lengthScale: number;
   private sigmaF: number;
   private noise: number;
   private Kinv: Matrix | null = null;
@@ -299,6 +299,33 @@ export const liveCases: LiveCase[] = [
     ylabel: '光照 (mW/cm²)',
     domain: [[10, 90], [10, 200], [1, 12]],
     lengthScale: 0.2,
+  },
+  {
+    id: 'snar_pareto',
+    name: 'SnAr 多目标优化',
+    nameEn: 'SnAr Multi-objective',
+    description: '核取代芳香反应：同时优化产率（最大化）和 E-factor（最小化，即环境因子 = 废料质量/产品质量）。展示 Pareto 前沿。',
+    params: [
+      { name: '停留时间', nameEn: 'Residence Time', unit: 'min', min: 1, max: 10, step: 0.5, default: 5 },
+      { name: '温度', nameEn: 'Temperature', unit: '°C', min: 60, max: 130, step: 1, default: 90 },
+    ],
+    objectiveFn: ([time, temp]) => {
+      const t = (time - 1) / 9;
+      const T = (temp - 60) / 70;
+      // Yield peaks at middle temp + longer time
+      const yield_ = 85 * Math.exp(-((t - 0.7) ** 2 + (T - 0.6) ** 2) / 0.15) + 15 * t * T * 10;
+      // E-factor: lower is better (minimize)
+      // High yield + low temp → low E-factor
+      const eFactor = 50 * (1 - t * 0.3) * (1 + T * 0.5) + gaussianRandom(0, 3);
+      // Combined scalarization: maximize yield - 0.5 * eFactor
+      return Math.max(0, yield_ - 0.5 * Math.max(0, eFactor));
+    },
+    noise: 3,
+    unit: '综合得分',
+    xlabel: '停留时间 (min)',
+    ylabel: '温度 (°C)',
+    domain: [[1, 10], [60, 130]],
+    lengthScale: 0.3,
   },
 ];
 

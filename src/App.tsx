@@ -1,4 +1,5 @@
 import SideNav from './components/SideNav';
+import MobileNav from './components/MobileNav';
 import HomeSection from './sections/HomeSection';
 import BackgroundSection from './sections/BackgroundSection';
 import ConceptSection from './sections/ConceptSection';
@@ -11,6 +12,7 @@ export default function App() {
   return (
     <div className="relative" style={{ background: '#000d1d' }}>
       <SideNav />
+      <MobileNav />
       <HomeSection />
       <BackgroundSection />
       <ConceptSection />
