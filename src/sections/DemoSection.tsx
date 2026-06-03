@@ -3,7 +3,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { GaussianProcess, liveCases, expectedImprovement, upperConfidenceBound, computeGPGrid, gaussianRandom, type LiveCase } from '../lib/bo_engine';
 import { generateRandom, generateLHS, generateSobol, generateFullFactorial, runRace, type RaceResult } from '../lib/doe_engine';
 import { quizQuestions } from '../data/quiz_data';
-const Plot = lazy(() => import('react-plotly.js'));
+const Plot = lazy(() => import('../components/PlotlyChart'));
 
 // ===================== Deepseek API =====================
 
