@@ -1,62 +1,71 @@
+// ==================== Seeded PRNG ====================
+
+export function mulberry32(seed: number) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 // ==================== DOE Sampling Methods ====================
 
-export function generateRandom(n: number): number[][] {
-  return Array.from({ length: n }, () => [Math.random(), Math.random()]);
+export function generateRandom(n: number, dims: number, seed = 42): number[][] {
+  const rng = mulberry32(seed);
+  return Array.from({ length: n }, () =>
+    Array.from({ length: dims }, () => rng())
+  );
 }
 
-export function generateLHS(n: number): number[][] {
-  // Latin Hypercube Sampling: divide each dimension into n bins
-  // Permute so each row/column gets exactly one point
-  const dim1 = shuffle(Array.from({ length: n }, (_, i) => i));
-  const dim2 = shuffle(Array.from({ length: n }, (_, i) => i));
-
-  return Array.from({ length: n }, (_, i) => [
-    (dim1[i] + Math.random()) / n,
-    (dim2[i] + Math.random()) / n,
-  ]);
-}
-
-export function generateSobol(n: number): number[][] {
-  // Van der Corput / Sobol-like low-discrepancy sequence
-  const points: number[][] = [];
+export function generateLHS(n: number, dims: number, seed = 42): number[][] {
+  const rng = mulberry32(seed);
+  const result: number[][] = [];
+  const perms = Array.from({ length: dims }, () => {
+    const arr = Array.from({ length: n }, (_, i) => i);
+    // Fisher-Yates shuffle
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  });
   for (let i = 0; i < n; i++) {
-    points.push([vdc(i + 1, 2), vdc(i + 1, 3)]);
+    result.push(perms.map((perm) => (perm[i] + rng()) / n));
   }
-  return points;
+  return result;
 }
 
-export function generateFullFactorial(n: number): number[][] {
-  // sqrt(n) x sqrt(n) grid
-  const m = Math.ceil(Math.sqrt(n));
+export function generateSobol(n: number, dims: number): number[][] {
+  // Van der Corput sequence for each dimension with different bases
+  const bases = [2, 3, 5, 7, 11, 13];
+  function vanDerCorput(index: number, base: number): number {
+    let result = 0, denom = 1;
+    let i = index;
+    while (i > 0) {
+      denom *= base;
+      result += (i % base) / denom;
+      i = Math.floor(i / base);
+    }
+    return result;
+  }
+  return Array.from({ length: n }, (_, i) =>
+    Array.from({ length: dims }, (_, d) => vanDerCorput(i + 1, bases[d % bases.length]))
+  );
+}
+
+export function generateFullFactorial(n: number, dims: number): number[][] {
+  const perSide = Math.max(2, Math.round(Math.pow(n, 1 / dims)));
   const points: number[][] = [];
-  for (let i = 0; i < m && points.length < n; i++) {
-    for (let j = 0; j < m && points.length < n; j++) {
-      points.push([(i + 0.5) / m, (j + 0.5) / m]);
+  function recurse(current: number[], d: number) {
+    if (d === dims) { points.push([...current]); return; }
+    for (let i = 0; i < perSide; i++) {
+      current[d] = i / (perSide - 1);
+      recurse(current, d + 1);
     }
   }
-  return points;
-}
-
-// Fisher-Yates shuffle
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// Van der Corput sequence (base b)
-function vdc(n: number, b: number): number {
-  let x = 0;
-  let denom = 1;
-  while (n > 0) {
-    denom *= b;
-    x += (n % b) / denom;
-    n = Math.floor(n / b);
-  }
-  return x;
+  recurse([], 0);
+  return points.slice(0, n);
 }
 
 // ==================== Convergence Race ====================
@@ -66,7 +75,7 @@ import { GaussianProcess, expectedImprovement } from './bo_engine';
 export interface RaceResult {
   name: string;
   color: string;
-  bestValues: number[]; // cumulative best at each iteration
+  bestValues: number[];
   finalBest: number;
 }
 
@@ -87,7 +96,7 @@ export function runRace(strategy: 'bo' | 'random' | 'lhs' | 'sobol', nIter: numb
     for (let i = 0; i < nIter; i++) {
       let x: number[];
       if (i < 3) {
-        // Random initial points
+        // Random initial points in Branin domain
         x = [Math.random() * 15 - 5, Math.random() * 15];
       } else {
         // EI acquisition
@@ -113,14 +122,14 @@ export function runRace(strategy: 'bo' | 'random' | 'lhs' | 'sobol', nIter: numb
       results.push(i === 0 ? val : Math.max(results[i - 1], val));
     }
   } else if (strategy === 'lhs') {
-    const pts = generateLHS(nIter);
+    const pts = generateLHS(nIter, 2);
     for (let i = 0; i < nIter; i++) {
       const x = [pts[i][0] * 15 - 5, pts[i][1] * 15];
       const val = branin(x[0], x[1]) + (Math.random() - 0.5) * 0.5;
       results.push(i === 0 ? val : Math.max(results[i - 1], val));
     }
   } else if (strategy === 'sobol') {
-    const pts = generateSobol(nIter);
+    const pts = generateSobol(nIter, 2);
     for (let i = 0; i < nIter; i++) {
       const x = [pts[i][0] * 15 - 5, pts[i][1] * 15];
       const val = branin(x[0], x[1]) + (Math.random() - 0.5) * 0.5;

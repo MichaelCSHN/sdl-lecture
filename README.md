@@ -1,35 +1,69 @@
-# 🔬 自主实验室与闭环发现 — SDL 讲座交互式网页应用
+# Self-driving Labs Lecture App
 
-面向材料科学研究生的 2–3 小时专题讲座交互工具，以 A-Lab 为核心案例，系统讲解 Self-driving Labs 的概念、技术栈与前沿进展。
+Interactive web application for the "Autonomous Laboratory & Closed-loop Discovery" graduate lecture.
 
-## 功能模块
+## Features
 
-1. **首页** — 讲座概览 + 传统 vs SDL 效率对比
-2. **背景知识** — 实验史时间轴 + MSE 工序全景 + 交互式知识图谱（60+ 节点）
-3. **SDL 核心概念** — 闭环流程图 + 关键组件解析
-4. **A-Lab 案例** — 时间线 + 设备画廊 + 合成材料数据
-5. **互动演示** — 7 个 Live Cases 的 BO 仿真 + DOE 对比 + Deepseek LLM 实验规划 + Quiz
-6. **挑战与未来** — 局限性分析 + 课题 SDL 化评估
-7. **资源总结** — 论文 + 工具 + BibTeX 下载
+### 7 Interactive Modules
+1. **Hero** — Animated introduction with particle background and key metrics
+2. **Background** — Knowledge graph visualization, Wikipedia API integration, Bayesian optimization primer
+3. **Concept** — SDL architecture diagram (Mermaid), technology timeline, technology readiness levels
+4. **Case Study** — A-Lab deep dive with validation discussion and follow-up experiments
+5. **Interactive Demos** — 7 Live Cases with real Gaussian Process + Bayesian Optimization simulation
+   - BO Simulator with 8 live cases (Branin, Suzuki, Perovskite, RGB LED, Catalyst, Battery, CO2 reduction, SnAr)
+   - DOE comparison (Random, LHS, Sobol, Full Factorial) with visual sampling comparison
+   - BO vs DOE convergence race with animated chart
+   - AI Planning Assistant with Deepseek V3 API streaming + offline fallback
+   - SDL Decomposition mode — auto-decompose research topics into SDL components
+   - GP hyperparameter sensitivity visualization (lengthScale effects)
+   - Quiz with 5 questions
+6. **Challenges** — Technical challenges, solutions, and future outlook
+7. **Resources** — Key papers with BibTeX download, learning progress tracker, QR code generator
 
-## 技术栈
+### Technical Highlights
+- **Real Gaussian Process** implementation with RBF kernel, Cholesky inversion
+- **Bayesian Optimization** with EI and UCB acquisition functions
+- **Seeded PRNG** (mulberry32) for reproducible experiments
+- **DOE sampling engines** — Random, LHS, Sobol (Van der Corput), Full Factorial
+- **Deepseek V3 API** streaming with typewriter effect
+- **Offline LLM fallback** — keyword-based regex matching for offline mode
+- **XSS protection** — HTML escaping + Markdown formatting
+- **Mobile responsive** — bottom navigation for mobile devices
+- **Progress tracking** — intersection observer-based learning progress indicator
 
-React 19 + TypeScript + Vite 7 + Tailwind CSS + Framer Motion + Plotly.js + D3-force + Three.js
+## Tech Stack
 
-## 开发
+- React 19 + TypeScript + Vite 7
+- Tailwind CSS 3.4 + shadcn/ui components
+- Framer Motion (animations)
+- Plotly.js (scientific visualization)
+- D3-force (knowledge graph)
+- Mermaid (flow diagrams)
+- ml-matrix (linear algebra for GP)
+
+## Getting Started
 
 ```bash
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
-```
 
-## 部署
-
-```bash
+# Build for production
 npm run build
-# dist/ 目录可部署到 Vercel / Netlify / GitHub Pages
 ```
 
-## LLM 配置
+## Project Structure
 
-互动演示中的 AI 实验规划助手使用 Deepseek API。在应用内输入 API Key（仅存储在本地浏览器 localStorage 中）。无 Key 时自动切换到离线预设回答模式。
+```
+src/
+  sections/         — Page sections (Hero, Background, Concept, etc.)
+  components/       — Reusable components (MobileNav, QRCodeGenerator)
+  lib/              — Core algorithms (bo_engine.ts, doe_engine.ts)
+  data/             — Static data (quiz_data.ts)
+```
+
+## License
+
+MIT

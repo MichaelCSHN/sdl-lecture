@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { GaussianProcess, liveCases, expectedImprovement, upperConfidenceBound, computeGPGrid, type LiveCase } from '../lib/bo_engine';
+import { GaussianProcess, liveCases, expectedImprovement, upperConfidenceBound, computeGPGrid, gaussianRandom, type LiveCase } from '../lib/bo_engine';
+import { generateRandom, generateLHS, generateSobol, generateFullFactorial, runRace, type RaceResult } from '../lib/doe_engine';
 import { quizQuestions } from '../data/quiz_data';
 const Plot = lazy(() => import('react-plotly.js'));
 
@@ -62,115 +63,212 @@ const DEEPSEEK_SYSTEM_PROMPT = `你是一位材料科学领域的 AI 实验规�
 
 回复使用 Markdown 格式，保持专业但易懂的风格。`;
 
+const SDL_SYSTEM_PROMPT = `你是一位 Self-driving Lab (SDL) 系统设计专家。当用户输入一个研究课题时，你需要将其分解为完整的 SDL 组件：
+
+## 输出格式
+
+### 1. 研究目标 (Objective)
+- 明确的主要目标
+- 可量化的评价指标
+
+### 2. 实验参数 (Parameters)
+| 参数名 | 类型 | 搜索范围 | 说明 |
+列出所有可调参数
+
+### 3. 约束条件 (Constraints)
+- 物理/化学约束
+- 安全约束
+- 资源约束
+
+### 4. 建议方法 (Method)
+- 推荐的 BO 策略
+- 初始实验数量建议
+- 采集函数推荐
+
+### 5. 推荐工具 (Tools)
+- 开源框架推荐
+- 硬件平台建议
+
+保持专业、结构化、可操作的输出风格。`;
+
 function offlineResponse(prompt: string): string {
-  const p = prompt.toLowerCase();
-  let response = '';
+  const kw = prompt.toLowerCase();
+  if (/bo|bayesian|贝叶斯|优化|实验设计/.test(kw)) {
+    return `## 贝叶斯优化实验方案建议
 
-  if (p.includes('bo') || p.includes('bayesian') || p.includes('贝叶斯') || p.includes('优化')) {
-    response = `## 贝叶斯优化实验方案
+1. **定义搜索空间**：确定关键实验参数及其范围
+2. **初始采样**：使用 LHS 选取 5-10 个初始点
+3. **构建代理模型**：用 GP 拟合已有数据
+4. **选择采集函数**：推荐 Expected Improvement (EI)
+5. **迭代优化**：每轮根据采集函数推荐新实验点
 
-**目标函数设计**：
-- 明确你想要最大化/最小化的性能指标
-- 例如：导电率 → 最大化；合成时间 → 最小化
+**推荐工具**：BayBE（材料科学专用）、scikit-optimize、Ax/BoTorch
 
-**参数空间定义**：
-- 连续参数：温度、时间、浓度、比例等
-- 离散参数：催化剂类型、溶剂种类等
-- 设定合理的上下界（参考文献或预实验）
-
-**推荐工具**：
-- **BayBE**（Merck 开源，材料科学专用）
-- **Honegumi**（BO 代码生成器）
-- **Ax / BoTorch**（Meta 开源，工业级）
-
-**实验流程**：
-1. 用 LHS 或 Sobol 做 5-10 次初始实验
-2. 拟合高斯过程（GP）代理模型
-3. 用 EI 或 UCB 选择下一个实验点
-4. 重复步骤 2-3 直到收敛或预算用完`;
-  } else if (p.includes('sdl') || p.includes('自主') || p.includes('闭环') || p.includes('self-driving')) {
-    response = `## 课题 SDL 化分析
-
-**自动化程度评估**：
-- 合成步骤是否可标准化？（固相反应、溶胶-凝胶等较易自动化）
-- 表征是否可以原位/在线完成？（XRD、电导率测试等）
-- 数据是否可以自动采集和传输？
-
-**改造成本 vs 收益**：
-- 低投入：半自动化（自动取样 + 手动分析）
-- 中投入：全自动闭环（机器人 + 原位表征 + AI 决策）
-- 高投入：多站点云端 SDL 网络
-
-**推荐路径**：
-1. 先用 Honegumi 生成 BO 代码框架
-2. 用 self-driving-lab-demo 做光学模拟验证
-3. 逐步集成机器人硬件和表征设备`;
-  } else if (p.includes('钙钛矿') || p.includes('perovskite')) {
-    response = `## 钙钛矿合成优化建议
-
-**前驱体选择**：
-- ABX₃ 型：PbI₂ + MAI（有机-无机杂化）或 CsPbI₃（全无机）
-- 掺杂策略：Sn²⁺ 部分替代 Pb²⁺ 可降低毒性
-
-**关键参数空间**：
-- 退火温度：100–180°C（步长 10°C）
-- 退火时间：5–60 min（步长 5 min）
-- 前驱体浓度：0.5–2.0 M（步长 0.1 M）
-- 添加剂：DMSO 体积比 0–30%
-
-**目标函数**：
-- 最大化：PLQY、载流子寿命、器件效率
-- 最小化：缺陷密度、铅泄漏
-
-**表征建议**：
-- XRD（相纯度）、UV-Vis（带隙）、PL（缺陷态）
-- TGA（热稳定性）、SEM（形貌）`;
-  } else if (p.includes('电池') || p.includes('battery') || p.includes('电解液') || p.includes('electrolyte')) {
-    response = `## 电池材料优化建议
-
-**固态电解质**：
-- 硫化物：Li₆PS₅Cl（高离子电导率，但对水分敏感）
-- 氧化物：LLZO（稳定，但界面阻抗高）
-- NASICON：Li₁.₃Al₀.₃Ti₁.₇(PO₄)₃（综合性能均衡）
-
-**关键参数空间**：
-- 烧结温度：700–1200°C
-- 烧结时间：2–24 h
-- 掺杂比例：Al³⁺ 0–0.5 mol, Ta⁵⁺ 0–0.3 mol
-- 压片压力：50–400 MPa
-
-**目标函数**：
-- 最大化：离子电导率（室温 > 10⁻⁴ S/cm）
-- 最小化：电子电导率、界面阻抗
-
-**BO 工具推荐**：
-- 使用 BayBE 的混合参数类型支持（连续 + 分类）
-- 分类变量：合成方法（固相/溶胶-凝胶/熔融淬火）`;
-  } else {
-    response = `## 通用实验设计框架
-
-**步骤 1：明确研究问题**
-- 你的核心科学问题是什么？
-- 哪些参数可能影响因素？
-- 性能指标如何量化？
-
-**步骤 2：设计参数空间**
-- 列出所有相关参数（温度、时间、浓度、比例等）
-- 为每个参数设定合理的上下界
-- 区分连续参数和离散/分类参数
-
-**步骤 3：选择实验策略**
-- 预算 < 20 次：用 BO（推荐 EI 采集函数）
-- 预算 20-100 次：用 LHS 或 Sobol 做初始采样 + BO
-- 预算 > 100 次：全因子设计或自适应网格
-
-**步骤 4：执行与迭代**
-- 每次实验后更新 GP 模型
-- 监控收敛曲线
-- 如 GP 不确定性集中在小区域，可考虑缩小搜索空间`;
+*（离线模式 — 配置 Deepseek API Key 以启用在线 AI）*`;
   }
+  if (/sdl|自主|闭环|自驱动|实验室/.test(kw)) {
+    return `## 课题 SDL 化分析
 
-  return response + '\n\n*（离线模式 — 配置 Deepseek API Key 以启用在线 AI）*';
+**适合 SDL 的条件**：
+- 实验可自动化（称量、混合、加热等标准操作）
+- 参数空间明确（≤10 个连续/离散变量）
+- 评价指标可量化（产率、导电率、硬度等）
+- 单次实验耗时 < 24h
+
+**建议路线**：从最标准化的表征环节开始自动化，逐步扩展至合成。
+
+*（离线模式 — 配置 Deepseek API Key 以启用在线 AI）*`;
+  }
+  if (/钙钛矿|perovskite|太阳能|光伏/.test(kw)) {
+    return `## 钙钛矿研究 BO 建议
+
+**典型参数空间**：前体浓度、溶剂配比、退火温度/时间、添加剂种类
+
+**目标函数**：光电转换效率 (PCE) 或稳定性指标
+
+**推荐方案**：使用 BayBE 处理混合参数（分类+连续），10 个初始实验 + 20 轮 BO
+
+*（离线模式 — 配置 Deepseek API Key 以启用在线 AI）*`;
+  }
+  if (/电池|battery|电解|锂|lithium/.test(kw)) {
+    return `## 电池材料优化建议
+
+**关键参数**：电解液组成（EC/DMC/EMC 配比）、盐浓度、添加剂
+
+**目标**：离子电导率、电化学窗口、循环稳定性
+
+**多目标建议**：使用 Pareto 优化同时考虑电导率和稳定性
+
+*（离线模式 — 配置 Deepseek API Key 以启用在线 AI）*`;
+  }
+  // Default fallback
+  return `## 实验设计建议
+
+我可以帮你将这个课题转化为 Self-driving Lab 的工作流。请告诉我更多细节，例如：
+- 目标材料/体系
+- 可调参数范围
+- 评价指标
+
+或配置 Deepseek API Key 获取 AI 深度分析。`;
+}
+
+// SDL decomposition offline response
+function sdlOfflineResponse(prompt: string): string {
+  const kw = prompt.toLowerCase();
+  if (/钙钛矿|perovskite/.test(kw)) {
+    return `## SDL 分解：钙钛矿材料优化
+
+### 1. 研究目标
+- **主要目标**：最大化光电转换效率 (PCE)
+- **次要目标**：提升湿热稳定性 (T80 > 1000h)
+- **评价指标**：PCE (%)、Voc (V)、Jsc (mA/cm²)、FF (%)
+
+### 2. 实验参数
+| 参数 | 类型 | 搜索范围 | 说明 |
+|------|------|----------|------|
+| PbI₂ 浓度 | 连续 | 1.0–1.5 M | 前体溶液浓度 |
+| FAI 比例 | 连续 | 0.8–1.2 eq | 有机阳离子配比 |
+| 退火温度 | 连续 | 100–180 °C | 热退火条件 |
+| 退火时间 | 连续 | 10–60 min | |
+| 添加剂 | 分类 | MACl/PEAI/无 | 结晶调控剂 |
+| 溶剂配比 | 连续 | DMF:DMSO 4:1–8:1 | |
+
+### 3. 约束条件
+- PbI₂ 有毒，需在通风橱中操作
+- 退火温度 ≤ 200°C（基底限制）
+- 单次实验时间 < 4h
+
+### 4. 建议方法
+- **初始采样**：LHS 12 个点
+- **采集函数**：EI（纯探索）→ 后期切换 UCB
+- **批量大小**：每轮 3 个并行实验
+- **迭代次数**：30 轮
+
+### 5. 推荐工具
+- **框架**：BayBE、Honegumi
+- **自动化**：Chemotion ELN + 液体处理机器人
+- **表征**：太阳模拟器 + 自动换样器`;
+  }
+  if (/电池|battery|电解|锂|固态/.test(kw)) {
+    return `## SDL 分解：固态电池电解质优化
+
+### 1. 研究目标
+- **主要目标**：最大化离子电导率 (σ > 10⁻³ S/cm)
+- **次要目标**：最小化界面阻抗
+- **评价指标**：σ (S/cm)、电化学窗口 (V)、迁移数 t⁺
+
+### 2. 实验参数
+| 参数 | 类型 | 搜索范围 | 说明 |
+|------|------|----------|------|
+| LLZO 掺杂量 | 连续 | 0–15% | Al/Ta 掺杂 |
+| 烧结温度 | 连续 | 1000–1300°C | |
+| 烧结时间 | 连续 | 2–24 h | |
+| 压强 | 连续 | 100–500 MPa | 冷等静压 |
+
+### 3. 约束条件
+- 烧结温度受炉体限制
+- 锂空气敏感，需 Ar 气氛
+- 片厚 0.5–1.5 mm
+
+### 4. 建议方法
+- **初始采样**：Full Factorial 混合 LHS
+- **采集函数**：logEI（处理高动态范围）
+- **迭代**：20 轮
+
+### 5. 推荐工具
+- **框架**：Ax/BoTorch（支持分类变量）
+- **硬件**：压片机 + 管式炉自动系统`;
+  }
+  if (/催化|catalyst|co2|co₂|还原/.test(kw)) {
+    return `## SDL 分解：CO₂ 还原催化剂
+
+### 1. 研究目标
+- **主要目标**：最大化 CO 选择性 (> 90%)
+- **次要目标**：最小化过电位 (< 300 mV)
+- **评价指标**：FE_CO (%)、j_CO (mA/cm²)、过电位 η
+
+### 2. 实验参数
+| 参数 | 类型 | 搜索范围 | 说明 |
+|------|------|----------|------|
+| 金属配比 | 连续 | Cu:Ag 1:0–1:1 | 双金属催化剂 |
+| 负载量 | 连续 | 0.1–2.0 mg/cm² | |
+| 电解液浓度 | 连续 | 0.1–1.0 M | KHCO₃ |
+| 施加电位 | 连续 | -0.4 to -1.0 V | vs RHE |
+
+### 3. 约束条件
+- 电解液 pH 8–9（缓冲能力）
+- CO₂ 流量 20–100 sccm
+- 单池运行时间 < 6h（积碳问题）
+
+### 4. 建议方法
+- **多目标 BO**：Pareto 前沿搜索
+- **采集函数**：EHVI (Expected Hypervolume Improvement)
+- **批量**：每轮 4 个电位同时测试
+
+### 5. 推荐工具
+- **框架**：BoTorch (多目标)、Emukit
+- **在线分析**：GC 联用自动进样`;
+  }
+  return `## SDL 分解：通用框架
+
+### 1. 研究目标
+- 请明确你的核心优化指标（产量、效率、选择性等）
+
+### 2. 实验参数
+- 列出所有可调参数及其物理可行范围
+
+### 3. 约束条件
+- 安全、成本、时间限制
+
+### 4. 建议方法
+- **初始设计**：LHS 或 Sobol 序列
+- **采集函数**：推荐 EI 或 UCB
+- **迭代预算**：通常 20–50 轮
+
+### 5. 推荐工具
+- BayBE、Honegumi、Ax、HEBO
+
+*配置 Deepseek API Key 获取针对该课题的深度 SDL 分解。*`;
 }
 
 // ===================== Quiz Panel =====================
@@ -431,6 +529,10 @@ function BOSimulatorPanel() {
                   <p className="text-[9px] text-[#8a92a3] leading-tight">
                     kappa 越大，UCB 越倾向探索未知区域；length scale 越大，GP 假设函数越平滑。
                   </p>
+                  {/* GP lengthScale sensitivity visualization */}
+                  {experiments.length >= 2 && (
+                    <GPSensitivityViz experiments={experiments} activeCase={activeCase} />
+                  )}
                 </div>
               )}
             </div>
@@ -571,11 +673,6 @@ function useMemoPlotly(gridData: any, experiments: any[], activeCase: LiveCase) 
   }, [gridData, experiments, activeCase]);
 }
 
-function gaussianRandom(mean: number, std: number): number {
-  const u1 = Math.random(), u2 = Math.random();
-  return mean + std * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-}
-
 // ===================== LLM Planner Panel =====================
 
 function LLMPlannerPanel() {
@@ -584,6 +681,7 @@ function LLMPlannerPanel() {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [streaming, setStreaming] = useState(false);
   const [showKeyInput, setShowKeyInput] = useState(false);
+  const [sdlMode, setSdlMode] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages]);
@@ -599,7 +697,7 @@ function LLMPlannerPanel() {
 
     // Offline mode: no API key
     if (!apiKey) {
-      const offlineReply = offlineResponse(query);
+      const offlineReply = sdlMode ? sdlOfflineResponse(query) : offlineResponse(query);
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
       // Typewriter effect for offline response
       let displayed = '';
@@ -614,8 +712,9 @@ function LLMPlannerPanel() {
     }
 
     // Online mode: Deepseek API
+    const systemPrompt = sdlMode ? SDL_SYSTEM_PROMPT : DEEPSEEK_SYSTEM_PROMPT;
     const allMessages = [
-      { role: 'system', content: DEEPSEEK_SYSTEM_PROMPT },
+      { role: 'system', content: systemPrompt },
       ...newMessages,
     ];
 
@@ -641,7 +740,9 @@ function LLMPlannerPanel() {
     setShowKeyInput(false);
   };
 
-  const presets = ['寻找更高导电率的钙钛矿', '优化锂电池固态电解质', '探索CO2还原用高效催化剂', '设计宽带隙半导体材料'];
+  const chatPresets = ['寻找更高导电率的钙钛矿', '优化锂电池固态电解质', '探索CO2还原用高效催化剂', '设计宽带隙半导体材料'];
+  const sdlPresets = ['钙钛矿太阳能电池效率优化', '固态锂电池电解质设计', 'CO2电还原催化剂筛选', 'SnAr反应产率最大化'];
+  const presets = sdlMode ? sdlPresets : chatPresets;
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
@@ -688,11 +789,24 @@ function LLMPlannerPanel() {
         </div>
       )}
 
+      {/* Mode toggle */}
+      <div className="flex gap-2">
+        {[
+          { mode: false, label: 'Chat Mode' },
+          { mode: true, label: 'SDL Decompose' },
+        ].map((b) => (
+          <button key={String(b.mode)} onClick={() => { setSdlMode(b.mode); setMessages([]); }}
+            className={`flex-1 py-2 text-xs font-mono rounded border transition-all ${sdlMode === b.mode ? 'border-[#00f5d4] text-[#00f5d4] bg-[rgba(0,245,212,0.05)]' : 'border-[rgba(67,97,238,0.2)] text-[#8a92a3]'}`}>
+            {b.label}
+          </button>
+        ))}
+      </div>
+
       {/* Input */}
       <div className="flex gap-3">
         <div className="flex-1 relative">
           <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={apiKey ? '输入实验课题...' : '请先配置 Deepseek API Key'}
+            placeholder={sdlMode ? '输入研究课题进行 SDL 分解...' : '输入实验课题...'}
             disabled={streaming}
             className="w-full bg-[#0a1628] border border-[rgba(67,97,238,0.2)] rounded-lg px-4 py-3 text-sm text-[#d0d4dc] font-mono placeholder:text-[#8a92a3]/50 focus:border-[#00f5d4] outline-none disabled:opacity-50" />
         </div>
@@ -752,21 +866,16 @@ function formatMarkdown(text: string): string {
 
 // ===================== DOE Panel =====================
 
-import { generateRandom, generateLHS, generateSobol, generateFullFactorial, runRace, type RaceResult } from '../lib/doe_engine';
-
 const BRANIN_OPTIMAL = 0.3979;
 
-function DOEPanel() {
+function DOEComparisonPanel() {
   const [n, setN] = useState(30);
-  const [raceIters, setRaceIters] = useState(30);
-  const [raceResults, setRaceResults] = useState<RaceResult[] | null>(null);
-  const [racing, setRacing] = useState(false);
 
   // Sampling data for visualization
-  const randomPts = generateRandom(n);
-  const lhsPts = generateLHS(n);
-  const sobolPts = generateSobol(n);
-  const ffPts = generateFullFactorial(n);
+  const randomPts = generateRandom(n, 2);
+  const lhsPts = generateLHS(n, 2);
+  const sobolPts = generateSobol(n, 2);
+  const ffPts = generateFullFactorial(n, 2);
 
   const makeScatter = (pts: number[][], name: string, color: string): any => ({
     type: 'scatter', mode: 'markers', x: pts.map((p) => p[0]), y: pts.map((p) => p[1]),
@@ -804,6 +913,36 @@ function DOEPanel() {
     hoverlabel: { bgcolor: 'rgba(6,22,42,0.95)', bordercolor: 'rgba(0,245,212,0.3)', font: { size: 10 } },
   };
 
+  return (
+    <div className="space-y-6">
+      {/* Sampling comparison */}
+      <div className="glass-panel p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-[10px] text-[#00f5d4] font-mono tracking-wider">SAMPLING COMPARISON</div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[#8a92a3] font-mono">n = {n}</span>
+            <input type="range" min="10" max="100" step="5" value={n} onChange={(e) => setN(parseInt(e.target.value))}
+              className="w-32 h-1 bg-[rgba(67,97,238,0.2)] rounded-full appearance-none cursor-pointer accent-[#00f5d4]" />
+          </div>
+        </div>
+        <Suspense fallback={<div className="text-xs text-[#8a92a3] text-center py-12">Loading Plotly...</div>}>
+          <Plot data={samplingData} layout={samplingLayout} config={{ responsive: true, displayModeBar: false }} style={{ width: '100%', height: 400 }} />
+        </Suspense>
+        <p className="text-[10px] text-[#8a92a3] mt-2 leading-relaxed">
+          观察：LHS 和 Sobol 更均匀地覆盖参数空间，Random 容易出现聚集和空白区域。在实验预算有限时，空间填充设计优于随机采样。
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ===================== Race Panel =====================
+
+function RacePanel() {
+  const [raceIters, setRaceIters] = useState(30);
+  const [raceResults, setRaceResults] = useState<RaceResult[] | null>(null);
+  const [racing, setRacing] = useState(false);
+
   const startRace = () => {
     setRacing(true);
     setRaceResults(null);
@@ -818,7 +957,6 @@ function DOEPanel() {
         const bestValues = runRace(s.key, raceIters);
         return { name: s.name, color: s.color, bestValues, finalBest: bestValues[bestValues.length - 1] };
       });
-      // Rank by final best
       results.sort((a, b) => b.finalBest - a.finalBest);
       setRaceResults(results);
       setRacing(false);
@@ -842,7 +980,7 @@ function DOEPanel() {
       line: { color: 'rgba(255,107,107,0.5)', width: 1, dash: 'dash' as const },
     }] : [],
     annotations: raceResults ? [{
-      x: raceIters, y: BRANIN_OPTIMAL, xref: 'x', yref: 'y', text: `全局最优 ${BRANIN_OPTIMAL}`,
+      x: raceIters, y: BRANIN_OPTIMAL, xref: 'x', yref: 'y', text: `Global optimum ${BRANIN_OPTIMAL}`,
       showarrow: false, ax: 0, ay: -10, font: { size: 9, color: '#ff6b6b' },
     }] : [],
     legend: { font: { size: 9 }, x: 0.02, y: 0.98, bgcolor: 'rgba(6,22,42,0.7)' },
@@ -851,73 +989,123 @@ function DOEPanel() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Sampling comparison */}
-      <div className="glass-panel p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-[10px] text-[#00f5d4] font-mono tracking-wider">SAMPLING COMPARISON</div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-[#8a92a3] font-mono">n = {n}</span>
-            <input type="range" min="10" max="100" step="5" value={n} onChange={(e) => setN(parseInt(e.target.value))}
-              className="w-32 h-1 bg-[rgba(67,97,238,0.2)] rounded-full appearance-none cursor-pointer accent-[#00f5d4]" />
-          </div>
+    <div className="glass-panel p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <div className="text-[10px] text-[#00f5d4] font-mono tracking-wider">CONVERGENCE RACE</div>
+          <div className="text-[10px] text-[#8a92a3] font-mono">Branin 函数 — BO (EI) vs Random vs LHS vs Sobol</div>
         </div>
-        <Suspense fallback={<div className="text-xs text-[#8a92a3] text-center py-12">Loading Plotly...</div>}>
-          <Plot data={samplingData} layout={samplingLayout} config={{ responsive: true, displayModeBar: false }} style={{ width: '100%', height: 400 }} />
-        </Suspense>
-        <p className="text-[10px] text-[#8a92a3] mt-2 leading-relaxed">
-          LHS 和 Sobol 的采样更均匀地覆盖参数空间，Random 容易出现聚集和空白区域。在实验预算有限时，空间填充设计优于随机采样。
-        </p>
-      </div>
-
-      {/* Convergence race */}
-      <div className="glass-panel p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <div className="text-[10px] text-[#00f5d4] font-mono tracking-wider">CONVERGENCE RACE</div>
-            <div className="text-[10px] text-[#8a92a3] font-mono">Branin 函数 — BO (EI) vs Random vs LHS vs Sobol</div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-[#8a92a3] font-mono">iter = {raceIters}</span>
-            <input type="range" min="10" max="100" step="5" value={raceIters} onChange={(e) => setRaceIters(parseInt(e.target.value))}
-              className="w-24 h-1 bg-[rgba(67,97,238,0.2)] rounded-full appearance-none cursor-pointer accent-[#00f5d4]" />
-            <button onClick={startRace} disabled={racing}
-              className="btn-glow px-4 py-1.5 border border-[rgba(67,97,238,0.3)] text-[#00f5d4] text-xs font-mono rounded disabled:opacity-40">
-              {racing ? 'Running...' : '开始比赛'}
-            </button>
-          </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-[#8a92a3] font-mono">n = {raceIters}</span>
+          <input type="range" min="15" max="60" step="5" value={raceIters} onChange={(e) => setRaceIters(parseInt(e.target.value))}
+            className="w-24 h-1 bg-[rgba(67,97,238,0.2)] rounded-full appearance-none cursor-pointer accent-[#00f5d4]" />
+          <button onClick={startRace} disabled={racing}
+            className="btn-glow px-4 py-1.5 border border-[rgba(67,97,238,0.3)] text-[#00f5d4] text-xs font-mono rounded disabled:opacity-40">
+            {racing ? 'Running...' : '开始比赛'}
+          </button>
         </div>
-        {raceResults ? (
-          <>
-            <Suspense fallback={<div className="text-xs text-[#8a92a3] text-center py-12">Loading Plotly...</div>}>
-              <Plot data={racePlotData} layout={racePlotLayout} config={{ responsive: true, displayModeBar: false }} style={{ width: '100%', height: 350 }} />
-            </Suspense>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {raceResults.map((r, i) => (
-                <div key={r.name} className="flex items-center gap-2 glass-panel px-3 py-1.5">
-                  <span className="text-xs font-mono" style={{ color: r.color }}>#{i + 1}</span>
-                  <span className="text-xs text-[#d0d4dc] font-mono">{r.name}</span>
-                  <span className="text-xs text-[#fee440] font-mono">{r.finalBest.toFixed(3)}</span>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="h-[200px] flex items-center justify-center text-xs text-[#8a92a3] font-mono">
-            点击"开始比赛"运行 Branin 函数上的策略对比
-          </div>
-        )}
       </div>
+      {raceResults ? (
+        <>
+          <Suspense fallback={<div className="text-xs text-[#8a92a3] text-center py-12">Loading Plotly...</div>}>
+            <Plot data={racePlotData} layout={racePlotLayout} config={{ responsive: true, displayModeBar: false }} style={{ width: '100%', height: 350 }} />
+          </Suspense>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {raceResults.map((r, i) => (
+              <div key={r.name} className="flex items-center gap-2 glass-panel px-3 py-1.5">
+                <span className="text-xs font-mono" style={{ color: r.color }}>#{i + 1}</span>
+                <span className="text-xs text-[#d0d4dc] font-mono">{r.name}</span>
+                <span className="text-xs text-[#fee440] font-mono">{r.finalBest.toFixed(3)}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="h-[200px] flex items-center justify-center text-xs text-[#8a92a3] font-mono">
+          点击"开始比赛"运行 Branin 函数上的策略对比
+        </div>
+      )}
     </div>
   );
 }
 
 // ===================== Main Demo Section =====================
 
+// GP Sensitivity Visualization — shows how different lengthScale affects GP fit
+function GPSensitivityViz({ experiments, activeCase }: { experiments: { params: number[]; result: number }[]; activeCase: LiveCase }) {
+  const data = useMemo(() => {
+    const p0 = activeCase.params[0];
+    const fixedParams = activeCase.params.map((p) => p.default);
+    const xGrid = Array.from({ length: 50 }, (_, i) => p0.min + (i / 49) * (p0.max - p0.min));
+
+    const lengthScales = [0.3, 1.0, 3.0];
+    const colors = ['#ff6b6b', '#00f5d4', '#4361ee'];
+
+    const traces: any[] = [];
+    lengthScales.forEach((ls, idx) => {
+      const gp = new GaussianProcess(ls, 1.0, 0.01);
+      const X = experiments.map((e) => e.params);
+      const y = experiments.map((e) => e.result);
+      gp.fit(X, y);
+
+      const means: number[] = [];
+      const upper: number[] = [];
+      const lower: number[] = [];
+      xGrid.forEach((x) => {
+        const vec = [...fixedParams];
+        vec[0] = x;
+        const pred = gp.predict(vec);
+        means.push(pred.mean);
+        upper.push(pred.mean + 2 * pred.std);
+        lower.push(pred.mean - 2 * pred.std);
+      });
+
+      traces.push({
+        x: xGrid, y: means, type: 'scatter', mode: 'lines', name: `LS=${ls}`,
+        line: { color: colors[idx], width: 2 },
+        hovertemplate: `x: %{x:.1f}<br>mean: %{y:.2f}<extra>lengthScale=${ls}</extra>`,
+      });
+      traces.push({
+        x: [...xGrid, ...xGrid.slice().reverse()], y: [...upper, ...lower.slice().reverse()],
+        type: 'scatter', mode: 'lines', fill: 'toself', fillcolor: `${colors[idx]}15`, line: { width: 0 },
+        showlegend: false, hoverinfo: 'skip',
+      });
+    });
+
+    // Observed points projection on param 0
+    traces.push({
+      x: experiments.map((e) => e.params[0]), y: experiments.map((e) => e.result),
+      type: 'scatter', mode: 'markers', name: 'Observed',
+      marker: { size: 8, color: '#fee440', line: { color: '#fff', width: 1 } },
+    });
+
+    const layout = {
+      paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+      font: { color: '#8a92a3', size: 9, family: 'JetBrains Mono, monospace' },
+      xaxis: { title: { text: `${p0.name} (${p0.unit})`, font: { size: 9 } }, gridcolor: 'rgba(67,97,238,0.08)', tickfont: { size: 8 } },
+      yaxis: { title: { text: activeCase.unit, font: { size: 9 } }, gridcolor: 'rgba(67,97,238,0.08)', tickfont: { size: 8 } },
+      margin: { t: 10, r: 10, b: 35, l: 45 },
+      legend: { font: { size: 8 }, x: 0.02, y: 0.98, bgcolor: 'rgba(6,22,42,0.7)' },
+      height: 180,
+    };
+
+    return { traces, layout };
+  }, [experiments, activeCase]);
+
+  return (
+    <div className="mt-2">
+      <div className="text-[9px] text-[#8a92a3] font-mono mb-1">LENGTHSCALE SENSITIVITY (1D slice)</div>
+      <Suspense fallback={<div className="text-[9px] text-[#8a92a3] text-center py-4">Loading...</div>}>
+        <Plot data={data.traces} layout={data.layout} config={{ responsive: true, displayModeBar: false }} style={{ width: '100%', height: 180 }} />
+      </Suspense>
+    </div>
+  );
+}
+
 export default function DemoSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-20%' });
-  const [activeTab, setActiveTab] = useState<'bo' | 'llm' | 'quiz' | 'doe'>('bo');
+  const [activeTab, setActiveTab] = useState<'bo' | 'doe' | 'race' | 'llm' | 'quiz'>('bo');
 
   return (
     <section id="demos" ref={sectionRef} className="relative py-32 md:py-40" style={{ background: '#000d1d' }}>
@@ -933,7 +1121,8 @@ export default function DemoSection() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="flex gap-2 mb-8">
           {[
             { key: 'bo' as const, label: 'BO 模拟器', labelEn: 'Bayesian Optimization · 7 Cases' },
-            { key: 'doe' as const, label: 'DOE 对比', labelEn: 'Sampling · Convergence Race' },
+            { key: 'doe' as const, label: 'DOE 对比', labelEn: 'Design of Experiments' },
+            { key: 'race' as const, label: 'BO vs DOE', labelEn: 'Convergence Race' },
             { key: 'llm' as const, label: 'AI 规划助手', labelEn: 'Deepseek V3 · Streaming' },
             { key: 'quiz' as const, label: '知识测试', labelEn: 'Quiz · 5 Questions' },
           ].map((tab) => (
@@ -947,7 +1136,8 @@ export default function DemoSection() {
 
         <AnimatePresence mode="wait">
           {activeTab === 'bo' && <motion.div key="bo" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><BOSimulatorPanel /></motion.div>}
-          {activeTab === 'doe' && <motion.div key="doe" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><DOEPanel /></motion.div>}
+          {activeTab === 'doe' && <motion.div key="doe" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><DOEComparisonPanel /></motion.div>}
+          {activeTab === 'race' && <motion.div key="race" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><RacePanel /></motion.div>}
           {activeTab === 'llm' && <motion.div key="llm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><LLMPlannerPanel /></motion.div>}
           {activeTab === 'quiz' && <motion.div key="quiz" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="max-w-2xl mx-auto"><QuizPanel /></motion.div>}
         </AnimatePresence>

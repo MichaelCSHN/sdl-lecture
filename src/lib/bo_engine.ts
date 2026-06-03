@@ -1,4 +1,5 @@
 import { Matrix, inverse } from 'ml-matrix';
+import { mulberry32 } from './doe_engine';
 
 // ==================== Gaussian Process ====================
 
@@ -329,8 +330,14 @@ export const liveCases: LiveCase[] = [
   },
 ];
 
-function gaussianRandom(mean: number, std: number): number {
-  const u1 = Math.random(), u2 = Math.random();
+let _globalRng = mulberry32(42);
+
+export function setBORngSeed(seed: number) {
+  _globalRng = mulberry32(seed);
+}
+
+export function gaussianRandom(mean: number, std: number): number {
+  const u1 = Math.max(1e-10, _globalRng()), u2 = _globalRng();
   return mean + std * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
 }
 
@@ -345,29 +352,28 @@ export function computeGPGrid(
 ): { x: number[]; y: number[]; zMean: number[][]; zVar: number[][]; zEI: number[][] } {
   const p1 = case_.params[paramIdx1];
   const p2 = case_.params[paramIdx2];
-  const x: number[] = [];
-  const y: number[] = [];
+
+  // Pre-build full coordinate axes
+  const x = Array.from({ length: resolution }, (_, i) =>
+    p1.min + (i / (resolution - 1)) * (p1.max - p1.min)
+  );
+  const y = Array.from({ length: resolution }, (_, j) =>
+    p2.min + (j / (resolution - 1)) * (p2.max - p2.min)
+  );
+
   const zMean: number[][] = [];
   const zVar: number[][] = [];
   const zEI: number[][] = [];
-
   const yBest = Math.max(...(gp as any).y || [-Infinity]);
 
   for (let i = 0; i < resolution; i++) {
     const rowMean: number[] = [];
     const rowVar: number[] = [];
     const rowEI: number[] = [];
-    const vi = p1.min + (i / (resolution - 1)) * (p1.max - p1.min);
-    if (i === 0 || i === resolution - 1) x.push(vi);
-
     for (let j = 0; j < resolution; j++) {
-      const vj = p2.min + (j / (resolution - 1)) * (p2.max - p2.min);
-      if (i === 0) y.push(vj);
-
       const xVec = [...fixedValues];
-      xVec[paramIdx1] = vi;
-      xVec[paramIdx2] = vj;
-
+      xVec[paramIdx1] = x[i];
+      xVec[paramIdx2] = y[j];
       const pred = gp.predict(xVec);
       rowMean.push(pred.mean);
       rowVar.push(pred.std);
