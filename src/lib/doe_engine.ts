@@ -85,7 +85,8 @@ function branin(x1: number, x2: number): number {
   return -(a * (x2 - b * x1 * x1 + c * x1 - r) ** 2 + s * (1 - t) * Math.cos(x1) + s);
 }
 
-export function runRace(strategy: 'bo' | 'random' | 'lhs' | 'sobol', nIter: number): number[] {
+export function runRace(strategy: 'bo' | 'random' | 'lhs' | 'sobol', nIter: number, seed = 42): number[] {
+  const rng = mulberry32(seed);
   const results: number[] = [];
 
   if (strategy === 'bo') {
@@ -97,19 +98,19 @@ export function runRace(strategy: 'bo' | 'random' | 'lhs' | 'sobol', nIter: numb
       let x: number[];
       if (i < 3) {
         // Random initial points in Branin domain
-        x = [Math.random() * 15 - 5, Math.random() * 15];
+        x = [rng() * 15 - 5, rng() * 15];
       } else {
         // EI acquisition
         let bestEI = -Infinity;
         x = [0, 5];
         for (let s = 0; s < 300; s++) {
-          const cx = [Math.random() * 15 - 5, Math.random() * 15];
+          const cx = [rng() * 15 - 5, rng() * 15];
           const pred = gp.predict(cx);
           const ei = expectedImprovement(pred.mean, pred.std, Math.max(...y));
           if (ei > bestEI) { bestEI = ei; x = cx; }
         }
       }
-      const val = branin(x[0], x[1]) + (Math.random() - 0.5) * 0.5;
+      const val = branin(x[0], x[1]) + (rng() - 0.5) * 0.5;
       X.push(x);
       y.push(val);
       gp.fit(X, y);
@@ -117,22 +118,22 @@ export function runRace(strategy: 'bo' | 'random' | 'lhs' | 'sobol', nIter: numb
     }
   } else if (strategy === 'random') {
     for (let i = 0; i < nIter; i++) {
-      const x = [Math.random() * 15 - 5, Math.random() * 15];
-      const val = branin(x[0], x[1]) + (Math.random() - 0.5) * 0.5;
+      const x = [rng() * 15 - 5, rng() * 15];
+      const val = branin(x[0], x[1]) + (rng() - 0.5) * 0.5;
       results.push(i === 0 ? val : Math.max(results[i - 1], val));
     }
   } else if (strategy === 'lhs') {
-    const pts = generateLHS(nIter, 2);
+    const pts = generateLHS(nIter, 2, seed);
     for (let i = 0; i < nIter; i++) {
       const x = [pts[i][0] * 15 - 5, pts[i][1] * 15];
-      const val = branin(x[0], x[1]) + (Math.random() - 0.5) * 0.5;
+      const val = branin(x[0], x[1]) + (rng() - 0.5) * 0.5;
       results.push(i === 0 ? val : Math.max(results[i - 1], val));
     }
   } else if (strategy === 'sobol') {
     const pts = generateSobol(nIter, 2);
     for (let i = 0; i < nIter; i++) {
       const x = [pts[i][0] * 15 - 5, pts[i][1] * 15];
-      const val = branin(x[0], x[1]) + (Math.random() - 0.5) * 0.5;
+      const val = branin(x[0], x[1]) + (rng() - 0.5) * 0.5;
       results.push(i === 0 ? val : Math.max(results[i - 1], val));
     }
   }

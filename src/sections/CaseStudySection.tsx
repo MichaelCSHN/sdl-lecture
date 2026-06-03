@@ -28,6 +28,17 @@ function ValidationDiscussionPanel() {
         这是科学自我修正机制的正常运作，也提醒我们 SDL 产出仍需人类专家的审慎验证。
       </p>
 
+      {/* Always-visible external reference */}
+      <div className="mt-2">
+        <a href="https://www.chemistryworld.com/news/new-analysis-raises-doubts-over-autonomous-labs-materials-discoveries/4018791.article"
+           target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#f59e0b] font-mono hover:underline inline-flex items-center gap-1">
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+          </svg>
+          Chemistry World: 对 A-Lab 发现的再分析 →
+        </a>
+      </div>
+
       <AnimatePresence>
         {expanded && (
           <motion.div

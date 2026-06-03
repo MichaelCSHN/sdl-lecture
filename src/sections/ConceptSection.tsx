@@ -51,7 +51,6 @@ const NODES = [
 
 const SDL_MILESTONES = [
   { year: '2018', event: 'ChemOS 发布', desc: 'Aspuru-Guzik 组发表 SDL 编排软件（Science Robotics）' },
-  { year: '2018', event: 'Science Robotics 论文', desc: 'Aspuru-Guzik 组发表 ChemOS 原始论文' },
   { year: '2020', event: 'Olympus 基准框架', desc: 'SDL 实验数据集与基准测试平台' },
   { year: '2021', event: 'BayBE 开源', desc: 'Merck 发布材料科学专用 BO 工具箱' },
   { year: '2022', event: 'Honegumi 上线', desc: 'BO 代码生成器，专为实验科学设计' },
