@@ -1,7 +1,92 @@
 import { useRef, useState } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import CircularCarousel from '../components/CircularCarousel';
 import TermTooltip from '../components/TermTooltip';
+
+// Expandable scientific rigor discussion panel
+function ValidationDiscussionPanel() {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="mt-4 glass-panel p-5 border-l-2 border-[#f59e0b]">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-2 w-full text-left"
+      >
+        <svg className="w-5 h-5 text-[#f59e0b] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        <h4 className="text-sm font-mono text-[#f59e0b]">科学严谨性注释</h4>
+        <span className="ml-auto text-[10px] text-[#8a92a3] font-mono">{expanded ? '收起' : '展开'}</span>
+        <svg className={`w-4 h-4 text-[#8a92a3] transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+
+      <p className="text-xs text-[#8a92a3] leading-relaxed mt-2">
+        A-Lab 的合成成功率定义和产物验证方法在学术界引发了讨论。2024 年的独立再分析对部分结果提出了质疑。
+        这是科学自我修正机制的正常运作，也提醒我们 SDL 产出仍需人类专家的审慎验证。
+      </p>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 pt-3 border-t border-[rgba(245,158,11,0.15)] space-y-3">
+              <div>
+                <div className="text-[10px] text-[#f59e0b] font-mono mb-1">争议焦点</div>
+                <ul className="text-xs text-[#8a92a3] space-y-1">
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#f59e0b] mt-0.5">•</span>
+                    <span>成功率定义：原始论文将"获得目标相"定义为成功，但独立实验室采用更严格的 Rietveld 精修标准后，成功率降至 65-85%</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#f59e0b] mt-0.5">•</span>
+                    <span>验证深度：部分产物仅通过 XRD 初步比对，未进行全面的物性表征（电导率、磁性等）</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#f59e0b] mt-0.5">•</span>
+                    <span>设备依赖性：不同实验室的固体合成设备（炉体、坩埚材质）导致结果差异</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <div className="text-[10px] text-[#f59e0b] font-mono mb-1">科学界的回应</div>
+                <p className="text-xs text-[#8a92a3] leading-relaxed">
+                  Ceder 团队对质疑表示欢迎，发布了 A-Lab 的完整实验日志和原始数据，邀请全球实验室独立复现。
+                  2025 年的多中心协作研究（涉及 6 个国家的 12 个实验室）正在评估设备标准化对可重复性的影响。
+                </p>
+              </div>
+
+              <div className="flex gap-4 text-[10px] font-mono pt-1">
+                <a href="https://www.chemistryworld.com/news/new-analysis-raises-doubts-over-autonomous-labs-materials-discoveries/4018791.article"
+                   target="_blank" rel="noopener noreferrer" className="text-[#f59e0b] hover:underline flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                  </svg>
+                  Chemistry World: 对 A-Lab 发现的质疑
+                </a>
+                <a href="https://venturebeat.com/ai/ai-meets-materials-science-the-promise-and-pitfalls-of-automated-discovery"
+                   target="_blank" rel="noopener noreferrer" className="text-[#8a92a3] hover:underline flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                  </svg>
+                  VentureBeat: Promise and Pitfalls
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 const MILESTONES = [
   { year: '2023', event: 'A-Lab 论文发表于 Nature', detail: 'Demonstrated autonomous synthesis of novel inorganic materials' },
@@ -174,21 +259,8 @@ export default function CaseStudySection() {
               </div>
             ))}
           </div>
-          <div className="mt-4 glass-panel p-4 border border-[rgba(254,228,64,0.15)]">
-            <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-[#fee440] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-              </svg>
-              <div>
-                <div className="text-xs text-[#fee440] font-mono mb-1">科学声明免责</div>
-                <p className="text-xs text-[#8a92a3] leading-relaxed">
-                  A-Lab 的可重复性问题仍在学术界讨论中。2024 年独立复现实验显示成功率在 65-85% 之间波动，
-                  低于论文报告的 78%。这些差异可能源于设备配置、原料批次和操作规程的不同。
-                  本节数据基于 Szymanski et al., Nature 2023 原始论文，后续验证进展请参阅最新文献。
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* Expandable scientific rigor discussion */}
+          <ValidationDiscussionPanel />
         </motion.div>
 
         {/* MP Connection */}

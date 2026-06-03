@@ -57,6 +57,15 @@ const PAPERS = [
     highlight: false,
     bibtex: `@article{lo2024frugal,\n  title={Review of low-cost self-driving laboratories: The Frugal Twin concept},\n  author={Lo, S. and others},\n  journal={Digital Discovery},\n  year={2024},\n  publisher={Royal Society of Chemistry}\n}`,
   },
+  {
+    title: "New analysis raises doubts over autonomous lab's materials discoveries",
+    authors: 'Chemistry World (News)',
+    journal: 'Chemistry World, 2024',
+    doi: '',
+    url: 'https://www.chemistryworld.com/news/new-analysis-raises-doubts-over-autonomous-labs-materials-discoveries/4018791.article',
+    highlight: false,
+    bibtex: '',
+  },
 ];
 
 const TOOLS = [
