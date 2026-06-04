@@ -8,7 +8,7 @@
 The Lecture MVP is a static SPA deployed to Vercel. No server, no database, no
 backend — just static HTML/CSS/JS served from a CDN edge network.
 
-**Online URL**: [TBD — will be populated after first deploy]
+**Online URL**: https://sdl-lecture.vercel.app
 
 ## 2. Tech Stack (Deployment View)
 

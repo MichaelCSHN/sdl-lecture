@@ -5,7 +5,7 @@
 
 ## 1. Online Link
 
-**Production URL**: [TBD — will be populated after first deploy]
+**Production URL**: https://sdl-lecture.vercel.app
 
 ## 2. Lecture MVP Path (Main Routes)
 
