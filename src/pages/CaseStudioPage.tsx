@@ -38,8 +38,11 @@ function ColorSwatch({ r, g, b, label, size }: { r: number; g: number; b: number
 // ============================================================
 
 export default function CaseStudioPage() {
-  const [session, setSession] = useState<CaseSession>(() => new CaseSession(RGB_LED_CASE, 42));
+  const [session] = useState<CaseSession>(() => new CaseSession(RGB_LED_CASE, 42));
+  // Force re-render counter — avoids Object.assign prototype hacks
+  const [, setTick] = useState(0);
   const [lastRecords, setLastRecords] = useState<ExperimentRecord[]>([]);
+  const rerender = () => setTick((t) => t + 1);
 
   const rec = session.state.currentRecommendation;
   const bestObs = session.state.bestObservation;
@@ -53,31 +56,28 @@ export default function CaseStudioPage() {
 
   // Run 1 step
   const runOne = useCallback(() => {
-    const s = session;
-    s.recommend();
-    const r = s.state.currentRecommendation;
+    session.recommend();
+    const r = session.state.currentRecommendation;
     if (r) {
-      const record = s.observe(r.params);
+      const record = session.observe(r.params);
       setLastRecords([record]);
-      s.recommend(); // next recommendation
-      setSession(Object.assign(Object.create(CaseSession.prototype), s));
+      session.recommend(); // next recommendation
+      rerender();
     }
   }, [session]);
 
   // Run 5 steps
   const runFive = useCallback(() => {
-    const s = session;
-    const records = s.runSteps(5);
+    const records = session.runSteps(5);
     setLastRecords(records);
-    setSession(Object.assign(Object.create(CaseSession.prototype), s));
+    rerender();
   }, [session]);
 
   // Reset
   const doReset = useCallback(() => {
-    const s = session;
-    s.reset(42); // fixed seed 42
+    session.reset(42); // fixed seed 42
     setLastRecords([]);
-    setSession(Object.assign(Object.create(CaseSession.prototype), s));
+    rerender();
   }, [session]);
 
   // ============================================================

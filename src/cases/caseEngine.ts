@@ -258,16 +258,18 @@ export class CaseSession {
     acqValue: number
   ): string {
     if (this._state.history.length === 0) {
-      return `Initial exploration: no prior observations. Selected point from prior distribution (prior mean ~${predictedMean.toFixed(1)}, uncertainty ${predictedStd.toFixed(1)}).`;
+      return `[Initial] No prior data. The GP prior is essentially flat, so the first point is chosen quasi-randomly (seed=${this.seed}). This establishes the first observation for the model to learn from.`;
     }
+
     const isExploration = predictedStd > 5;
     const isExploitation = predictedMean > yBest && predictedStd < 3;
+
     if (isExploitation) {
-      return `Exploitation: high predicted value (${predictedMean.toFixed(1)}) with low uncertainty (std ${predictedStd.toFixed(1)}). Model is confident this region outperforms current best (${yBest.toFixed(1)}).`;
+      return `[Exploitation] The GP is confident (low uncertainty, std=${predictedStd.toFixed(1)}) that this region has high value. Predicted: ${predictedMean.toFixed(1)} > current best ${yBest.toFixed(1)}. The model chooses to refine a known-good region.`;
     }
     if (isExploration) {
-      return `Exploration: high uncertainty (std ${predictedStd.toFixed(1)}). Model is uncertain about this region — worth sampling to reduce uncertainty even though predicted mean (${predictedMean.toFixed(1)}) is moderate.`;
+      return `[Exploration] High model uncertainty here (std=${predictedStd.toFixed(1)}). The GP doesn't know this region well, so it deliberately samples here to learn more — even though the predicted mean (${predictedMean.toFixed(1)}) is moderate. This is the "explore vs. exploit" tradeoff in action.`;
     }
-    return `Balanced choice: predicted mean ${predictedMean.toFixed(1)}, std ${predictedStd.toFixed(1)}, EI = ${acqValue.toFixed(4)}. Current best = ${yBest.toFixed(1)}.`;
+    return `[Balanced] Predicted: ${predictedMean.toFixed(1)} ± ${predictedStd.toFixed(1)}. Expected Improvement = ${acqValue.toFixed(4)}. Current best = ${yBest.toFixed(1)}. The model balances the chance of finding a better point against the uncertainty of its prediction.`;
   }
 }
