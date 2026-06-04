@@ -24,6 +24,16 @@ export interface LedChannel {
   price: number;
   lifetime_hours: number;
   power_max_w: number;
+  /** 是否为伪荧光转换通道（教学级 emulator） */
+  isPhosphor?: boolean;
+  /** 荧光转换效率 (0-1)，仅 isPhosphor 通道有效 */
+  conversionEfficiency?: number;
+  /** 泵浦残余比例 (0-1)，仅 isPhosphor 通道有效 */
+  pumpLeakage?: number;
+  /** 宽带发射峰位 (nm)，仅 isPhosphor 通道有效 */
+  emissionPeak?: number;
+  /** 宽带发射 FWHM (nm)，仅 isPhosphor 通道有效 */
+  emissionFwhm?: number;
 }
 
 // ============================================================
@@ -144,9 +154,101 @@ export const LED_LIBRARY: LedChannel[] = [
 ];
 
 // ============================================================
+// Synthetic phosphor-converted channels (教学级 emulator)
+// ============================================================
+
+/**
+ * 伪荧光 LED SPD 模型:
+ *   SPD(lambda) = pump_leakage * Gauss(pump_peak, pump_fwhm)
+ *               + conversion_efficiency * Gauss(emission_peak, emission_fwhm)
+ *
+ * 这是课程级近似——不基于真实荧光粉传输模型。
+ * pump 峰模拟窄带 LED 泵浦，emission 峰模拟荧光粉宽带发射。
+ */
+function phosphorSpd(
+  pumpPeak: number, pumpFwhm: number,
+  emissionPeak: number, emissionFwhm: number,
+  efficiency: number, leakage: number,
+): number[] {
+  const sigmaPump = pumpFwhm / (2 * Math.sqrt(2 * Math.log(2)));
+  const sigmaEm = emissionFwhm / (2 * Math.sqrt(2 * Math.log(2)));
+  return WAVELENGTH_GRID.map((w) => {
+    const pump = Math.exp(-0.5 * ((w - pumpPeak) / sigmaPump) ** 2);
+    const em = Math.exp(-0.5 * ((w - emissionPeak) / sigmaEm) ** 2);
+    return leakage * pump + efficiency * em;
+  });
+}
+
+/** 合成伪荧光通道 */
+const PHOSPHOR_CHANNELS: LedChannel[] = [
+  {
+    id: 'pc-450-560', name: 'PC 450→560 nm (Blue→Yellow)', family: 'Phosphor',
+    peak_nm: 450, fwhm_nm: 18,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(450, 18, 560, 100, 0.75, 0.05),
+    price: 8.0, lifetime_hours: 25000, power_max_w: 1.0,
+    isPhosphor: true, conversionEfficiency: 0.75, pumpLeakage: 0.05,
+    emissionPeak: 560, emissionFwhm: 100,
+  },
+  {
+    id: 'pc-450-580', name: 'PC 450→580 nm (Blue→Amber)', family: 'Phosphor',
+    peak_nm: 450, fwhm_nm: 18,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(450, 18, 580, 110, 0.72, 0.05),
+    price: 8.5, lifetime_hours: 22000, power_max_w: 1.0,
+    isPhosphor: true, conversionEfficiency: 0.72, pumpLeakage: 0.05,
+    emissionPeak: 580, emissionFwhm: 110,
+  },
+  {
+    id: 'pc-420-540', name: 'PC 420→540 nm (Violet→Green)', family: 'Phosphor',
+    peak_nm: 420, fwhm_nm: 15,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(420, 15, 540, 95, 0.70, 0.06),
+    price: 9.0, lifetime_hours: 20000, power_max_w: 0.8,
+    isPhosphor: true, conversionEfficiency: 0.70, pumpLeakage: 0.06,
+    emissionPeak: 540, emissionFwhm: 95,
+  },
+  {
+    id: 'pc-450-650', name: 'PC 450→650 nm (Blue→Deep Red)', family: 'Phosphor',
+    peak_nm: 450, fwhm_nm: 18,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(450, 18, 650, 90, 0.65, 0.08),
+    price: 10.0, lifetime_hours: 18000, power_max_w: 0.7,
+    isPhosphor: true, conversionEfficiency: 0.65, pumpLeakage: 0.08,
+    emissionPeak: 650, emissionFwhm: 90,
+  },
+  {
+    id: 'pc-470-750', name: 'PC 470→750 nm (Blue→NIR)', family: 'Phosphor',
+    peak_nm: 470, fwhm_nm: 20,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(470, 20, 750, 130, 0.55, 0.10),
+    price: 15.0, lifetime_hours: 12000, power_max_w: 0.4,
+    isPhosphor: true, conversionEfficiency: 0.55, pumpLeakage: 0.10,
+    emissionPeak: 750, emissionFwhm: 130,
+  },
+  {
+    id: 'pc-470-850', name: 'PC 470→850 nm (Blue→Deep NIR)', family: 'Phosphor',
+    peak_nm: 470, fwhm_nm: 20,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(470, 20, 850, 150, 0.45, 0.12),
+    price: 18.0, lifetime_hours: 10000, power_max_w: 0.3,
+    isPhosphor: true, conversionEfficiency: 0.45, pumpLeakage: 0.12,
+    emissionPeak: 850, emissionFwhm: 150,
+  },
+];
+
+export const FULL_LED_LIBRARY: LedChannel[] = [...LED_LIBRARY, ...PHOSPHOR_CHANNELS];
+
+// ============================================================
 // LED 数据口径说明（展示在 UI 中的固定文本）
 // ============================================================
 
 export const LED_DISCLAIMER =
-  '课程教学与方案演示用 LED 库。光谱基于 Gaussian 模型（峰位+FWHM），' +
+  '课程教学与方案演示用 LED 库。窄带 LED 光谱基于 Gaussian 模型（峰位+FWHM），' +
+  '伪荧光 (PC) 通道为 pump+emission 双峰课程级近似。' +
   '价格与寿命为典型参考值。不是采购级器件数据库。';
+
+export const PHOSPHOR_DISCLAIMER =
+  'Synthetic phosphor-converted (PC) 通道为教学级 emulator。' +
+  '采用双 Gaussian（pump + emission）近似，不基于真实荧光粉传输模型。' +
+  'pump leakage 与 conversion efficiency 为教学参考值。';
