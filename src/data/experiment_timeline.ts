@@ -5,6 +5,8 @@ export interface TimelineEvent {
   description: string;
   descriptionEn: string;
   category: 'observation' | 'methodology' | 'institution' | 'technology' | 'paradigm';
+  /** optional link to related content page */
+  route?: string;
 }
 
 export const experimentTimeline: TimelineEvent[] = [
@@ -119,6 +121,7 @@ export const experimentTimeline: TimelineEvent[] = [
     description: 'Jim Gray 提出科学研究的第四范式：数据密集型科学发现',
     descriptionEn: 'Jim Gray proposed the Fourth Paradigm of scientific research: data-intensive scientific discovery',
     category: 'paradigm',
+    route: '/paradigms#jim-gray',
   },
   {
     year: '2011',
@@ -151,6 +154,7 @@ export const experimentTimeline: TimelineEvent[] = [
     description: 'AI 自主实验被视为潜在的科学第五范式',
     descriptionEn: 'AI autonomous experimentation is discussed as a potential fifth paradigm of science',
     category: 'paradigm',
+    route: '/paradigms#fifth-paradigm',
   },
   {
     year: '2026',

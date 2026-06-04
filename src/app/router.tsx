@@ -8,6 +8,7 @@ import CaseStudioPage from '@/pages/CaseStudioPage';
 import MethodsPage from '@/pages/MethodsPage';
 import DesignStudioPage from '@/pages/DesignStudioPage';
 import ResourcesPage from '@/pages/ResourcesPage';
+import ParadigmsPage from '@/pages/ParadigmsPage';
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'course', element: <CoursePage /> },
       { path: 'foundations', element: <FoundationsPage /> },
+      { path: 'paradigms', element: <ParadigmsPage /> },
       { path: 'a-lab', element: <ALabPage /> },
       { path: 'case-studio', element: <CaseStudioPage /> },
       { path: 'methods', element: <MethodsPage /> },

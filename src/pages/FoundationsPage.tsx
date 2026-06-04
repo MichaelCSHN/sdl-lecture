@@ -172,166 +172,35 @@ export default function FoundationsPage() {
           </p>
         </div>
 
-        {/* 科学范式专题 */}
+        {/* 科学范式 → 独立页面链接 */}
         <div className="mb-8" id="sec-science-paradigms">
-          <div className="flex items-center gap-3 mb-5">
-            <span className="text-xs text-[#f59e0b] font-mono tracking-wider">▸</span>
-            <h3 className="text-base font-semibold text-[#d0d4dc]">科学范式：从 Kuhn 到 Gray 再到第五范式</h3>
-          </div>
-
-          <p className="text-xs text-[#8a92a3] leading-relaxed mb-5 max-w-3xl">
-            "范式"（Paradigm）是理解科学研究方式演化的核心概念。以下梳理从 Thomas Kuhn（托马斯·库恩）的
-            科学革命理论、Karl Popper（卡尔·波普尔）的可证伪性标准，到 Jim Gray 的四范式框架，以及当前
-            正在展开的"第五范式"（AI 驱动的自治科学）争论。
-          </p>
-
-          {/* Kuhn：范式转移 */}
-          <div className="glass-panel p-4 rounded-lg border border-[rgba(67,97,238,0.1)] mb-4">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-md bg-[rgba(254,68,0,0.1)] border border-[rgba(254,68,0,0.2)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-[10px] font-mono text-[#fee440]">K</span>
+          <div className="glass-panel p-5 rounded-lg border border-[rgba(0,245,212,0.12)]">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-md bg-[rgba(0,245,212,0.1)] border border-[rgba(0,245,212,0.2)] flex items-center justify-center flex-shrink-0">
+                <span className="text-sm font-mono text-[#00f5d4]">¶</span>
               </div>
-              <div>
-                <h4 className="text-sm font-semibold text-[#d0d4dc] mb-1">
-                  Thomas Kuhn（托马斯·库恩）—— 范式转移
-                </h4>
-                <p className="text-xs text-[#8a92a3] leading-relaxed mb-2">
-                  库恩在《科学革命的结构》（1962）中提出，科学不是线性积累的，而是通过<strong>范式转移</strong>
-                  （Paradigm Shift）跳跃式前进的。一个"范式"是一套被科学共同体接受的<strong>理论框架、方法论
-                  和问题解决范例</strong>。
-                </p>
-                <ul className="text-xs text-[#8a92a3] space-y-1 list-disc list-inside ml-2">
-                  <li><strong>常规科学</strong>：在既有范式内解谜——回答"已知框架中的未知问题"</li>
-                  <li><strong>反常积累</strong>：出现的异常现象无法被现有范式解释</li>
-                  <li><strong>危机</strong>：反常累积到动摇范式核心假设的程度</li>
-                  <li><strong>范式转移</strong>：新范式取代旧范式——这不是渐进改良，而是世界观的更替</li>
-                </ul>
-                <p className="text-[10px] text-[#5a6377] mt-2">
-                  对 SDL 的启示：从"人工实验"到"自治实验"是否构成一次范式转移？如果是，那么它改变的不只是
-                  工具效率，而是"什么是实验"和"谁（或什么）在做实验"的基本定义。
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Popper：可证伪性 */}
-          <div className="glass-panel p-4 rounded-lg border border-[rgba(67,97,238,0.1)] mb-4">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-md bg-[rgba(67,97,238,0.1)] border border-[rgba(67,97,238,0.2)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-[10px] font-mono text-[#4361ee]">P</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-[#d0d4dc] mb-1">
-                  Karl Popper（卡尔·波普尔）—— 可证伪性
-                </h4>
-                <p className="text-xs text-[#8a92a3] leading-relaxed mb-2">
-                  波普尔在《科学发现的逻辑》（1934）中提出，科学与非科学的划界标准不是"可证实"，而是
-                  <strong>可证伪</strong>（Falsifiability）。一个理论如果不可能被任何可能的观察所反驳，
-                  它就不是科学。
-                </p>
-                <ul className="text-xs text-[#8a92a3] space-y-1 list-disc list-inside ml-2">
-                  <li>科学命题必须冒被推翻的风险——越精确、越大胆的预测，越容易被证伪，科学价值也越高</li>
-                  <li>科学进步通过<strong>猜想与反驳</strong>：提出假说 → 严格检验 → 如果被推翻，提出新假说</li>
-                  <li>不可证伪的陈述（如"一切皆有因果"）可以是哲学，但不是经验科学</li>
-                </ul>
-                <p className="text-[10px] text-[#5a6377] mt-2">
-                  对 SDL 的启示：SDL 的产出——无论是"新材料的发现"还是"最优实验条件"——是否可被独立验证和
-                  潜在推翻？A-Lab 的争议（参见 A-Lab 案例档案第 05 节）本质上是一个"可证伪性"问题：
-                  SDL 的声称是否通过了独立实验室的严格检验？
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Jim Gray：四范式 */}
-          <div className="glass-panel p-4 rounded-lg border border-[rgba(0,245,212,0.12)] mb-4">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-md bg-[rgba(0,245,212,0.1)] border border-[rgba(0,245,212,0.2)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-[10px] font-mono text-[#00f5d4]">G</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-[#d0d4dc] mb-1">
-                  Jim Gray —— 科学四范式
-                </h4>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">
+                  科学范式：从 Kuhn 到 Gray 再到第五范式
+                </h3>
                 <p className="text-xs text-[#8a92a3] leading-relaxed mb-3">
-                  Jim Gray（吉姆·格雷，1944–2012，图灵奖得主）在 2007 年提出了科学研究方法论的四种范式，
-                  已成为科学方法论讨论的核心框架。
+                  什么是"范式"？Thomas Kuhn 的范式转移理论、Karl Popper 的可证伪性标准、
+                  Jim Gray 的科学四范式框架，以及正在展开的 AI/自治科学第五范式之争。
+                  本单元已扩展为独立页面，包含完整的理论梳理、案例分析和课堂讨论建议。
                 </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
-                  {[
-                    { num: '一', title: '实验科学', era: '古代–现在', desc: '通过观察和受控实验直接研究自然现象。伽利略的斜面实验、拉瓦锡的燃烧实验——实验至今仍是知识生产的最终检验。' },
-                    { num: '二', title: '理论科学', era: '17 世纪–现在', desc: '用数学模型和理论框架描述自然规律。牛顿力学、麦克斯韦方程——理论使预测成为可能，但需要实验验证。' },
-                    { num: '三', title: '计算科学', era: '20 世纪中后期–现在', desc: '用数值模拟解决无法解析求解的复杂问题。DFT 计算材料性质、分子动力学模拟——计算成为实验和理论之间的桥梁。' },
-                    { num: '四', title: '数据密集科学', era: '21 世纪–现在', desc: '以数据采集、管理和挖掘为中心。Materials Project、高通量筛选——从"假设驱动"到"数据驱动"，从精心设计单个实验到系统性地探索参数空间。' },
-                  ].map((p) => (
-                    <div key={p.num} className="p-3 rounded border border-[rgba(0,245,212,0.08)]">
-                      <div className="text-[10px] text-[#00f5d4] font-mono mb-0.5">
-                        第{p.num}范式 · {p.era}
-                      </div>
-                      <div className="text-xs text-[#d0d4dc] font-semibold mb-1">{p.title}</div>
-                      <div className="text-[10px] text-[#8a92a3] leading-relaxed">{p.desc}</div>
-                    </div>
-                  ))}
+                <div className="flex flex-wrap gap-2 text-[10px] font-mono mb-3">
+                  <span className="px-2 py-0.5 rounded bg-[rgba(254,68,0,0.06)] text-[#fee440] border border-[rgba(254,68,0,0.1)]">Kuhn · 范式转移</span>
+                  <span className="px-2 py-0.5 rounded bg-[rgba(67,97,238,0.06)] text-[#4361ee] border border-[rgba(67,97,238,0.1)]">Popper · 可证伪性</span>
+                  <span className="px-2 py-0.5 rounded bg-[rgba(0,245,212,0.06)] text-[#00f5d4] border border-[rgba(0,245,212,0.1)]">Gray · 四范式</span>
+                  <span className="px-2 py-0.5 rounded bg-[rgba(255,107,107,0.06)] text-[#ff6b6b] border border-[rgba(255,107,107,0.1)]">第五范式之争</span>
                 </div>
-                <p className="text-xs text-[#8a92a3] leading-relaxed mb-2">
-                  Gray 的核心洞见：当数据量增长到一定规模，科学研究的方法论发生了<strong>质变</strong>。
-                  数据不再是实验的副产品；数据本身成为科学探索的<strong>主体对象</strong>。
-                  第四范式的关键特征包括：数据密集型计算、统计分析驱动假说生成、从海量数据中发现模式而非
-                  从理论推导模式。
-                </p>
-                <div className="flex gap-3 text-[10px] font-mono">
-                  <span className="text-[#5a6377]">参考文献：</span>
-                  <a href="https://en.wikipedia.org/wiki/Jim_Gray_(computer_scientist)"
-                    target="_blank" rel="noopener noreferrer"
-                    className="text-[#00f5d4] hover:underline">
-                    Jim Gray（Wikipedia）
-                  </a>
-                  <a href="https://en.wikipedia.org/wiki/E-Science"
-                    target="_blank" rel="noopener noreferrer"
-                    className="text-[#00f5d4] hover:underline">
-                    eScience
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 第五范式之争 */}
-          <div className="glass-panel p-4 rounded-lg border border-[rgba(255,107,107,0.1)]">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-md bg-[rgba(255,107,107,0.1)] border border-[rgba(255,107,107,0.2)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-[10px] font-mono text-[#ff6b6b]">5</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-[#d0d4dc] mb-1">
-                  第五范式？—— 正在展开的争论
-                </h4>
-                <p className="text-xs text-[#8a92a3] leading-relaxed mb-2">
-                  近年来，AI for Science 的兴起催生了关于是否存在<strong>"第五范式"</strong>的讨论。
-                  这些讨论并非已有学术共识——而是正在展开的活跃争论。主要观点包括：
-                </p>
-                <div className="space-y-2 mb-3">
-                  {[
-                    { view: 'AI 驱动的科学发现', proponent: '多项研究报告与学术社论', desc: 'AI 自主生成假说、设计实验、分析结果、决定下一步——整个科学研究循环由 AI 驱动。代表系统：A-Lab、Coscientist、GNoME。这是否构成新的范式，取决于我们是否认为"决策权的转移"是范式级别的变化。' },
-                    { view: 'AI 不是独立范式，而是第四范式的延续', proponent: '部分科学哲学家', desc: 'AI/ML 本质上是处理大规模数据的工具。它们更应被视为第四范式（数据密集科学）的加速器，而非独立的范式。就像 Monte Carlo 模拟没有创造"第三点五范式"，AI 也可能不需要第五范式。' },
-                    { view: '范式框架本身可能需要重构', proponent: 'STS（科学技术研究）学者', desc: '四范式框架隐含了"后出现的范式更高级"的线性叙事。但科学史表明，实验、理论、计算和数据是相互交织的，不是逐级替代。也许更好的框架不是"几个范式"，而是"几种互补的知识生产模式"。' },
-                  ].map((item, i) => (
-                    <div key={i} className="p-2 rounded border border-[rgba(255,107,107,0.06)]">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[10px] text-[#ff6b6b] font-mono flex-shrink-0">观点 {i + 1}</span>
-                        <span className="text-xs text-[#d0d4dc] font-semibold">{item.view}</span>
-                      </div>
-                      <div className="text-[10px] text-[#8a92a3] leading-relaxed">{item.desc}</div>
-                      <div className="text-[9px] text-[#5a6377] mt-0.5">主要来源方向：{item.proponent}</div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[10px] text-[#8a92a3] leading-relaxed">
-                  本课程的核心立场（见第 04 条课程差异点）：我们不预设"新技术必然创造新范式"，
-                  但承认 SDL 在知识生产方式上带来的变化值得认真对待。上述三种观点应作为课堂讨论材料——
-                  研究生应当能够区分"技术进展"与"范式转移"，并用自己的专业判断参与这场讨论。
-                </p>
+                <a
+                  href="/paradigms"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-mono text-[#000d1d] no-underline"
+                  style={{ background: 'linear-gradient(135deg, #00f5d4, #4361ee)' }}
+                >
+                  阅读完整单元 →
+                </a>
               </div>
             </div>
           </div>
@@ -392,22 +261,43 @@ export default function FoundationsPage() {
         <div className="relative">
           <div className="absolute left-[19px] top-0 bottom-0 w-px bg-[rgba(67,97,238,0.15)]" />
           <div className="space-y-1">
-            {filteredTimeline.map((event: TimelineEvent) => (
-              <div key={event.year + event.labelEn} className="relative pl-12 py-3 group">
-                <span
-                  className="absolute left-[15px] top-4 w-2.5 h-2.5 rounded-full border-2 border-[#000d1d]"
-                  style={{ background: CATEGORY_COLORS[event.category] }}
-                />
-                <div className="flex items-baseline gap-3 flex-wrap">
-                  <span className="text-xs font-mono text-[#00f5d4] w-20 flex-shrink-0">{event.year}</span>
-                  <span className="text-sm font-medium text-[#d0d4dc]">{event.label}</span>
-                  <span className="text-[10px] text-[#8a92a3]">{event.labelEn}</span>
+            {filteredTimeline.map((event: TimelineEvent) => {
+              const content = (
+                <>
+                  <span
+                    className="absolute left-[15px] top-4 w-2.5 h-2.5 rounded-full border-2 border-[#000d1d]"
+                    style={{ background: CATEGORY_COLORS[event.category] }}
+                  />
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <span className="text-xs font-mono text-[#00f5d4] w-20 flex-shrink-0">{event.year}</span>
+                    <span className={`text-sm font-medium ${event.route ? 'text-[#00f5d4] group-hover:underline' : 'text-[#d0d4dc]'}`}>
+                      {event.label}
+                      {event.route && (
+                        <span className="ml-1.5 text-[9px] text-[#5a6377] font-normal group-hover:text-[#00f5d4] transition-colors">→</span>
+                      )}
+                    </span>
+                    <span className="text-[10px] text-[#8a92a3]">{event.labelEn}</span>
+                  </div>
+                  <p className="text-xs text-[#8a92a3] mt-1 leading-relaxed max-w-2xl">
+                    {event.description}
+                  </p>
+                </>
+              );
+
+              if (event.route) {
+                return (
+                  <a key={event.year + event.labelEn} href={event.route}
+                    className="relative pl-12 py-3 group block no-underline hover:bg-[rgba(0,245,212,0.02)] transition-colors rounded-r">
+                    {content}
+                  </a>
+                );
+              }
+              return (
+                <div key={event.year + event.labelEn} className="relative pl-12 py-3 group">
+                  {content}
                 </div>
-                <p className="text-xs text-[#8a92a3] mt-1 leading-relaxed max-w-2xl">
-                  {event.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
