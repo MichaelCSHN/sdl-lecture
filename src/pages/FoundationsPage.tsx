@@ -136,74 +136,13 @@ export default function FoundationsPage() {
       </p>
 
       {/* ================================================================ */}
-      {/* Section A: 科学范式演化 + 实验的角色 */}
+      {/* Section A: 实验的历史地位与角色 */}
       {/* ================================================================ */}
 
       <div className="mb-16" id="sec-experiment-history">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-xs text-[#fee440] font-mono tracking-wider">A</span>
-          <h2 className="text-lg font-semibold text-[#d0d4dc]">范式演化：从观察到自治实验</h2>
-        </div>
-
-        {/* 范式演化概览 */}
-        <div className="glass-panel p-5 rounded-lg border border-[rgba(67,97,238,0.1)] mb-8">
-          <p className="text-xs text-[#8a92a3] leading-relaxed mb-4">
-            科学研究的知识生产方式经历了数次根本性转变。理解这一演化脉络，是理解 SDL 为何出现在
-            今天——以及它改变了什么、没改变什么——的前提。
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { era: '古代–16 世纪', paradigm: '经验观察', feature: '以感官观察和思辨理解自然。实验是零散的、非系统的。知识来自权威和归纳。' },
-              { era: '17–19 世纪', paradigm: '理论科学', feature: '系统实验方法确立。数学与实验结合。可重复、可验证成为科学标准。实验室成为制度化场所。' },
-              { era: '20 世纪中后期', paradigm: '计算科学', feature: '数值模拟成为"第三范式"。DFT、分子动力学、有限元等使预测成为可能。计算与实验互补。' },
-              { era: '21 世纪–现在', paradigm: '数据密集 + AI 自治', feature: '高通量产生海量数据。ML 从数据中学习模式。SDL 将实验设计、执行和决策闭环自动化。' },
-            ].map((p) => (
-              <div key={p.paradigm} className="p-3 rounded border border-[rgba(67,97,238,0.08)]">
-                <div className="text-[10px] text-[#00f5d4] font-mono mb-1">{p.era}</div>
-                <div className="text-xs text-[#d0d4dc] font-semibold mb-1">{p.paradigm}</div>
-                <div className="text-[10px] text-[#8a92a3] leading-relaxed">{p.feature}</div>
-              </div>
-            ))}
-          </div>
-          <p className="text-[10px] text-[#8a92a3] mt-4 leading-relaxed">
-            关键转变不在"旧方法被淘汰"，而在<strong>知识生产方式的层次叠加</strong>。SDL 不是替代实验，
-            而是将实验设计、执行和数据分析的<strong>决策权</strong>部分移交给算法——但实验本身仍然是
-            知识生产的最终检验环节。
-          </p>
-        </div>
-
-        {/* 科学范式 → 独立页面链接 */}
-        <div className="mb-8" id="sec-science-paradigms">
-          <div className="glass-panel p-5 rounded-lg border border-[rgba(0,245,212,0.12)]">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-md bg-[rgba(0,245,212,0.1)] border border-[rgba(0,245,212,0.2)] flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-mono text-[#00f5d4]">¶</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">
-                  科学范式：从 Kuhn 到 Gray 再到第五范式
-                </h3>
-                <p className="text-xs text-[#8a92a3] leading-relaxed mb-3">
-                  什么是"范式"？Thomas Kuhn 的范式转移理论、Karl Popper 的可证伪性标准、
-                  Jim Gray 的科学四范式框架，以及正在展开的 AI/自治科学第五范式之争。
-                  本单元已扩展为独立页面，包含完整的理论梳理、案例分析和课堂讨论建议。
-                </p>
-                <div className="flex flex-wrap gap-2 text-[10px] font-mono mb-3">
-                  <span className="px-2 py-0.5 rounded bg-[rgba(254,68,0,0.06)] text-[#fee440] border border-[rgba(254,68,0,0.1)]">Kuhn · 范式转移</span>
-                  <span className="px-2 py-0.5 rounded bg-[rgba(67,97,238,0.06)] text-[#4361ee] border border-[rgba(67,97,238,0.1)]">Popper · 可证伪性</span>
-                  <span className="px-2 py-0.5 rounded bg-[rgba(0,245,212,0.06)] text-[#00f5d4] border border-[rgba(0,245,212,0.1)]">Gray · 四范式</span>
-                  <span className="px-2 py-0.5 rounded bg-[rgba(255,107,107,0.06)] text-[#ff6b6b] border border-[rgba(255,107,107,0.1)]">第五范式之争</span>
-                </div>
-                <a
-                  href="/paradigms"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-mono text-[#000d1d] no-underline"
-                  style={{ background: 'linear-gradient(135deg, #00f5d4, #4361ee)' }}
-                >
-                  阅读完整单元 →
-                </a>
-              </div>
-            </div>
-          </div>
+          <h2 className="text-lg font-semibold text-[#d0d4dc]">实验的历史地位与角色</h2>
         </div>
 
         {/* 实验的角色 */}
@@ -258,7 +197,7 @@ export default function FoundationsPage() {
           ))}
         </div>
 
-        <div className="relative">
+        <div className="relative mb-10">
           <div className="absolute left-[19px] top-0 bottom-0 w-px bg-[rgba(67,97,238,0.15)]" />
           <div className="space-y-1">
             {filteredTimeline.map((event: TimelineEvent) => {
@@ -298,6 +237,70 @@ export default function FoundationsPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        {/* 范式演化概览：从实验史到方法论变迁 */}
+        <h3 className="text-sm font-semibold text-[#d0d4dc] mb-4">从实验史到方法论变迁：科学范式的演化</h3>
+        <div className="glass-panel p-5 rounded-lg border border-[rgba(67,97,238,0.1)] mb-6">
+          <p className="text-xs text-[#8a92a3] leading-relaxed mb-4">
+            上面梳理了实验本身的历史。更进一步的问题是：科学研究<strong>组织实验的方式</strong>——
+            即知识生产的方法论——本身是如何演化的？理解这一演化脉络，是理解 SDL 为何出现在今天，
+            以及它改变了什么、没改变什么的前提。
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { era: '古代–16 世纪', paradigm: '经验观察', feature: '以感官观察和思辨理解自然。实验是零散的、非系统的。知识来自权威和归纳。' },
+              { era: '17–19 世纪', paradigm: '理论科学', feature: '系统实验方法确立。数学与实验结合。可重复、可验证成为科学标准。实验室成为制度化场所。' },
+              { era: '20 世纪中后期', paradigm: '计算科学', feature: '数值模拟成为"第三范式"。DFT、分子动力学、有限元等使预测成为可能。计算与实验互补。' },
+              { era: '21 世纪–现在', paradigm: '数据密集 + AI 自治', feature: '高通量产生海量数据。ML 从数据中学习模式。SDL 将实验设计、执行和决策闭环自动化。' },
+            ].map((p) => (
+              <div key={p.paradigm} className="p-3 rounded border border-[rgba(67,97,238,0.08)]">
+                <div className="text-[10px] text-[#00f5d4] font-mono mb-1">{p.era}</div>
+                <div className="text-xs text-[#d0d4dc] font-semibold mb-1">{p.paradigm}</div>
+                <div className="text-[10px] text-[#8a92a3] leading-relaxed">{p.feature}</div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-[#8a92a3] mt-4 leading-relaxed">
+            关键转变不在"旧方法被淘汰"，而在<strong>知识生产方式的层次叠加</strong>。SDL 不是替代实验，
+            而是将实验设计、执行和数据分析的<strong>决策权</strong>部分移交给算法——但实验本身仍然是
+            知识生产的最终检验环节。
+          </p>
+        </div>
+
+        {/* 科学范式 → 独立页面链接 */}
+        <div id="sec-science-paradigms">
+          <div className="glass-panel p-5 rounded-lg border border-[rgba(0,245,212,0.12)]">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-md bg-[rgba(0,245,212,0.1)] border border-[rgba(0,245,212,0.2)] flex items-center justify-center flex-shrink-0">
+                <span className="text-sm font-mono text-[#00f5d4]">¶</span>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">
+                  科学范式：从 Kuhn 到 Gray 再到第五范式
+                </h3>
+                <p className="text-xs text-[#8a92a3] leading-relaxed mb-3">
+                  上面从实验方法的角度讲了四个演化阶段。如果想从科学哲学的角度更系统地理解——
+                  什么是"范式"？Thomas Kuhn 的范式转移理论、Karl Popper 的可证伪性标准、
+                  Jim Gray 的科学四范式框架，以及正在展开的 AI/自治科学第五范式之争——
+                  请阅读独立单元。
+                </p>
+                <div className="flex flex-wrap gap-2 text-[10px] font-mono mb-3">
+                  <span className="px-2 py-0.5 rounded bg-[rgba(254,68,0,0.06)] text-[#fee440] border border-[rgba(254,68,0,0.1)]">Kuhn · 范式转移</span>
+                  <span className="px-2 py-0.5 rounded bg-[rgba(67,97,238,0.06)] text-[#4361ee] border border-[rgba(67,97,238,0.1)]">Popper · 可证伪性</span>
+                  <span className="px-2 py-0.5 rounded bg-[rgba(0,245,212,0.06)] text-[#00f5d4] border border-[rgba(0,245,212,0.1)]">Gray · 四范式</span>
+                  <span className="px-2 py-0.5 rounded bg-[rgba(255,107,107,0.06)] text-[#ff6b6b] border border-[rgba(255,107,107,0.1)]">第五范式之争</span>
+                </div>
+                <a
+                  href="/paradigms"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-mono text-[#000d1d] no-underline"
+                  style={{ background: 'linear-gradient(135deg, #00f5d4, #4361ee)' }}
+                >
+                  阅读完整单元 →
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
