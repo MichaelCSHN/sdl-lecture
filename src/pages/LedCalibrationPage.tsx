@@ -16,6 +16,10 @@ const SPECTRA_DISCLAIMER =
   '文献启发教学光谱。基于已发表遥感文献的典型反射率特征手工构建，' +
   '不是 ECOSTRESS/USGS/ASTER 光谱库的原始下载样本。';
 
+const INTENSITY_NOTE =
+  '权重 = 归一化相对辐射强度 (0-1)。0=关闭, 0-1=相对强度分配。' +
+  '优化目标为归一化光谱匹配（方案 A），不表示绝对辐亮度 (W/sr/m²/nm)。';
+
 const SURROGATE_NOTE = '代理模型: k-NN 加权回归（5 维结构指纹）。GP/Random 可选。RF 暂未支持。';
 
 export default function LedCalibrationPage() {
@@ -209,6 +213,7 @@ export default function LedCalibrationPage() {
           )}
 
           <div className="text-[8px] text-[#5a6377] space-y-1">
+            <p className="text-[#fee440]">{INTENSITY_NOTE}</p>
             <p>{LED_DISCLAIMER}</p>
             <p>{PHOSPHOR_DISCLAIMER}</p>
             <p>{OPTIMIZER_NOTE}</p>

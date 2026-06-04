@@ -224,7 +224,7 @@ function generateCandidates(
       const onIdx = channels.map((_, i) => e[i] ? i : -1).filter((i) => i >= 0);
       if (onIdx.length > 0) {
         const i = onIdx[Math.floor(rng() * onIdx.length)];
-        w[i] = Math.max(0.05, Math.min(2.0, w[i] * (0.5 + rng() * 1.0)));
+        w[i] = Math.max(0.05, Math.min(1.0, w[i] * (0.5 + rng() * 1.0)));
       }
       return { enabled: e, weights: w };
     },
@@ -232,7 +232,7 @@ function generateCandidates(
     () => {
       const e = [...enabled]; const w = [...weights];
       for (let i = 0; i < n; i++) {
-        if (e[i]) w[i] = Math.max(0.05, Math.min(2.0, w[i] * (0.3 + rng() * 1.4)));
+        if (e[i]) w[i] = Math.max(0.05, Math.min(1.0, w[i] * (0.3 + rng() * 1.4)));
       }
       return { enabled: e, weights: w };
     },
@@ -371,10 +371,22 @@ export function optimizationStep(
     gpY: [...state.gpY, metrics.objectiveValue],
   };
 
+  // Build intensity change description
+  const intensityChanges: string[] = [];
+  for (let i = 0; i < state.channels.length; i++) {
+    if (bestCand.enabled[i] !== state.enabled[i]) {
+      intensityChanges.push(`${bestCand.enabled[i] ? '+' : '-'}${state.channels[i].name}`);
+    } else if (bestCand.enabled[i] && Math.abs(bestCand.weights[i] - state.weights[i]) > 0.1) {
+      const dir = bestCand.weights[i] > state.weights[i] ? '↑' : '↓';
+      intensityChanges.push(`${state.channels[i].name} ${dir}${Math.abs(bestCand.weights[i] - state.weights[i]).toFixed(2)}`);
+    }
+  }
+  const changeStr = intensityChanges.slice(0, 3).join(', ') + (intensityChanges.length > 3 ? ` +${intensityChanges.length - 3}` : '');
+
   const improved = metrics.objectiveValue < yBest;
   const reason = improved
-    ? `[改进] ${acqFn} 推荐: ${metrics.channelCount} 通道, ${metrics.objectiveLabel}=${metrics.objectiveValue.toFixed(4)} (↓${(yBest - metrics.objectiveValue).toFixed(4)}), ¥${metrics.totalCost.toFixed(0)}`
-    : `[探索] ${acqFn} 探索: ${metrics.channelCount} 通道, ${metrics.objectiveLabel}=${metrics.objectiveValue.toFixed(4)}, ¥${metrics.totalCost.toFixed(0)}`;
+    ? `[改进] ${acqFn}: ${metrics.channelCount}ch, ${metrics.objectiveLabel}=${metrics.objectiveValue.toFixed(4)} (↓${(yBest - metrics.objectiveValue).toFixed(4)}), ¥${metrics.totalCost.toFixed(0)}. ${changeStr ? '变化: ' + changeStr : ''}`
+    : `[探索] ${acqFn}: ${metrics.channelCount}ch, ${metrics.objectiveLabel}=${metrics.objectiveValue.toFixed(4)}, ¥${metrics.totalCost.toFixed(0)}. ${changeStr ? '变化: ' + changeStr : ''}`;
 
   return { state: newState, metrics, reason };
 }
