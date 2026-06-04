@@ -1,7 +1,7 @@
 /**
- * Course structure metadata.
- * Defines the full curriculum — lectures, modules, learning objectives.
- * The lecture MVP is a subset (marked by lecturePath: true).
+ * 课程结构元数据。
+ * 定义完整课程——讲座、模块、学习目标。
+ * 讲座路径为子集（lecturePath: true）。
  */
 
 export interface LectureMeta {
@@ -10,9 +10,9 @@ export interface LectureMeta {
   title: string;
   titleCn: string;
   module: 'A' | 'B' | 'C';
-  /** route with optional hash fragment for in-page anchor navigation */
+  /** 含 hash fragment 的路由，用于页内锚点导航 */
   route: string;
-  lecturePath: boolean; // included in 3-hour lecture MVP
+  lecturePath: boolean; // 是否纳入本次讲座
   learningObjectives: string[];
   description: string;
 }
@@ -28,7 +28,7 @@ export const COURSE_LECTURES: LectureMeta[] = [
     lecturePath: true,
     learningObjectives: ['LO1'],
     description:
-      'The historical role of experimentation in science. Why experiment remains irreplaceable. Why now is the right time to discuss SDL.',
+      '实验在科学中的历史角色。为什么实验不可替代。为什么现在适合讨论 SDL。',
   },
   {
     id: 'lecture-02',
@@ -40,7 +40,7 @@ export const COURSE_LECTURES: LectureMeta[] = [
     lecturePath: true,
     learningObjectives: ['LO2'],
     description:
-      'A unified framework for categorizing MSE experiments: synthesis, processing, characterization, property measurement, functional testing, stability/failure, metrology, and closed-loop.',
+      '按目的而非材料类别对 MSE 实验进行分类的统一框架：合成、加工、表征、物性测量、功能测试、稳定性/失效、计量/校准、高通量/闭环。',
   },
   {
     id: 'lecture-03',
@@ -52,7 +52,7 @@ export const COURSE_LECTURES: LectureMeta[] = [
     lecturePath: false,
     learningObjectives: ['LO3'],
     description:
-      'Controlled vs measured variables. Noise, bias, repeatability, uncertainty. Why many AI experiment problems are fundamentally measurement problems first.',
+      '控制变量与测量变量、噪声、偏差、重复性与不确定度。为什么很多 AI 实验问题本质上首先是测量问题。',
   },
   {
     id: 'lecture-04',
@@ -64,19 +64,19 @@ export const COURSE_LECTURES: LectureMeta[] = [
     lecturePath: false,
     learningObjectives: ['LO4'],
     description:
-      'Experience-driven optimization. Expert knowledge. Why trial-and-error worked for centuries — and where it breaks down.',
+      '经验驱动的优化。专家知识的价值。为什么试错法长期有效——以及它的失效边界在哪里。',
   },
   {
     id: 'lecture-05',
     num: '05',
     title: 'Traditional Methods II: DOE',
-    titleCn: '传统方法论 II：DOE',
+    titleCn: '传统方法论 II：实验设计（DOE）',
     module: 'B',
     route: '/foundations#doe-vs-sdl',
     lecturePath: true,
     learningObjectives: ['LO4'],
     description:
-      'Factors, responses, and constraints. Full factorial, fractional factorial, response surface methods. DOE as the foundation and prehistory of SDL.',
+      '因子、响应与约束。全因子、部分因子、响应面方法。DOE 作为 SDL 的前史与基础——连续性而非替代。',
   },
   {
     id: 'lecture-06',
@@ -88,7 +88,7 @@ export const COURSE_LECTURES: LectureMeta[] = [
     lecturePath: false,
     learningObjectives: ['LO5'],
     description:
-      'Synthesis, processing, characterization chains. Instruments, sample handling, data flow. SDL is systems engineering, not just BO.',
+      '合成、加工、表征链条。仪器、样品流转、数据流。SDL 是系统工程，不只是贝叶斯优化。',
   },
   {
     id: 'lecture-07',
@@ -100,31 +100,31 @@ export const COURSE_LECTURES: LectureMeta[] = [
     lecturePath: true,
     learningObjectives: ['LO5', 'LO7'],
     description:
-      'Surrogate models, uncertainty quantification, acquisition functions, closed-loop decision making. Multi-objective SDL. Why the algorithm recommends the next experiment point.',
+      '代理模型、不确定度量化、采集函数、闭环决策。多目标 SDL。为什么模型推荐下一个实验点——背后的逻辑。',
   },
   {
     id: 'lecture-08',
     num: '08',
     title: 'A-Lab: Real System Analysis',
-    titleCn: 'A-Lab 与真实系统分析',
+    titleCn: 'A-Lab：真实系统分析',
     module: 'C',
     route: '/a-lab',
     lecturePath: true,
     learningObjectives: ['LO6'],
     description:
-      'A-Lab case file: problem definition, system architecture, key results, controversy, and lessons. Critical reading of a real SDL system.',
+      'A-Lab 案例档案：问题定义、系统架构、关键结果、学术争议与教学启示。批判性阅读一个真实 SDL 系统。',
   },
   {
     id: 'lecture-09',
     num: '09',
     title: 'Case Studio',
-    titleCn: '案例工作台',
+    titleCn: '案例工作台：现场演示',
     module: 'C',
     route: '/case-studio',
     lecturePath: true,
     learningObjectives: ['LO7'],
     description:
-      'RGB LED benchmark, a reaction optimization case, a materials case. Observe how SDL selects the next experiment from observations and targets.',
+      'RGB LED 颜色匹配 benchmark。现场观察 SDL 闭环：参数输入→生成观测→更新模型→推荐下一点→展示历史。',
   },
   {
     id: 'lecture-10',
@@ -136,42 +136,42 @@ export const COURSE_LECTURES: LectureMeta[] = [
     lecturePath: false,
     learningObjectives: ['LO8'],
     description:
-      'Translate your own research question into a minimum-viable SDL design: objective, parameters, constraints, measurements, strategy, risks.',
+      '把自己的研究问题转写为最小 SDL 设计草案：目标、参数、约束、测量、建议策略、风险与验证计划。',
   },
 ];
 
 export const LEARNING_OBJECTIVES: Record<string, { id: string; text: string }> = {
   LO1: {
     id: 'LO1',
-    text: 'Understand the historical role, status, and evolution of experiments in MSE.',
+    text: '理解实验在 MSE 中的历史角色、知识地位与演变趋势。',
   },
   LO2: {
     id: 'LO2',
-    text: 'Master the MSE experiment taxonomy and catalog — classify and define common experiments.',
+    text: '掌握 MSE 实验图谱与目录学，能够对常见实验进行分类和定义。',
   },
   LO3: {
     id: 'LO3',
-    text: 'Understand controlled variables, measured variables, error, repeatability, and uncertainty in experiments.',
+    text: '理解实验中的控制变量、测量变量、误差、重复性与不确定度。',
   },
   LO4: {
     id: 'LO4',
-    text: 'Distinguish the methodological differences and applicable boundaries of heuristics, trial-and-error, DOE, and SDL.',
+    text: '区分试错法、DOE 与 SDL 的方法论差异与适用边界。',
   },
   LO5: {
     id: 'LO5',
-    text: 'Understand the software, hardware, data, and decision elements of the SDL closed loop.',
+    text: '理解 SDL 闭环中的软件、硬件、数据与决策要素。',
   },
   LO6: {
     id: 'LO6',
-    text: 'Read and critically analyze real SDL case studies.',
+    text: '能够读懂并批判性分析真实 SDL 案例。',
   },
   LO7: {
     id: 'LO7',
-    text: 'Explain the recommendation logic for the next experiment point in the Case Studio.',
+    text: '能够解释案例工作台中下一个实验点的推荐逻辑。',
   },
   LO8: {
     id: 'LO8',
-    text: 'Translate your own research question into a minimum-viable SDL design draft.',
+    text: '能够把自己的研究问题转写为最小 SDL 设计草案。',
   },
 };
 

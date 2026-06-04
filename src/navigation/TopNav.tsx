@@ -1,15 +1,13 @@
 import { NavLink } from 'react-router';
-import { BookOpen, Beaker, FlaskConical, Grid3X3, Lightbulb, Library } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Home', icon: Grid3X3, exact: true },
-  { to: '/course', label: 'Course', icon: BookOpen },
-  { to: '/foundations', label: 'Foundations', icon: Library },
-  { to: '/a-lab', label: 'A-Lab', icon: FlaskConical },
-  { to: '/case-studio', label: 'Case Studio', icon: Beaker },
-  { to: '/methods', label: 'Methods', icon: Lightbulb },
-  { to: '/design-studio', label: 'Design', icon: Grid3X3 },
-  { to: '/resources', label: 'Resources', icon: Library },
+  { to: '/', label: '首页', exact: true },
+  { to: '/course', label: '课程' },
+  { to: '/foundations', label: '基础' },
+  { to: '/a-lab', label: 'A-Lab' },
+  { to: '/case-studio', label: '演示' },
+  { to: '/methods', label: '方法', extension: true },
+  { to: '/resources', label: '资源', extension: true },
 ];
 
 export default function TopNav() {
@@ -25,7 +23,7 @@ export default function TopNav() {
           SDL
         </span>
         <span className="text-sm font-semibold tracking-tight text-[#d0d4dc]">
-          AI-Era MSE Experiments
+          AI 时代的材料实验
         </span>
       </NavLink>
 
@@ -40,11 +38,13 @@ export default function TopNav() {
               `px-3 py-1.5 rounded text-xs font-mono transition-colors ${
                 isActive
                   ? 'text-[#00f5d4] bg-[rgba(0,245,212,0.08)]'
-                  : 'text-[#8a92a3] hover:text-[#d0d4dc] hover:bg-[rgba(67,97,238,0.06)]'
+                  : item.extension
+                    ? 'text-[#5a6377] hover:text-[#8a92a3] hover:bg-[rgba(67,97,238,0.04)]'
+                    : 'text-[#8a92a3] hover:text-[#d0d4dc] hover:bg-[rgba(67,97,238,0.04)]'
               }`
             }
           >
-            {item.label}
+            {item.label}{item.extension ? ' *' : ''}
           </NavLink>
         ))}
       </nav>

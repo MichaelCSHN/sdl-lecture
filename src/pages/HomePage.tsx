@@ -8,62 +8,61 @@ export default function HomePage() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
       {/* Hero */}
-      <div className="mb-16">
+      <div className="mb-14">
         <div className="inline-flex items-center gap-2.5 glass-panel px-3 py-1.5 rounded mb-6">
           <span className="w-2 h-2 rounded-full bg-[#00f5d4] animate-pulse" />
           <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">
-            2026.06 — Graduate Lecture · Full Course Platform
+            2026.06 — 材料科学研究生专题讲座
           </span>
         </div>
 
         <h1 className="text-4xl md:text-5xl font-semibold tracking-[-1.5px] leading-[1.08] mb-5">
-          AI-Era Materials Science Experiments
+          AI 时代的材料科学实验
         </h1>
         <p className="text-lg md:text-xl text-[#8a92a3] max-w-2xl leading-relaxed mb-3">
-          From DOE to Self-Driving Labs
+          从实验设计（DOE）到自驱动实验室（Self-Driving Labs）
         </p>
         <p className="text-sm text-[#8a92a3] max-w-xl leading-relaxed">
-          A graduate-level course platform that places <em>experiment</em> — not algorithm — at the center.
-          Covers the full arc from traditional experimental methodology to AI-era closed-loop autonomous laboratories.
+          一门以"实验"为中心的讲座课程。覆盖传统实验方法论到 AI 时代闭环自治实验的完整弧线。
+          本次讲座为完整课程的精选路径，课后可访问线上站独立浏览全部内容。
         </p>
       </div>
 
       {/* Target audience */}
       <div className="mb-12">
-        <h2 className="text-xs text-[#00f5d4] font-mono tracking-widest mb-3">WHO THIS IS FOR</h2>
+        <h2 className="text-xs text-[#00f5d4] font-mono tracking-widest mb-3">面向对象</h2>
         <div className="flex flex-wrap gap-2">
-          {[
-            'Materials / Chemistry / Physics grad students',
-            'Advanced undergraduates with lab experience',
-            'Researchers new to SDL & autonomous labs',
-            'Lecturers & lab trainers',
-          ].map((aud) => (
-            <span
-              key={aud}
-              className="px-3 py-1.5 rounded-full text-xs font-mono border border-[rgba(67,97,238,0.2)] text-[#8a92a3]"
-            >
-              {aud}
-            </span>
-          ))}
+          <span className="px-3 py-1.5 rounded-full text-xs font-mono border border-[rgba(67,97,238,0.2)] text-[#8a92a3]">
+            材料/化学/物理方向研究生
+          </span>
+          <span className="px-3 py-1.5 rounded-full text-xs font-mono border border-[rgba(67,97,238,0.2)] text-[#8a92a3]">
+            有实验室经验的高年级本科生
+          </span>
+          <span className="px-3 py-1.5 rounded-full text-xs font-mono border border-[rgba(67,97,238,0.2)] text-[#8a92a3]">
+            想理解 SDL 工作流的研究人员
+          </span>
+          <span className="px-3 py-1.5 rounded-full text-xs font-mono border border-[rgba(67,97,238,0.2)] text-[#8a92a3]">
+            讲座助教与实验室培训人员
+          </span>
         </div>
       </div>
 
-      {/* Two phases */}
+      {/* 本次讲座说明 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         <div className="glass-panel p-5 rounded-lg border border-[rgba(0,245,212,0.15)]">
-          <div className="text-[#00f5d4] font-mono text-[10px] tracking-widest mb-2">PHASE A — IMMEDIATE</div>
-          <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">Lecture MVP</h3>
+          <div className="text-[#00f5d4] font-mono text-[10px] tracking-widest mb-2">本次讲座</div>
+          <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">3 小时研究生专题讲座</h3>
           <p className="text-xs text-[#8a92a3] leading-relaxed">
-            A 3-hour graduate lecture path. Covers the core narrative: experiment history, DOE vs SDL comparison,
-            SDL methodology, A-Lab case analysis, and live case demonstrations.
+            6 讲精选内容：实验史与演变、MSE 实验分类学、DOE 与 SDL 对比、
+            SDL 方法论核心、A-Lab 案例档案、现场闭环演示。
           </p>
         </div>
         <div className="glass-panel p-5 rounded-lg border border-[rgba(67,97,238,0.1)]">
-          <div className="text-[#4361ee] font-mono text-[10px] tracking-widest mb-2">PHASE B — NORTH STAR</div>
-          <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">Full Course Platform</h3>
+          <div className="text-[#4361ee] font-mono text-[10px] tracking-widest mb-2">扩展学习</div>
+          <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">完整课程（10 讲）</h3>
           <p className="text-xs text-[#8a92a3] leading-relaxed">
-            A complete digital curriculum. All 10 lectures with full content, MSE experiment taxonomy,
-            Methods Lab, Case Studio with multiple cases, and Research Design Studio.
+            讲座后，本线上站将扩展为完整研究生课程平台，增加数据与误差分析、
+            传统试错法、实验硬件与工作流、研究设计工作室等 4 讲内容。
           </p>
         </div>
       </div>
@@ -76,13 +75,13 @@ export default function HomePage() {
         >
           <BookOpen className="w-5 h-5 text-[#00f5d4] mb-3" />
           <h3 className="text-sm font-semibold text-[#d0d4dc] mb-1 group-hover:text-[#00f5d4] transition-colors">
-            Start the Course
+            浏览课程
           </h3>
           <p className="text-xs text-[#8a92a3] mb-3">
-            Browse the full curriculum map. Follow the recommended learning path or jump to specific lectures.
+            查看本次讲座的完整结构与推荐路径，了解每讲核心内容。
           </p>
           <span className="text-[10px] text-[#00f5d4] font-mono inline-flex items-center gap-1">
-            Course Map <ArrowRight className="w-3 h-3" />
+            课程地图 <ArrowRight className="w-3 h-3" />
           </span>
         </Link>
 
@@ -92,13 +91,13 @@ export default function HomePage() {
         >
           <Beaker className="w-5 h-5 text-[#00f5d4] mb-3" />
           <h3 className="text-sm font-semibold text-[#d0d4dc] mb-1 group-hover:text-[#00f5d4] transition-colors">
-            Case Studio
+            现场演示
           </h3>
           <p className="text-xs text-[#8a92a3] mb-3">
-            See SDL in action. Observe how parameters, observations, and recommendations form a closed loop.
+            观看 SDL 闭环优化：参数→观测→推荐→再实验。RGB LED 颜色匹配 live demo。
           </p>
           <span className="text-[10px] text-[#00f5d4] font-mono inline-flex items-center gap-1">
-            Open Studio <ArrowRight className="w-3 h-3" />
+            案例工作台 <ArrowRight className="w-3 h-3" />
           </span>
         </Link>
 
@@ -108,21 +107,21 @@ export default function HomePage() {
         >
           <FlaskConical className="w-5 h-5 text-[#00f5d4] mb-3" />
           <h3 className="text-sm font-semibold text-[#d0d4dc] mb-1 group-hover:text-[#00f5d4] transition-colors">
-            A-Lab Case File
+            A-Lab 案例档案
           </h3>
           <p className="text-xs text-[#8a92a3] mb-3">
-            Deep-dive into the A-Lab system. Not a timeline — a case file: problem, system, results, controversy.
+            深度阅读 A-Lab 系统：问题定义、系统组成、关键结果、学术争议与教学启示。
           </p>
           <span className="text-[10px] text-[#00f5d4] font-mono inline-flex items-center gap-1">
-            Read Case <ArrowRight className="w-3 h-3" />
+            阅读案例 <ArrowRight className="w-3 h-3" />
           </span>
         </Link>
       </div>
 
-      {/* Lecture MVP path preview */}
+      {/* Lecture path preview */}
       <div>
         <h2 className="text-xs text-[#00f5d4] font-mono tracking-widest mb-4">
-          LECTURE MVP PATH ({lecturePathLectures.length} lectures)
+          讲座路径（{lecturePathLectures.length} 讲）
         </h2>
         <div className="space-y-2">
           {lecturePathLectures.map((lec) => (
@@ -133,10 +132,10 @@ export default function HomePage() {
             >
               <span className="text-[#00f5d4] font-mono text-xs w-6">{lec.num}</span>
               <span className="text-sm text-[#d0d4dc] group-hover:text-[#00f5d4] transition-colors">
-                {lec.title}
+                {lec.titleCn}
               </span>
               <span className="text-[10px] text-[#8a92a3] font-mono ml-auto hidden sm:inline">
-                Module {lec.module}
+                模块 {lec.module}
               </span>
             </Link>
           ))}

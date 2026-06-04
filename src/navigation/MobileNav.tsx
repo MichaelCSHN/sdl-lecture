@@ -3,17 +3,17 @@ import { BookOpen, Beaker, FlaskConical, Grid3X3, Menu, Lightbulb } from 'lucide
 import { useState } from 'react';
 
 const MAIN_ITEMS = [
-  { to: '/', label: 'Home', icon: Grid3X3, exact: true },
-  { to: '/course', label: 'Course', icon: BookOpen },
-  { to: '/foundations', label: 'Found.', icon: Lightbulb },
+  { to: '/', label: '首页', icon: Grid3X3, exact: true },
+  { to: '/course', label: '课程', icon: BookOpen },
+  { to: '/foundations', label: '基础', icon: Lightbulb },
   { to: '/a-lab', label: 'A-Lab', icon: FlaskConical },
-  { to: '/case-studio', label: 'Cases', icon: Beaker },
+  { to: '/case-studio', label: '演示', icon: Beaker },
 ];
 
 const MORE_ITEMS = [
-  { to: '/methods', label: 'Methods', icon: Lightbulb },
-  { to: '/design-studio', label: 'Design', icon: Grid3X3 },
-  { to: '/resources', label: 'Resources', icon: BookOpen },
+  { to: '/methods', label: '方法（扩展）', icon: Lightbulb },
+  { to: '/design-studio', label: '设计（扩展）', icon: Grid3X3 },
+  { to: '/resources', label: '资源（扩展）', icon: BookOpen },
 ];
 
 export default function MobileNav() {
@@ -60,7 +60,7 @@ export default function MobileNav() {
             }`}
           >
             <Menu className="w-4 h-4" />
-            <span className="text-[9px] font-mono leading-none">More</span>
+            <span className="text-[9px] font-mono leading-none">更多</span>
           </button>
         </div>
       </nav>
@@ -75,7 +75,7 @@ export default function MobileNav() {
           >
             <div className="flex flex-col gap-2">
               {MORE_ITEMS.map((item) => {
-                const isActive = location.pathname.startsWith(item.to);
+                const isActive = location.pathname.startsWith(item.to.split('（')[0]);
                 return (
                   <NavLink
                     key={item.to}
@@ -84,7 +84,7 @@ export default function MobileNav() {
                     className={`flex items-center gap-2.5 px-3 py-2 rounded text-sm font-mono transition-colors ${
                       isActive
                         ? 'text-[#00f5d4] bg-[rgba(0,245,212,0.06)]'
-                        : 'text-[#8a92a3]'
+                        : 'text-[#5a6377]'
                     }`}
                   >
                     <item.icon className="w-4 h-4" />
