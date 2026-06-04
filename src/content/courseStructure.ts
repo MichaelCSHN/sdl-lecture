@@ -10,6 +10,7 @@ export interface LectureMeta {
   title: string;
   titleCn: string;
   module: 'A' | 'B' | 'C';
+  /** route with optional hash fragment for in-page anchor navigation */
   route: string;
   lecturePath: boolean; // included in 3-hour lecture MVP
   learningObjectives: string[];
@@ -23,7 +24,7 @@ export const COURSE_LECTURES: LectureMeta[] = [
     title: 'Why Re-understand Experiment',
     titleCn: '为什么重新理解实验',
     module: 'A',
-    route: '/foundations',
+    route: '/foundations#sec-experiment-history',
     lecturePath: true,
     learningObjectives: ['LO1'],
     description:
@@ -35,7 +36,7 @@ export const COURSE_LECTURES: LectureMeta[] = [
     title: 'MSE Experiment Taxonomy & Catalog',
     titleCn: 'MSE 实验图谱与目录学',
     module: 'A',
-    route: '/foundations',
+    route: '/foundations#sec-taxonomy',
     lecturePath: true,
     learningObjectives: ['LO2'],
     description:
@@ -71,7 +72,7 @@ export const COURSE_LECTURES: LectureMeta[] = [
     title: 'Traditional Methods II: DOE',
     titleCn: '传统方法论 II：DOE',
     module: 'B',
-    route: '/methods',
+    route: '/foundations#doe-vs-sdl',
     lecturePath: true,
     learningObjectives: ['LO4'],
     description:
@@ -95,7 +96,7 @@ export const COURSE_LECTURES: LectureMeta[] = [
     title: 'SDL Methodology',
     titleCn: 'SDL 方法论',
     module: 'C',
-    route: '/foundations',
+    route: '/foundations#sec-sdl-concepts',
     lecturePath: true,
     learningObjectives: ['LO5', 'LO7'],
     description:

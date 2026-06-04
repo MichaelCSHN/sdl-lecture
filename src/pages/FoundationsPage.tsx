@@ -35,7 +35,7 @@ export default function FoundationsPage() {
       </p>
 
       {/* ===== Section A: Experiment History Timeline ===== */}
-      <div className="mb-16">
+      <div className="mb-16" id="sec-experiment-history">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-xs text-[#fee440] font-mono tracking-wider">A</span>
           <h2 className="text-lg font-semibold text-[#d0d4dc]">The Story of Experiment</h2>
@@ -94,7 +94,7 @@ export default function FoundationsPage() {
       </div>
 
       {/* ===== Section B: MSE Experiment Taxonomy (reserved) ===== */}
-      <div className="mb-16">
+      <div className="mb-16" id="sec-taxonomy">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-xs text-[#00f5d4] font-mono tracking-wider">B</span>
           <h2 className="text-lg font-semibold text-[#d0d4dc]">MSE Experiment Taxonomy</h2>
@@ -130,7 +130,7 @@ export default function FoundationsPage() {
       </div>
 
       {/* ===== Section C: DOE vs SDL — The Methodological Bridge ===== */}
-      <div className="mb-16">
+      <div className="mb-16" id="doe-vs-sdl">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-xs text-[#4361ee] font-mono tracking-wider">C</span>
           <h2 className="text-lg font-semibold text-[#d0d4dc]">DOE vs SDL: Methodological Continuity</h2>
@@ -175,7 +175,7 @@ export default function FoundationsPage() {
       </div>
 
       {/* ===== Section D: SDL Core Concepts ===== */}
-      <div>
+      <div id="sec-sdl-concepts">
         <div className="flex items-center gap-3 mb-6">
           <span className="text-xs text-[#f59e0b] font-mono tracking-wider">D</span>
           <h2 className="text-lg font-semibold text-[#d0d4dc]">SDL Core Concepts</h2>
