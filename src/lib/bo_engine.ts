@@ -341,6 +341,11 @@ export function gaussianRandom(mean: number, std: number): number {
   return mean + std * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
 }
 
+/** Deterministic uniform RNG in [0, 1). Respects setBORngSeed. */
+export function uniformBORandom(): number {
+  return _globalRng();
+}
+
 // Grid search for visualization (2D slice)
 export function computeGPGrid(
   gp: GaussianProcess,
