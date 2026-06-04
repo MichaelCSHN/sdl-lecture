@@ -57,12 +57,11 @@ export default function HomePage() {
             SDL 方法论核心、A-Lab 案例档案、现场闭环演示。
           </p>
         </div>
-        <div className="glass-panel p-5 rounded-lg border border-[rgba(67,97,238,0.1)]">
-          <div className="text-[#4361ee] font-mono text-[10px] tracking-widest mb-2">扩展学习</div>
-          <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">完整课程（10 讲）</h3>
-          <p className="text-xs text-[#8a92a3] leading-relaxed">
-            讲座后，本线上站将扩展为完整研究生课程平台，增加数据与误差分析、
-            传统试错法、实验硬件与工作流、研究设计工作室等 4 讲内容。
+        <div className="glass-panel p-5 rounded-lg border border-[rgba(67,97,238,0.08)]">
+          <div className="text-[#5a6377] font-mono text-[10px] tracking-widest mb-2">课后延伸</div>
+          <h3 className="text-sm font-semibold text-[#8a92a3] mb-1">完整课程（后续扩展至 10 讲）</h3>
+          <p className="text-xs text-[#5a6377] leading-relaxed">
+            讲座后将增加数据与误差分析、传统试错法、实验硬件与工作流、研究设计工作室等专题。
           </p>
         </div>
       </div>

@@ -6,8 +6,6 @@ const NAV_ITEMS = [
   { to: '/foundations', label: '基础' },
   { to: '/a-lab', label: 'A-Lab' },
   { to: '/case-studio', label: '演示' },
-  { to: '/methods', label: '方法', extension: true },
-  { to: '/resources', label: '资源', extension: true },
 ];
 
 export default function TopNav() {
@@ -38,13 +36,11 @@ export default function TopNav() {
               `px-3 py-1.5 rounded text-xs font-mono transition-colors ${
                 isActive
                   ? 'text-[#00f5d4] bg-[rgba(0,245,212,0.08)]'
-                  : item.extension
-                    ? 'text-[#5a6377] hover:text-[#8a92a3] hover:bg-[rgba(67,97,238,0.04)]'
-                    : 'text-[#8a92a3] hover:text-[#d0d4dc] hover:bg-[rgba(67,97,238,0.04)]'
+                  : 'text-[#8a92a3] hover:text-[#d0d4dc] hover:bg-[rgba(67,97,238,0.04)]'
               }`
             }
           >
-            {item.label}{item.extension ? ' *' : ''}
+            {item.label}
           </NavLink>
         ))}
       </nav>

@@ -143,8 +143,8 @@ export const experimentTimeline: TimelineEvent[] = [
     year: '2023',
     label: 'A-Lab / Coscientist',
     labelEn: 'A-Lab & Coscientist',
-    description: 'A-Lab（Nature）和 Coscientist（Nature）同时发表，SDL 元年',
-    descriptionEn: 'A-Lab (Nature) and Coscientist (Nature) published simultaneously, marking the year of SDL',
+    description: 'A-Lab（Nature）和 Coscientist（Nature）同年发表，标志着 SDL 进入主流学术讨论',
+    descriptionEn: 'A-Lab (Nature) and Coscientist (Nature) published in the same year, bringing SDL into mainstream academic discussion',
     category: 'paradigm',
   },
   {
@@ -155,13 +155,5 @@ export const experimentTimeline: TimelineEvent[] = [
     descriptionEn: 'AI autonomous experimentation is discussed as a potential fifth paradigm of science',
     category: 'paradigm',
     route: '/paradigms#fifth-paradigm',
-  },
-  {
-    year: '2026',
-    label: 'SDL 全球网络',
-    labelEn: 'SDL Global Network',
-    description: '全球 12+ 个自主实验室接入，开放标准形成中',
-    descriptionEn: '12+ autonomous labs worldwide connected, open standards forming',
-    category: 'paradigm',
   },
 ];
