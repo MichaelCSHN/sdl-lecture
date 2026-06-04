@@ -235,6 +235,52 @@ const PHOSPHOR_CHANNELS: LedChannel[] = [
     isPhosphor: true, conversionEfficiency: 0.45, pumpLeakage: 0.12,
     emissionPeak: 850, emissionFwhm: 150,
   },
+  // ---- NIR bridge channels (fill 700-950nm gap) ----
+  {
+    id: 'pc-470-780', name: 'PC 470→780 nm (Blue→Near NIR)', family: 'Phosphor',
+    peak_nm: 470, fwhm_nm: 20,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(470, 20, 780, 120, 0.58, 0.09),
+    price: 14.0, lifetime_hours: 13000, power_max_w: 0.4,
+    isPhosphor: true, conversionEfficiency: 0.58, pumpLeakage: 0.09,
+    emissionPeak: 780, emissionFwhm: 120,
+  },
+  {
+    id: 'pc-470-900', name: 'PC 470→900 nm (Blue→NIR 900)', family: 'Phosphor',
+    peak_nm: 470, fwhm_nm: 20,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(470, 20, 900, 140, 0.48, 0.11),
+    price: 16.0, lifetime_hours: 11000, power_max_w: 0.3,
+    isPhosphor: true, conversionEfficiency: 0.48, pumpLeakage: 0.11,
+    emissionPeak: 900, emissionFwhm: 140,
+  },
+  {
+    id: 'pc-505-850', name: 'PC 505→850 nm (Cyan→NIR 850)', family: 'Phosphor',
+    peak_nm: 505, fwhm_nm: 25,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(505, 25, 850, 130, 0.50, 0.10),
+    price: 17.0, lifetime_hours: 11000, power_max_w: 0.35,
+    isPhosphor: true, conversionEfficiency: 0.50, pumpLeakage: 0.10,
+    emissionPeak: 850, emissionFwhm: 130,
+  },
+  {
+    id: 'pc-505-950', name: 'PC 505→950 nm (Cyan→NIR 950)', family: 'Phosphor',
+    peak_nm: 505, fwhm_nm: 25,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(505, 25, 950, 150, 0.42, 0.13),
+    price: 19.0, lifetime_hours: 9000, power_max_w: 0.25,
+    isPhosphor: true, conversionEfficiency: 0.42, pumpLeakage: 0.13,
+    emissionPeak: 950, emissionFwhm: 150,
+  },
+  {
+    id: 'pc-600-900', name: 'PC 600→900 nm (Red→NIR bridge)', family: 'Phosphor',
+    peak_nm: 600, fwhm_nm: 20,
+    wavelength_nm: WAVELENGTH_GRID,
+    spd: phosphorSpd(600, 20, 900, 140, 0.52, 0.08),
+    price: 16.0, lifetime_hours: 12000, power_max_w: 0.35,
+    isPhosphor: true, conversionEfficiency: 0.52, pumpLeakage: 0.08,
+    emissionPeak: 900, emissionFwhm: 140,
+  },
 ];
 
 export const FULL_LED_LIBRARY: LedChannel[] = [...LED_LIBRARY, ...PHOSPHOR_CHANNELS];
