@@ -99,8 +99,19 @@ export default function CaseStudioPage() {
             <Zap className="w-4 h-4 text-[#00f5d4]" />
             <span className="text-xs font-mono text-[#d0d4dc]">Selected: RGB LED Benchmark</span>
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-[rgba(0,245,212,0.12)] text-[#00f5d4] font-mono">
-              DEMO-READY
+              UI READY — ENGINE PENDING
             </span>
+          </div>
+
+          {/* Status: honest about what works */}
+          <div className="mb-4 p-3 rounded border border-[rgba(245,158,11,0.2)] bg-[rgba(245,158,11,0.04)]">
+            <p className="text-[10px] text-[#f59e0b] leading-relaxed">
+              <strong>Lecture note:</strong> The workbench layout, case metadata, and speaker controls are structurally defined.
+              The live computation engine (Gaussian Process, acquisition functions) from the legacy DemoSection
+              has not yet been wired to this UI. The controls below are visual placeholders for the Phase 2 case engine connection.
+              For the current lecture, the lecturer should use this page to <em>explain</em> the workbench layout and the closed-loop
+              concept — live computation will follow in Phase 2.
+            </p>
           </div>
 
           {/* Workbench grid */}
