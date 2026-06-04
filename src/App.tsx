@@ -1,25 +1,16 @@
-import SideNav from './components/SideNav';
-import MobileNav from './components/MobileNav';
-import HomeSection from './sections/HomeSection';
-import BackgroundSection from './sections/BackgroundSection';
-import ConceptSection from './sections/ConceptSection';
-import CaseStudySection from './sections/CaseStudySection';
-import DemoSection from './sections/DemoSection';
-import ChallengesSection from './sections/ChallengesSection';
-import ResourcesSection from './sections/ResourcesSection';
+/**
+ * Legacy App.tsx — replaced by route-based architecture.
+ *
+ * The old single-page section layout (HomeSection, BackgroundSection, etc.)
+ * has been migrated to individual page components under src/pages/.
+ *
+ * Routing is now handled by src/app/router.tsx via react-router.
+ *
+ * Legacy sections are preserved under src/sections/ for content reuse
+ * but are no longer rendered from this entry point.
+ *
+ * See: docs/02_Product_Spec.md for the new information architecture.
+ */
 
-export default function App() {
-  return (
-    <div className="relative" style={{ background: '#000d1d' }}>
-      <SideNav />
-      <MobileNav />
-      <HomeSection />
-      <BackgroundSection />
-      <ConceptSection />
-      <CaseStudySection />
-      <DemoSection />
-      <ChallengesSection />
-      <ResourcesSection />
-    </div>
-  );
-}
+// Re-export AppShell as default for backward compatibility with any remaining imports
+export { default } from '@/layouts/AppShell';
