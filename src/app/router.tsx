@@ -10,6 +10,7 @@ import DesignStudioPage from '@/pages/DesignStudioPage';
 import ResourcesPage from '@/pages/ResourcesPage';
 import ParadigmsPage from '@/pages/ParadigmsPage';
 import SDLDemoPage from '@/pages/SDLDemoPage';
+import LedCalibrationPage from '@/pages/LedCalibrationPage';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { path: 'a-lab', element: <ALabPage /> },
       { path: 'case-studio', element: <CaseStudioPage /> },
       { path: 'sdl-demo', element: <SDLDemoPage /> },
+      { path: 'led-calibration', element: <LedCalibrationPage /> },
       { path: 'methods', element: <MethodsPage /> },
       { path: 'design-studio', element: <DesignStudioPage /> },
       { path: 'resources', element: <ResourcesPage /> },
