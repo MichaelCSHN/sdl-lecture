@@ -6,6 +6,8 @@ const NAV_ITEMS = [
   { to: '/foundations', label: '基础' },
   { to: '/a-lab', label: 'A-Lab' },
   { to: '/case-studio', label: '演示' },
+  { to: '/led-calibration', label: '定标' },
+  { to: '/sdl-demo', label: 'Bench' },
 ];
 
 export default function TopNav() {
