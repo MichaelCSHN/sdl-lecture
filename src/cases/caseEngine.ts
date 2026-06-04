@@ -258,18 +258,18 @@ export class CaseSession {
     acqValue: number
   ): string {
     if (this._state.history.length === 0) {
-      return `[Initial] No prior data. The GP prior is essentially flat, so the first point is chosen quasi-randomly (seed=${this.seed}). This establishes the first observation for the model to learn from.`;
+      return `[初始探索] 尚无任何实验数据。GP 先验分布基本平坦，第一个实验点为准随机选择（种子=${this.seed}）。这一步为模型建立第一个观测数据点。`;
     }
 
     const isExploration = predictedStd > 5;
     const isExploitation = predictedMean > yBest && predictedStd < 3;
 
     if (isExploitation) {
-      return `[Exploitation] The GP is confident (low uncertainty, std=${predictedStd.toFixed(1)}) that this region has high value. Predicted: ${predictedMean.toFixed(1)} > current best ${yBest.toFixed(1)}. The model chooses to refine a known-good region.`;
+      return `[利用] GP 对这片区域有较高信心（低不确定度，标准差=${predictedStd.toFixed(1)}），预测值 ${predictedMean.toFixed(1)} 超过当前最佳 ${yBest.toFixed(1)}。模型选择在已知的良好区域中精炼搜索。`;
     }
     if (isExploration) {
-      return `[Exploration] High model uncertainty here (std=${predictedStd.toFixed(1)}). The GP doesn't know this region well, so it deliberately samples here to learn more — even though the predicted mean (${predictedMean.toFixed(1)}) is moderate. This is the "explore vs. exploit" tradeoff in action.`;
+      return `[探索] 模型在此处的不确定度很高（标准差=${predictedStd.toFixed(1)}）。GP 对这片区域了解不足，因此特意选择此处采样以获取信息——尽管预测均值（${predictedMean.toFixed(1)}）并不突出。这就是"探索与利用权衡"的具体体现。`;
     }
-    return `[Balanced] Predicted: ${predictedMean.toFixed(1)} ± ${predictedStd.toFixed(1)}. Expected Improvement = ${acqValue.toFixed(4)}. Current best = ${yBest.toFixed(1)}. The model balances the chance of finding a better point against the uncertainty of its prediction.`;
+    return `[平衡] 预测值 ${predictedMean.toFixed(1)} ± ${predictedStd.toFixed(1)}。Expected Improvement = ${acqValue.toFixed(4)}。当前最佳 = ${yBest.toFixed(1)}。模型在找到更好点的可能性与预测不确定度之间取得平衡。`;
   }
 }

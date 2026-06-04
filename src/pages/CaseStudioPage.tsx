@@ -4,15 +4,15 @@ import { liveCases } from '@/lib/bo_engine';
 import { CaseSession, type ExperimentRecord } from '@/cases/caseEngine';
 
 // ============================================================
-// RGB LED Case Definition (from liveCases, with lecture metadata)
+// RGB LED 案例定义（来源：bo_engine liveCases）
 // ============================================================
 
 const RGB_LED_CASE = liveCases.find((c) => c.id === 'rgb_led')!;
 
-const TARGET_COLOR = { r: 180, g: 120, b: 60, hex: '#B4783C', name: 'Warm Orange / Amber' };
+const TARGET_COLOR = { r: 180, g: 120, b: 60, hex: '#B4783C', name: '暖橙色' };
 
 // ============================================================
-// Color preview helper
+// 颜色预览辅助组件
 // ============================================================
 
 function pwmToRgb(rPwm: number, gPwm: number, bPwm: number): { r: number; g: number; b: number; hex: string } {
@@ -34,12 +34,11 @@ function ColorSwatch({ r, g, b, label, size }: { r: number; g: number; b: number
 }
 
 // ============================================================
-// Page
+// 页面
 // ============================================================
 
 export default function CaseStudioPage() {
   const [session] = useState<CaseSession>(() => new CaseSession(RGB_LED_CASE, 42));
-  // Force re-render counter — avoids Object.assign prototype hacks
   const [, setTick] = useState(0);
   const [lastRecords, setLastRecords] = useState<ExperimentRecord[]>([]);
   const rerender = () => setTick((t) => t + 1);
@@ -48,90 +47,82 @@ export default function CaseStudioPage() {
   const bestObs = session.state.bestObservation;
   const history = session.state.history;
 
-  // Compute current best color
   const bestParams = session.state.bestParams.length > 0 ? session.state.bestParams : null;
   const bestColor = bestParams
     ? pwmToRgb(bestParams[0], bestParams[1], bestParams[2])
     : null;
 
-  // Run 1 step
   const runOne = useCallback(() => {
     session.recommend();
     const r = session.state.currentRecommendation;
     if (r) {
       const record = session.observe(r.params);
       setLastRecords([record]);
-      session.recommend(); // next recommendation
+      session.recommend();
       rerender();
     }
   }, [session]);
 
-  // Run 5 steps
   const runFive = useCallback(() => {
     const records = session.runSteps(5);
     setLastRecords(records);
     rerender();
   }, [session]);
 
-  // Reset
   const doReset = useCallback(() => {
-    session.reset(42); // fixed seed 42
+    session.reset(42);
     setLastRecords([]);
     rerender();
   }, [session]);
 
-  // ============================================================
-  // Render
-  // ============================================================
-
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
-      <div className="text-[#00f5d4] font-mono text-xs tracking-widest mb-3">CASE STUDIO</div>
-      <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">Case Studio</h1>
+      <div className="text-[#00f5d4] font-mono text-xs tracking-widest mb-3">现场演示</div>
+      <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">案例工作台</h1>
       <p className="text-[#8a92a3] max-w-2xl leading-relaxed text-sm mb-8">
-        Live SDL closed-loop demonstration. Observe how Bayesian optimization selects each next experiment.
+        SDL 闭环的实时演示。观察贝叶斯优化如何选择下一个实验点：参数输入 → 生成观测 → 更新模型 → 推荐下一点。
       </p>
 
-      {/* ===== Workbench ===== */}
+      {/* ===== 工作台 ===== */}
       <div className="glass-panel p-5 rounded-lg border border-[rgba(0,245,212,0.2)] mb-6">
-        {/* Header bar */}
+        {/* 头部 */}
         <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <Zap className="w-4 h-4 text-[#00f5d4]" />
-            <span className="text-sm font-mono text-[#d0d4dc]">RGB LED Color Matching</span>
+            <span className="text-sm font-mono text-[#d0d4dc]">RGB LED 颜色匹配</span>
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-[rgba(0,245,212,0.15)] text-[#00f5d4] font-mono">
-              LIVE
+              实时运行
             </span>
           </div>
           <div className="flex items-center gap-2 text-[10px] font-mono text-[#8a92a3]">
             <Hash className="w-3 h-3" />
-            Seed: <span className="text-[#00f5d4]">{session.state.seed}</span>
+            种子: <span className="text-[#00f5d4]">{session.state.seed}</span>
             <span className="text-[#8a92a3]">|</span>
-            <span>Iteration: <span className="text-[#d0d4dc]">{session.state.iteration}</span></span>
+            <span>迭代: <span className="text-[#d0d4dc]">{session.state.iteration}</span></span>
           </div>
         </div>
 
-        {/* 3-column: Target | Current Best | Recommendation */}
+        {/* 三列面板：目标 | 当前最佳 | 推荐 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-          {/* Target */}
+          {/* 目标 */}
           <div className="p-4 rounded-lg border border-[rgba(67,97,238,0.12)]">
             <div className="flex items-center gap-1.5 mb-3">
               <Target className="w-3.5 h-3.5 text-[#fee440]" />
-              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">TARGET</span>
+              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">目标</span>
             </div>
             <ColorSwatch r={TARGET_COLOR.r} g={TARGET_COLOR.g} b={TARGET_COLOR.b} label={TARGET_COLOR.name} />
             <div className="mt-2 space-y-1 text-[10px] font-mono">
               <div className="flex justify-between"><span className="text-[#8a92a3]">RGB</span><span className="text-[#d0d4dc]">({TARGET_COLOR.r}, {TARGET_COLOR.g}, {TARGET_COLOR.b})</span></div>
-              <div className="flex justify-between"><span className="text-[#8a92a3]">Metric</span><span className="text-[#d0d4dc]">Color distance (max = 100)</span></div>
-              <div className="flex justify-between"><span className="text-[#8a92a3]">Goal</span><span className="text-[#00f5d4]">Maximize match score</span></div>
+              <div className="flex justify-between"><span className="text-[#8a92a3]">指标</span><span className="text-[#d0d4dc]">颜色距离（最高 100）</span></div>
+              <div className="flex justify-between"><span className="text-[#8a92a3]">优化目标</span><span className="text-[#00f5d4]">最大化匹配得分</span></div>
             </div>
           </div>
 
-          {/* Current Best */}
+          {/* 当前最佳 */}
           <div className="p-4 rounded-lg border border-[rgba(0,245,212,0.15)]">
             <div className="flex items-center gap-1.5 mb-3">
               <TrendingUp className="w-3.5 h-3.5 text-[#00f5d4]" />
-              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">BEST SO FAR</span>
+              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">当前最佳</span>
             </div>
             {bestColor ? (
               <>
@@ -139,7 +130,7 @@ export default function CaseStudioPage() {
                   label={`(${bestParams![0].toFixed(0)}, ${bestParams![1].toFixed(0)}, ${bestParams![2].toFixed(0)})`} />
                 <div className="mt-2 space-y-1 text-[10px] font-mono">
                   <div className="flex justify-between">
-                    <span className="text-[#8a92a3]">Score</span>
+                    <span className="text-[#8a92a3]">得分</span>
                     <span className="text-[#00f5d4] text-lg font-semibold">{bestObs.toFixed(1)}</span>
                   </div>
                   <div className="flex justify-between">
@@ -147,21 +138,21 @@ export default function CaseStudioPage() {
                     <span className="text-[#d0d4dc]">({bestColor.r}, {bestColor.g}, {bestColor.b})</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#8a92a3]">Iteration</span>
-                    <span className="text-[#d0d4dc]">{history.find((r) => r.observation >= bestObs)?.iteration ?? 0}</span>
+                    <span className="text-[#8a92a3]">轮次</span>
+                    <span className="text-[#d0d4dc]">{history.find((r) => r.observation >= bestObs)?.iteration ?? '—'}</span>
                   </div>
                 </div>
               </>
             ) : (
-              <div className="text-[10px] text-[#8a92a3] py-3">No experiments yet. Run a step to begin.</div>
+              <div className="text-[10px] text-[#8a92a3] py-3">尚未运行实验。点击下方按钮开始。</div>
             )}
           </div>
 
-          {/* Recommendation */}
+          {/* 推荐 */}
           <div className="p-4 rounded-lg border border-[rgba(67,97,238,0.12)]">
             <div className="flex items-center gap-1.5 mb-3">
               <Crosshair className="w-3.5 h-3.5 text-[#4361ee]" />
-              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">NEXT RECOMMENDATION</span>
+              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">下一推荐</span>
             </div>
             {rec ? (
               <>
@@ -175,58 +166,52 @@ export default function CaseStudioPage() {
                 </div>
                 <div className="mt-2 space-y-1 text-[10px] font-mono">
                   <div className="flex justify-between">
-                    <span className="text-[#8a92a3]">Predicted</span>
+                    <span className="text-[#8a92a3]">预测值</span>
                     <span className="text-[#d0d4dc]">{rec.predictedMean.toFixed(1)} ± {rec.predictedStd.toFixed(1)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#8a92a3]">EI value</span>
+                    <span className="text-[#8a92a3]">EI 值</span>
                     <span className="text-[#00f5d4]">{rec.acquisitionValue.toFixed(4)}</span>
                   </div>
                 </div>
               </>
             ) : (
-              <div className="text-[10px] text-[#8a92a3] py-3">Initializing...</div>
+              <div className="text-[10px] text-[#8a92a3] py-3">初始化中…</div>
             )}
-            {/* Explanation */}
+            {/* 推荐解释 */}
             {rec && (
               <div className="mt-3 pt-3 border-t border-[rgba(67,97,238,0.1)]">
-                <div className="text-[10px] text-[#8a92a3] font-mono mb-1">WHY THIS POINT?</div>
+                <div className="text-[10px] text-[#8a92a3] font-mono mb-1">为什么推荐这个点？</div>
                 <p className="text-[10px] text-[#8a92a3] leading-relaxed">{rec.explanation}</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Speaker Controls */}
+        {/* 讲者控制 */}
         <div className="flex items-center gap-3 mb-5 p-3 rounded-lg border border-[rgba(67,97,238,0.1)]">
-          <span className="text-[10px] text-[#8a92a3] font-mono mr-2">CONTROLS</span>
-          <button
-            onClick={runOne}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(0,245,212,0.3)] text-[#00f5d4] text-[10px] font-mono hover:bg-[rgba(0,245,212,0.08)] active:bg-[rgba(0,245,212,0.15)] transition-colors"
-          >
-            <Play className="w-3 h-3" /> Run 1 Step
+          <span className="text-[10px] text-[#8a92a3] font-mono mr-2">操作</span>
+          <button onClick={runOne}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(0,245,212,0.3)] text-[#00f5d4] text-[10px] font-mono hover:bg-[rgba(0,245,212,0.08)] active:bg-[rgba(0,245,212,0.15)] transition-colors">
+            <Play className="w-3 h-3" /> 运行 1 步
           </button>
-          <button
-            onClick={runFive}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(67,97,238,0.2)] text-[#8a92a3] text-[10px] font-mono hover:bg-[rgba(67,97,238,0.06)] active:bg-[rgba(67,97,238,0.12)] transition-colors"
-          >
-            <Zap className="w-3 h-3" /> Run 5 Steps
+          <button onClick={runFive}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(67,97,238,0.2)] text-[#8a92a3] text-[10px] font-mono hover:bg-[rgba(67,97,238,0.06)] active:bg-[rgba(67,97,238,0.12)] transition-colors">
+            <Zap className="w-3 h-3" /> 运行 5 步
           </button>
-          <button
-            onClick={doReset}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(255,107,107,0.2)] text-[#ff6b6b] text-[10px] font-mono hover:bg-[rgba(255,107,107,0.06)] active:bg-[rgba(255,107,107,0.12)] transition-colors"
-          >
-            <RotateCcw className="w-3 h-3" /> Reset (Seed 42)
+          <button onClick={doReset}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(255,107,107,0.2)] text-[#ff6b6b] text-[10px] font-mono hover:bg-[rgba(255,107,107,0.06)] active:bg-[rgba(255,107,107,0.12)] transition-colors">
+            <RotateCcw className="w-3 h-3" /> 重置（种子 42）
           </button>
         </div>
 
-        {/* History Table */}
+        {/* 历史表 */}
         <div>
           <div className="text-[10px] text-[#8a92a3] font-mono mb-2 tracking-wide">
-            EXPERIMENT HISTORY ({history.length} runs)
+            实验历史（{history.length} 次）
             {lastRecords.length > 0 && (
               <span className="text-[#00f5d4] ml-2">
-                — latest: {lastRecords.map((r) => `#${r.iteration}=${r.observation.toFixed(1)}`).join(', ')}
+                — 最新: {lastRecords.map((r) => `#${r.iteration}=${r.observation.toFixed(1)}`).join(', ')}
               </span>
             )}
           </div>
@@ -239,9 +224,9 @@ export default function CaseStudioPage() {
                     <th className="text-left py-2 px-2 text-[#8a92a3]">R%</th>
                     <th className="text-left py-2 px-2 text-[#8a92a3]">G%</th>
                     <th className="text-left py-2 px-2 text-[#8a92a3]">B%</th>
-                    <th className="text-left py-2 px-2 text-[#8a92a3]">Score</th>
-                    <th className="text-left py-2 px-2 text-[#8a92a3]">Best</th>
-                    <th className="text-left py-2 px-2 text-[#8a92a3] w-8">Color</th>
+                    <th className="text-left py-2 px-2 text-[#8a92a3]">得分</th>
+                    <th className="text-left py-2 px-2 text-[#8a92a3]">最佳</th>
+                    <th className="text-left py-2 px-2 text-[#8a92a3] w-8">颜色</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -272,15 +257,15 @@ export default function CaseStudioPage() {
             </div>
           ) : (
             <div className="text-[10px] text-[#8a92a3] py-6 text-center border border-dashed border-[rgba(67,97,238,0.1)] rounded">
-              Click "Run 1 Step" to start the first experiment.
+              点击「运行 1 步」开始第一个实验。所有结果种子固定，可重复。
             </div>
           )}
         </div>
       </div>
 
-      {/* ===== Other Cases ===== */}
+      {/* 其他案例（计划中） */}
       <div className="mb-8">
-        <h2 className="text-xs text-[#8a92a3] font-mono tracking-widest mb-4">OTHER CASES</h2>
+        <h2 className="text-xs text-[#8a92a3] font-mono tracking-widest mb-4">其他案例（后续版本提供）</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {liveCases
             .filter((c) => c.id !== 'rgb_led' && c.params.length <= 3)
@@ -289,24 +274,21 @@ export default function CaseStudioPage() {
               <div key={c.id} className="glass-panel p-4 rounded-lg border border-[rgba(67,97,238,0.08)] opacity-60">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[9px] px-1.5 py-0.5 rounded bg-[rgba(67,97,238,0.08)] text-[#8a92a3] font-mono">
-                    PLANNED
+                    计划中
                   </span>
                   <span className="text-xs font-mono text-[#d0d4dc]">{c.nameEn}</span>
                 </div>
-                <p className="text-[10px] text-[#8a92a3] leading-relaxed">
-                  {c.description.slice(0, 80)}...
-                </p>
+                <p className="text-[10px] text-[#8a92a3] leading-relaxed">{c.description.slice(0, 60)}…</p>
               </div>
             ))}
         </div>
       </div>
 
-      {/* Lecture note */}
+      {/* 讲座说明 */}
       <div className="p-3 rounded border border-[rgba(67,97,238,0.1)]">
         <p className="text-[10px] text-[#8a92a3] leading-relaxed">
-          <strong>Lecture note:</strong> The RGB LED case is fully live with seeded reproducibility (seed=42).
-          Run 1 Step to show individual decisions; Run 5 Steps to show convergence.
-          Reset to replay from scratch. Other cases are scaffolded for future phases.
+          <strong>讲者说明：</strong>RGB LED 案例完全可运行，种子固定（42），每次重置后可得到完全相同的结果序列。
+          运行 1 步展示单步推荐逻辑；运行 5 步展示收敛过程。其他案例为后续课程扩展，本次讲座以 A-Lab 案例档案替代。
         </p>
       </div>
     </div>
