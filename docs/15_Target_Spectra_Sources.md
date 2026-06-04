@@ -1,4 +1,36 @@
-# 目标光谱来源说明 — 遥感定标光源案例
+# 文献启发教学光谱说明 — 遥感定标光源案例
+
+## 重要口径说明
+
+本案例使用的目标光谱是**基于已发表遥感文献中典型反射率特征手工构建的教学用代表性曲线**。
+
+它们**不是** ECOSTRESS/USGS/ASTER 光谱库的原始下载样本。
+
+谱形特征（如植被红边位置、叶绿素吸收深度、NIR 平台反射率等）基于多篇文献交叉验证，
+但逐 nm 数值不代表原始库数据。
+
+如需原始光谱库数据用于研究，请直接访问：
+- ECOSTRESS Spectral Library: https://speclib.jpl.nasa.gov/
+- USGS Spectral Library: https://crustal.usgs.gov/speclab/
+- ASTER Spectral Library: https://speclib.jpl.nasa.gov/
+
+## 为什么本轮没有直接接入原始库样本
+
+ECOSTRESS/USGS/ASTER 光谱库的原始数据需要：
+1. 从各自服务器下载二进制或 CSV 文件
+2. 在本地处理、截取、重采样
+3. 在纯前端静态部署环境中，无法直接从这些数据库实时查询
+
+这些操作需要本地数据预处理环境（Python/脚本），而不能在 Vercel 纯静态部署的
+前端构建流程中完成。因此 V1 选择文献启发曲线作为教学 baseline。
+
+## 后续如何升级到 dataset-backed version
+
+V2 升级路径：
+1. 下载 4–6 条 ECOSTRESS/USGS 高代表性样本的原始 CSV
+2. 在 `src/data/` 中放入重采样后的数据文件
+3. 更新 `targetSpectra.ts` 标注每条为 `dataset-backed`
+4. 更新本文档与 UI 口径
 
 ## 数据来源
 

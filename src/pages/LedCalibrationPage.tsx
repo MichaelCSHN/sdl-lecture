@@ -16,6 +16,10 @@ type MatchMode = 'spectral' | 'band';
 // Page
 // ================================================================
 
+const SPECTRA_DISCLAIMER =
+  '文献启发教学光谱。基于已发表遥感文献的典型反射率特征手工构建，' +
+  '不是 ECOSTRESS/USGS/ASTER 光谱库的原始下载样本。用于教学演示。';
+
 export default function LedCalibrationPage() {
   const [matchMode, setMatchMode] = useState<MatchMode>('spectral');
   const [selectedTarget, setSelectedTarget] = useState<TargetSpectrum>(TARGET_SPECTRA[0]);
@@ -60,14 +64,16 @@ export default function LedCalibrationPage() {
     const rng = rngRef.current;
     let lastMetrics = currentMetrics;
     let lastReason = '';
+    const stepMetrics: SolutionMetrics[] = [];
     for (let i = 0; i < 5; i++) {
       const { metrics, reason } = improveStep(optState, selectedTarget.reflectance, rng);
       lastMetrics = metrics; lastReason = reason;
+      stepMetrics.push(metrics);
     }
     setCurrentMetrics(lastMetrics);
     setCurrentReason(lastReason);
     setIter((i) => i + 5);
-    setHistory((h) => [...h, ...Array(5).fill(null).map(() => computeMetrics(optState.channels, optState.enabled, optState.weights, selectedTarget.reflectance))]);
+    setHistory((h) => [...h, ...stepMetrics]);
   }, [optState, selectedTarget, currentMetrics]);
 
   const startAuto = useCallback(() => {
@@ -127,6 +133,7 @@ export default function LedCalibrationPage() {
                 </select>
               </div>
               <div className="text-[8px] text-[#5a6377] leading-relaxed">{selectedTarget.description.slice(0, 80)}…</div>
+              <div className="text-[7px] text-[#5a6377] leading-relaxed mt-1 italic">{SPECTRA_DISCLAIMER}</div>
               <div>
                 <label className="text-[9px] text-[#8a92a3]">种子</label>
                 <input type="number" value={seedVal} onChange={(e) => setSeedVal(Number(e.target.value))}
