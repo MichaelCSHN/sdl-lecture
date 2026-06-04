@@ -12,55 +12,86 @@ backend — just static HTML/CSS/JS served from a CDN edge network.
 
 ## 2. Tech Stack (Deployment View)
 
-| Layer | Technology | Version Requirement |
-|-------|-----------|---------------------|
-| Runtime | Node.js | **22** (>=22.12 required by Vite 7) |
-| Package manager | npm | Bundled with Node |
-| Build tool | Vite + tsc | Vite 7.x, TypeScript 5.9 |
-| Framework | React + react-router | React 19, react-router 7 |
-| Hosting | Vercel (static) | — |
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Runtime (Vercel) | Node.js | 22 (via `.nvmrc`) |
+| Runtime (local) | Node.js | 22.13.0 (via conda `sdl-course`) |
+| Package manager | npm | 10.9.2 |
+| Build tool | Vite | 7.3.0 |
+| TypeScript | tsc | 5.9 |
+| Framework | React + react-router | 19 + 7 |
 
-## 3. Build Commands
+## 3. Local Build Commands
 
-```bash
-# Install dependencies
+**The correct invocation on Windows (PowerShell):**
+
+```powershell
+# Prepend conda env to PATH so Node 22.13.0 resolves first
+$env:Path = "D:\anaconda3\envs\sdl-course;" + $env:Path
+
+# Verify you're on the right Node
+node --version   # must show v22.13.0 (NOT v22.11.0)
+
+# Install dependencies (first time only)
 npm install
 
 # Type-check + build
-npm run build
-# Equivalent to: tsc -b && vite build
+npm run build    # equivalent: tsc -b && vite build
 
-# Build output directory
-dist/
+# Local dev server (hot reload, port 3000)
+npm run dev
 
-# Local preview (simulates production)
+# Preview production build locally (port 4173)
 npx vite preview
 ```
 
-## 4. Node Version
+**⚠️ Do NOT run `npm run build` without the PATH override.** The system Node
+(`D:\Program Files\nodejs\node.exe`) is v22.11.0, which triggers:
 
-### How we lock it
+```
+You are using Node.js 22.11.0. Vite requires Node.js version 20.19+ or 22.12+.
+```
 
-1. `.nvmrc` — specifies `22`. Vercel reads this at build time to select
-   the correct Node.js build image.
-2. `package.json` `engines` field — `"node": "^20.19.0 || >=22.12.0"`.
-   This is the authoritative constraint. Vercel also respects this field.
+The build still succeeds on 22.11.0, but the warning indicates the Node version
+is outside Vite's supported range. Use the conda env Node (22.13.0) for all
+lecture-day operations.
 
-### Why 22?
+## 4. Node Version: Root Cause Analysis
 
-Vite 7 requires Node.js >=20.19.0 or >=22.12.0. Node 22 is the current
-LTS and is fully supported on Vercel.
+### The problem
 
-### Avoid Node 22.11.0
+The system PATH has `D:\Program Files\nodejs\` (Node 22.11.0) before the conda
+env directory. Running `npm` or `node` without explicit PATH management picks
+up the unsupported 22.11.0.
 
-Node 22.11.0 is known to have issues with some native modules. The
-lock file ensures Vercel picks the latest Node 22 patch release.
+### What "locked" means — honestly
+
+| Environment | Node version | How it's controlled | Status |
+|------------|-------------|-------------------|--------|
+| **Vercel build** | 22 (latest patch) | `.nvmrc` | ✅ Locked — Vercel reads `.nvmrc` and selects the correct build image |
+| **conda env `sdl-course`** | 22.13.0 | `environment.yml` (`nodejs=22.13`) | ✅ Locked — conda manages this |
+| **System global** | 22.11.0 | Installed at `D:\Program Files\nodejs\` | ❌ NOT locked — this is the user's pre-existing installation |
+
+The `.nvmrc` lock works for Vercel. The `environment.yml` lock works for conda.
+But neither controls which `node` resolves from a plain PowerShell prompt —
+that's determined by the user's PATH order.
+
+### How to ensure the right Node
+
+Always run one of these before any npm command:
+
+```powershell
+# Option A: PATH override (recommended for lecture day)
+$env:Path = "D:\anaconda3\envs\sdl-course;" + $env:Path
+
+# Option B: Use conda run (best for one-off commands)
+conda run -n sdl-course node --version
+```
+
+When in doubt, run `node --version` first. If it says `v22.11.0`, apply the PATH
+override.
 
 ## 5. SPA Routing
-
-All client-side routes must serve `index.html` so that react-router
-can handle navigation. If a user refreshes on `/a-lab`, the server
-must return the SPA shell, not a 404.
 
 ### vercel.json rewrite rule
 
@@ -72,83 +103,61 @@ must return the SPA shell, not a 404.
 }
 ```
 
-This sends every request to `index.html`. React-router then reads the URL
-and renders the correct page component.
+All requests go to `index.html`. React-router handles client-side routing.
 
-### Verified routes
+### Verified routes (all return HTTP 200, tested 2026-06-04)
 
-After deployment, these paths must load directly (no 404):
-
-| Path | Page |
-|------|------|
-| `/` | Home (course entry) |
-| `/course` | Course map |
-| `/foundations` | Foundations (experiment history, taxonomy, DOE vs SDL, SDL concepts) |
-| `/a-lab` | A-Lab case file |
-| `/case-studio` | Case Studio (RGB LED live demo) |
-| `/methods` | Methods Lab (placeholder) |
-| `/design-studio` | Design Studio (placeholder) |
-| `/resources` | Resources (placeholder) |
+| Path | Page | Status |
+|------|------|--------|
+| `/` | Home (course entry) | ✅ |
+| `/course` | Course map | ✅ |
+| `/foundations` | Foundations | ✅ |
+| `/a-lab` | A-Lab case file | ✅ |
+| `/case-studio` | Case Studio (RGB LED live) | ✅ |
+| `/methods` | Methods Lab (placeholder) | ✅ |
+| `/design-studio` | Design Studio (placeholder) | ✅ |
+| `/resources` | Resources (placeholder) | ✅ |
 
 ### Asset caching
 
-Static assets in `/assets/*` are served with immutable cache headers
-(`Cache-Control: public, max-age=31536000, immutable`) because Vite
-generates content-hashed filenames (`index-C-ChT0vX.js`).
+`/assets/*` files have content-hashed names (`index-C-ChT0vX.js`) and are served
+with `Cache-Control: public, max-age=31536000, immutable`.
 
-## 6. How to Deploy (Vercel)
+## 6. Vercel Deploy Workflow
 
-### First-time setup
-
-```bash
-# Install Vercel CLI globally (one time)
-npm i -g vercel
-
-# Login (one time)
-vercel login
-
-# Link project (one time, from project root)
-vercel link
-```
-
-### Every deploy
+### First-time setup (one time)
 
 ```bash
-# Deploy preview (staging URL, no production alias)
-vercel
-
-# Deploy to production
-vercel --prod
+npx vercel login
 ```
 
-### CI/CD notes
+### Deploy to production
 
-If connecting the GitHub repo to Vercel:
-1. Go to [vercel.com](https://vercel.com) → "Add New Project"
-2. Import the repository
-3. Vercel auto-detects Vite from `vite.config.ts`
-4. Framework preset: **Vite**
-5. Build command: `npm run build`
-6. Output directory: `dist`
-7. Install command: `npm install`
-8. Set Node version: Vercel reads `.nvmrc` automatically
+```bash
+# From project root
+npx vercel --prod --yes
+```
 
-Every push to `main` will trigger a production deploy.
+Note: `npx vercel` may pick up system Node 22.11.0. This is fine — the Vercel
+CLI just uploads files; the actual build runs on Vercel's infrastructure which
+uses Node 22 (via `.nvmrc`).
 
-## 7. How to Update
+### CI/CD (optional)
 
-1. Make changes locally
-2. `npm run build` — verify locally
-3. Commit and push to `main`
-4. Vercel auto-deploys from `main` (if CI is configured)
-5. Or manually: `vercel --prod`
+Connect the GitHub repo at [vercel.com](https://vercel.com):
+1. Import repository → Vercel auto-detects Vite
+2. Build command: `npm run build`
+3. Output directory: `dist`
+4. Node version: auto-detected from `.nvmrc`
 
-## 8. Troubleshooting
+Every push to `main` triggers a production deploy.
+
+## 7. Troubleshooting
 
 | Problem | Likely cause | Fix |
 |---------|-------------|-----|
-| Build fails on Vercel but passes locally | Node version mismatch | Check `.nvmrc` has `22` |
+| Vite warns about Node 22.11.0 | System Node in PATH | Apply `$env:Path = "D:\anaconda3\envs\sdl-course;" + $env:Path` first |
+| `conda run` encoding error | GBK codec can't handle build output | Use PATH override instead of `conda run` for `npm run build` |
 | Route gives 404 on refresh | SPA rewrite not applied | Check `vercel.json` rewrites |
-| Assets 404 | `base` in vite.config changed | Must be `'./'` for relative paths |
-| Build timeout | Vercel free tier has 45-min timeout | Normal build takes ~2 min, fine |
-| `tsc -b` fails | TypeScript errors introduced | Run `npm run build` locally before push |
+| Assets 404 online | `base` in vite.config changed | Must be `'./'` for relative paths |
+| Build fails on Vercel but passes locally | Node version mismatch | Check `.nvmrc` has `22` |

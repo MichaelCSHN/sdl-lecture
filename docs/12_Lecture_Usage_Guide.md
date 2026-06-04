@@ -97,35 +97,54 @@ For a 3-hour graduate lecture, follow this sequence:
 
 ## 5. Fallback Plan: If Online Version is Unavailable
 
-### Option A: Local dev server
+### Prerequisite: ensure correct Node version
 
-```bash
+Before running any local command, verify Node:
+
+```powershell
+# Check what Node is active
+node --version
+```
+
+If it says `v22.11.0`, prepend the conda env to PATH:
+
+```powershell
+$env:Path = "D:\anaconda3\envs\sdl-course;" + $env:Path
+node --version   # should now say v22.13.0
+```
+
+### Option A: Local dev server (hot reload)
+
+```powershell
 cd D:\A-Lab\sdl-lecture
-conda activate sdl-course
+$env:Path = "D:\anaconda3\envs\sdl-course;" + $env:Path   # if needed
 npm run dev
 # Opens at http://localhost:3000
 ```
 
-All pages and the Case Studio demo work identically in local dev mode.
+All pages and Case Studio demo work identically in dev mode. Changes to source
+files are reflected immediately — useful if you need to tweak something mid-talk.
 
 ### Option B: Local production preview
 
-```bash
+```powershell
 cd D:\A-Lab\sdl-lecture
-conda activate sdl-course
+$env:Path = "D:\anaconda3\envs\sdl-course;" + $env:Path   # if needed
 npm run build
 npx vite preview
 # Opens at http://localhost:4173
 ```
 
-This serves the exact same build output as the Vercel deployment.
+Serves the exact same build output as the Vercel deployment. Use this if you
+want to verify the production build before the lecture.
 
-### Option C: Screenshot backup
+### Option C: Static screenshots
 
-If all else fails, the lecturer should have screenshots of:
-1. The Foundations DOE vs SDL comparison table
-2. The A-Lab problem/system/controversy panels
-3. The Case Studio workbench layout
+If both online and local fail: screenshot the key pages beforehand as a
+last-resort fallback:
+1. Foundations DOE vs SDL comparison table
+2. A-Lab problem / system / controversy panels
+3. Case Studio workbench layout (Target / Best So Far / Next Recommendation)
 
 ## 6. Known Limitations in Lecture MVP
 
