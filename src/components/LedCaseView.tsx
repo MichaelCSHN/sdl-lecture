@@ -288,18 +288,18 @@ export default function LedCaseView() {
                   <option value="PI">Probability of Improvement (PI)</option>
                 </select>} />
               {acqFn === 'UCB' && (
-                <Field label="UCB β" help="越大越探索不确定区域。">
-                  <input type="number" min={0.2} max={8} step={0.1} value={ucbBeta}
-                    onChange={(e) => setUcbBeta(Number(e.target.value))} className={INP} />
-                </Field>
+                <Field label="UCB β" help="越大越探索不确定区域。"
+                  control={<input type="number" min={0.2} max={8} step={0.1} value={ucbBeta}
+                    onChange={(e) => setUcbBeta(Number(e.target.value))} className={INP} />} />
               )}
             </div>
           </div>
 
           <div className="border-t border-[rgba(67,97,238,0.1)] pt-2 flex items-center justify-between">
-            <Field label="合成宽谱通道" help="补足 700–1000 nm 的桥接能力。">
-              <></>
-            </Field>
+            <div className="flex items-center gap-1 text-[10px] text-[#d0d4dc]">
+              <span>合成宽谱通道</span>
+              <HelpTip text="补足 700–1000 nm 的桥接能力。" />
+            </div>
             <button onClick={handleSyntheticToggle}
               className={`px-2 py-0.5 rounded text-[9px] font-mono border transition-colors ${
                 useSynthetic ? 'bg-[rgba(0,245,212,0.12)] text-[#00f5d4] border-[rgba(0,245,212,0.3)]'
@@ -308,9 +308,8 @@ export default function LedCaseView() {
             </button>
           </div>
 
-          <Field label="随机种子" help="固定后可重复演示。">
-            <input type="number" value={seedVal} onChange={(e) => setSeedVal(Number(e.target.value))} className={INP} />
-          </Field>
+          <Field label="随机种子" help="固定后可重复演示。"
+            control={<input type="number" value={seedVal} onChange={(e) => setSeedVal(Number(e.target.value))} className={INP} />} />
 
           <div className="border-t border-[rgba(67,97,238,0.1)] pt-2">
             <div className="text-[9px] text-[#4361ee] font-mono mb-2">目标函数权重</div>

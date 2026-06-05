@@ -34,7 +34,6 @@ const CASES = [
 export default function CaseStudioPage() {
   const [activeCase, setActiveCase] = useState<CaseId>('branin');
   const { isLectureMode } = useLecture();
-  const activeCaseDef = CASES.find((c) => c.id === activeCase)!;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">

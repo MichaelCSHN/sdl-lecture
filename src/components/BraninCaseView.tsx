@@ -69,7 +69,7 @@ const cellW = PW / GCols, cellH = PH / GRows;
 
 export default function BraninCaseView() {
   const [session] = useState(() => new CaseSession(BRANINCASE, 42));
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   const rerender = () => setTick((n) => n + 1);
 
   const rec = session.state.currentRecommendation;
