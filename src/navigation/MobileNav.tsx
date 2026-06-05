@@ -39,6 +39,7 @@ export default function MobileNav() {
           background: isLectureMode ? 'rgba(40,20,0,0.97)' : 'rgba(6,22,42,0.94)',
           backdropFilter: 'blur(12px)',
           borderTop: `1px solid ${isLectureMode ? 'rgba(183,121,31,0.4)' : 'rgba(67,97,238,0.2)'}`,
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
         <div className="flex items-center justify-around px-1 py-1.5">
@@ -77,8 +78,12 @@ export default function MobileNav() {
       {menuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" onClick={() => setMenuOpen(false)}>
           <div
-            className="absolute bottom-16 left-4 right-4 rounded-lg border border-[rgba(67,97,238,0.2)] p-4"
-            style={{ background: 'rgba(6,22,42,0.98)', backdropFilter: 'blur(16px)' }}
+            className="absolute left-4 right-4 rounded-lg border border-[rgba(67,97,238,0.2)] p-4"
+            style={{
+              bottom: 'calc(4.5rem + env(safe-area-inset-bottom, 0px))',
+              background: 'rgba(6,22,42,0.98)',
+              backdropFilter: 'blur(16px)',
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col gap-2">

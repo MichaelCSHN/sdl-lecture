@@ -130,6 +130,8 @@ export default function SDLDemoPage() {
   const [runState, setRunState] = useState<RunState | null>(null);
   const gpRef = useRef<GaussianProcess | null>(null);
   const autoRef = useRef<boolean>(false);
+  const initializedRef = useRef(false);
+  const initializedTabRef = useRef<TabId>(tab);
 
   // Multi-obj is always minimization — lock UI
   const effectiveDir: OptimDir = tab === 'multi' ? 'min' : optimDir;
@@ -197,6 +199,19 @@ export default function SDLDemoPage() {
     computeVisData(state, gp, tab, acqFn, effectiveDir, ucbBeta, domain);
     setRunState({ ...state });
   }, [seedVal, tab, acqFn, effectiveDir, nInit, initDesign, noise, ucbBeta]);
+
+  useEffect(() => {
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      initializedTabRef.current = tab;
+      doReset();
+      return;
+    }
+    if (initializedTabRef.current !== tab) {
+      initializedTabRef.current = tab;
+      doReset();
+    }
+  }, [tab, doReset]);
 
   // ================================================================
   // Run one step (core logic)
@@ -323,7 +338,7 @@ export default function SDLDemoPage() {
       {/* Tabs */}
       <div className="flex gap-1 mb-6 flex-wrap">
         {TABS.map((t) => (
-          <button key={t.id} onClick={() => { setTab(t.id); setRunState(null); }}
+          <button key={t.id} onClick={() => setTab(t.id)}
             className={`px-4 py-2 rounded text-xs font-mono transition-colors ${
               tab === t.id ? 'bg-[rgba(0,245,212,0.12)] text-[#00f5d4] border border-[rgba(0,245,212,0.3)]' : 'text-[#8a92a3] border border-[rgba(67,97,238,0.1)] hover:border-[rgba(0,245,212,0.2)]'
             }`}>

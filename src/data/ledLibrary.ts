@@ -45,103 +45,40 @@ const NARROW_LED_CHANNELS: LedChannel[] = [
   { id: 'led-970', name: '970 nm 近红外 LED', family: '窄带 LED', peak_nm: 970, fwhm_nm: 50, wavelength_nm: WAVELENGTH_GRID, spd: gaussianSpd(970, 50), price: 10.0, lifetime_hours: 15000, power_max_w: 0.2 },
 ];
 
-const SYNTHETIC_BROAD_CHANNELS: LedChannel[] = [
-  {
-    id: 'syn-540',
-    name: '540 nm 宽谱合成 LED',
-    family: '合成宽谱 LED',
-    peak_nm: 540,
-    fwhm_nm: 85,
-    wavelength_nm: WAVELENGTH_GRID,
-    spd: broadenedSyntheticSpd(540, 85),
-    price: 9.0,
-    lifetime_hours: 22000,
-    power_max_w: 0.7,
-    isSynthetic: true,
-    sourcePumpNm: 430,
-    note: '用于补足绿光和黄绿区域的宽谱覆盖。',
-  },
-  {
-    id: 'syn-610',
-    name: '610 nm 宽谱合成 LED',
-    family: '合成宽谱 LED',
-    peak_nm: 610,
-    fwhm_nm: 105,
-    wavelength_nm: WAVELENGTH_GRID,
-    spd: broadenedSyntheticSpd(610, 105),
-    price: 10.5,
-    lifetime_hours: 20000,
-    power_max_w: 0.7,
-    isSynthetic: true,
-    sourcePumpNm: 450,
-    note: '用于补足黄橙红过渡区，降低可见段通道数。',
-  },
-  {
-    id: 'syn-720',
-    name: '720 nm 宽谱合成 LED',
-    family: '合成宽谱 LED',
-    peak_nm: 720,
-    fwhm_nm: 115,
-    wavelength_nm: WAVELENGTH_GRID,
-    spd: broadenedSyntheticSpd(720, 115),
-    price: 12.0,
-    lifetime_hours: 18000,
-    power_max_w: 0.6,
-    isSynthetic: true,
-    sourcePumpNm: 470,
-    note: '重点补足植被红边和 680–780 nm 的桥接区域。',
-  },
-  {
-    id: 'syn-820',
-    name: '820 nm 宽谱合成 LED',
-    family: '合成宽谱 LED',
-    peak_nm: 820,
-    fwhm_nm: 130,
-    wavelength_nm: WAVELENGTH_GRID,
-    spd: broadenedSyntheticSpd(820, 130),
-    price: 14.0,
-    lifetime_hours: 15000,
-    power_max_w: 0.45,
-    isSynthetic: true,
-    sourcePumpNm: 470,
-    note: '用于覆盖植被 NIR 平台和 760–880 nm 的宽谱空白。',
-  },
-  {
-    id: 'syn-900',
-    name: '900 nm 宽谱合成 LED',
-    family: '合成宽谱 LED',
-    peak_nm: 900,
-    fwhm_nm: 140,
-    wavelength_nm: WAVELENGTH_GRID,
-    spd: broadenedSyntheticSpd(900, 140),
-    price: 16.0,
-    lifetime_hours: 12000,
-    power_max_w: 0.35,
-    isSynthetic: true,
-    sourcePumpNm: 520,
-    note: '用于增强 850–950 nm 深近红外拟合能力。',
-  },
-  {
-    id: 'syn-960',
-    name: '960 nm 宽谱合成 LED',
-    family: '合成宽谱 LED',
-    peak_nm: 960,
-    fwhm_nm: 100,
-    wavelength_nm: WAVELENGTH_GRID,
-    spd: broadenedSyntheticSpd(960, 100),
-    price: 18.0,
-    lifetime_hours: 10000,
-    power_max_w: 0.25,
-    isSynthetic: true,
-    sourcePumpNm: 590,
-    note: '用于补足 930–1000 nm 长波尾部，对水体和暗目标更有帮助。',
-  },
-];
+const SYNTHETIC_CHANNEL_SPECS = [
+  { id: 'syn-430', peak_nm: 430, fwhm_nm: 70, price: 8.5, lifetime_hours: 24000, power_max_w: 0.75, sourcePumpNm: 405, note: '补足 400–460 nm，并与 405/450/470 nm 窄带通道形成重叠。' },
+  { id: 'syn-480', peak_nm: 480, fwhm_nm: 75, price: 8.8, lifetime_hours: 23500, power_max_w: 0.75, sourcePumpNm: 430, note: '补足蓝青过渡区，增强 450–530 nm 的连续覆盖。' },
+  { id: 'syn-530', peak_nm: 530, fwhm_nm: 80, price: 9.2, lifetime_hours: 23000, power_max_w: 0.75, sourcePumpNm: 450, note: '增强绿光主峰附近覆盖，减少 500–560 nm 的稀疏感。' },
+  { id: 'syn-580', peak_nm: 580, fwhm_nm: 90, price: 9.8, lifetime_hours: 22000, power_max_w: 0.72, sourcePumpNm: 470, note: '桥接黄绿到琥珀区间，增强 540–630 nm 的重叠度。' },
+  { id: 'syn-630', peak_nm: 630, fwhm_nm: 95, price: 10.5, lifetime_hours: 21000, power_max_w: 0.68, sourcePumpNm: 470, note: '增强红光覆盖，降低 590/625/680 nm 之间的间隙感。' },
+  { id: 'syn-690', peak_nm: 690, fwhm_nm: 105, price: 11.3, lifetime_hours: 19500, power_max_w: 0.62, sourcePumpNm: 505, note: '补足红边区和深红区，为 650–740 nm 提供更连续桥接。' },
+  { id: 'syn-750', peak_nm: 750, fwhm_nm: 115, price: 12.2, lifetime_hours: 18000, power_max_w: 0.56, sourcePumpNm: 530, note: '增强 710–810 nm 的宽谱覆盖，连接红边与近红外平台。' },
+  { id: 'syn-820', peak_nm: 820, fwhm_nm: 125, price: 13.6, lifetime_hours: 16000, power_max_w: 0.48, sourcePumpNm: 560, note: '增强植被近红外平台覆盖，抬高 780–870 nm 的重叠度。' },
+  { id: 'syn-890', peak_nm: 890, fwhm_nm: 130, price: 15.0, lifetime_hours: 13500, power_max_w: 0.38, sourcePumpNm: 590, note: '补足 850–940 nm，减少近红外尾段的局部稀疏。' },
+  { id: 'syn-960', peak_nm: 960, fwhm_nm: 110, price: 17.0, lifetime_hours: 11000, power_max_w: 0.28, sourcePumpNm: 620, note: '补足 920–1000 nm 长波尾段，使全库覆盖延伸到 1000 nm。' },
+] as const;
 
-export const FULL_LED_LIBRARY: LedChannel[] = [...NARROW_LED_CHANNELS, ...SYNTHETIC_BROAD_CHANNELS];
+const SYNTHETIC_BROAD_CHANNELS: LedChannel[] = SYNTHETIC_CHANNEL_SPECS.map((spec) => ({
+  id: spec.id,
+  name: `${spec.peak_nm} nm 合成宽谱 LED`,
+  family: '合成宽谱 LED',
+  peak_nm: spec.peak_nm,
+  fwhm_nm: spec.fwhm_nm,
+  wavelength_nm: WAVELENGTH_GRID,
+  spd: broadenedSyntheticSpd(spec.peak_nm, spec.fwhm_nm),
+  price: spec.price,
+  lifetime_hours: spec.lifetime_hours,
+  power_max_w: spec.power_max_w,
+  isSynthetic: true,
+  sourcePumpNm: spec.sourcePumpNm,
+  note: spec.note,
+}));
+
+export const FULL_LED_LIBRARY: LedChannel[] = [...NARROW_LED_CHANNELS, ...SYNTHETIC_BROAD_CHANNELS]
+  .sort((a, b) => a.peak_nm - b.peak_nm);
 
 export const LED_DISCLAIMER =
   '当前 LED 库用于课程级遥感定标光源设计演示，不是采购级器件数据库。窄带通道采用高斯近似；价格、寿命、最大功率为教学级典型值。';
 
 export const PHOSPHOR_DISCLAIMER =
-  '“合成宽谱 LED”用于模拟荧光转换或宽谱封装带来的展宽效果。V3 默认采用单峰宽谱近似，不再保留显式双峰泵浦泄漏形状。';
+  '“合成宽谱 LED”用于模拟荧光转换或宽谱封装带来的展宽效果。当前版本把它们排成覆盖 400–1000 nm 的单峰宽谱阵列，并保证相邻通道具有足够重叠。';

@@ -11,7 +11,7 @@ function Shell() {
       <LectureToolbar />
       <div style={{ paddingTop: isLectureMode ? 40 : 0 }}>
         <TopNav />
-        <main className="pt-16 pb-20 lg:pb-4">
+        <main className="pt-16 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-4">
           <Outlet />
         </main>
       </div>
