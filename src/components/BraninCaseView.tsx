@@ -80,6 +80,13 @@ export default function BraninCaseView() {
     if (timerRef.current) window.clearTimeout(timerRef.current);
   }, []);
 
+  // Lecture mode: R key dispatches 'lecture:reset' → reset this case
+  useEffect(() => {
+    const handler = () => doReset();
+    window.addEventListener('lecture:reset', handler);
+    return () => window.removeEventListener('lecture:reset', handler);
+  }, [doReset]);
+
   const rec = session.state.currentRecommendation;
   const history = session.state.history;
   const bestObs = session.state.bestObservation;

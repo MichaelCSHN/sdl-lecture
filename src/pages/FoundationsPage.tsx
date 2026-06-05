@@ -786,40 +786,72 @@ export default function FoundationsPage() {
         </div>
 
         <p className="text-xs text-[#8a92a3] leading-relaxed mb-6 max-w-3xl">
-          本课程的核心立场是：SDL 不是 DOE 的"高级替代品"，而是实验方法论在新技术条件下的
-          <strong>连续演化</strong>。理解 DOE 的逻辑和边界，是理解 SDL 为何如此设计的前提。
+          SDL 不是 DOE 的"高级替代品"，而是实验方法论在新技术条件下的<strong>连续演化</strong>。
+          理解每一步"解决了什么"和"留下了什么问题"，是理解 SDL 为何如此设计的前提。
         </p>
 
-        {/* DOE 解决什么 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="glass-panel p-4 rounded-lg border border-[rgba(67,97,238,0.1)]">
-            <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">DOE 解决什么</h3>
-            <p className="text-xs text-[#8a92a3] leading-relaxed mb-3">
-              DOE 的核心问题是：给定有限资源，如何<strong>策略性选择</strong>实验点，以最大化信息获取？
-            </p>
-            <ul className="text-xs text-[#8a92a3] space-y-1 list-disc list-inside">
-              <li>识别哪些因子对响应有显著影响（筛选）</li>
-              <li>量化因子间的交互作用</li>
-              <li>用最少的实验次数建立响应面模型</li>
-              <li>保证统计推断的有效性（随机化、重复、区组）</li>
-            </ul>
-          </div>
-          <div className="glass-panel p-4 rounded-lg border border-[rgba(67,97,238,0.1)]">
-            <h3 className="text-sm font-semibold text-[#d0d4dc] mb-2">DOE 的边界</h3>
-            <p className="text-xs text-[#8a92a3] leading-relaxed mb-3">
-              DOE 假设你知道哪些因子重要。对于探索性实验，这个假设常常不成立。
-            </p>
-            <ul className="text-xs text-[#8a92a3] space-y-1 list-disc list-inside">
-              <li>维数灾难：全因子实验点数随因子数指数增长</li>
-              <li>设计固定：实验计划在数据收集前完全确定，无法自适应调整</li>
-              <li>对多峰、非平滑响应面缺乏处理能力</li>
-              <li>无法表达"我们不知道什么"——即不确定度不是核心输出</li>
-            </ul>
-          </div>
+        {/* 5-step evolution narrative */}
+        <div className="space-y-3 mb-8">
+          {[
+            {
+              step: '01', name: 'OFAT', sub: '一次一因素', color: '#8a92a3',
+              solved: '系统地观察单个因素的效应，比纯猜测有了逻辑结构。',
+              leftover: '完全忽视因素间的交互效应。A 的"最优值"往往随 B 的水平而改变；效率极低，每次只能研究一个问题。',
+              example: '调节烧结温度找最优导电率，但结果随气氛（空气 vs 氮气）剧烈变化——温度×气氛的交互让所有"最优温度"的结论都失效。',
+            },
+            {
+              step: '02', name: '全因子 / 析因设计', sub: 'Factorial DOE', color: '#4361ee',
+              solved: '同时研究多个因素及其交互效应；统计随机化消除系统偏差。',
+              leftover: '实验次数指数爆炸（3因素×3水平=27次，5因素=243次，8因素=6561次）。设计在数据采集前全部固定——无法从早期结果学习调整。',
+              example: '优化钙钛矿合成的 5 个工艺参数，全因子设计需要数百次实验，博士生整个阶段可能都花在这一张响应面上。',
+            },
+            {
+              step: '03', name: 'RSM', sub: '响应面方法', color: '#00b4d8',
+              solved: '用更少的实验拟合连续曲面找极值区域，不需要逐点遍历。',
+              leftover: '模型固定为二阶多项式，无法处理多峰响应；实验点仍预先确定，不自适应，"全局最优"可能是局部最优。',
+              example: '用 RSM 优化薄膜沉积工艺，预设实验点聚焦在参数空间中心，真正的最优点在角落——设计之初就没有覆盖到。',
+            },
+            {
+              step: '04', name: 'Bayesian Optimization', sub: '贝叶斯优化', color: '#f59e0b',
+              solved: '自适应实验选择：每次实验后更新概率模型，用不确定度引导下一步，用最少实验找最优。',
+              leftover: '执行速度仍是人工瓶颈：每次迭代需要人来操作、等待、记录数据，迭代周期以天/周计。',
+              example: 'BO 推荐在两天内做 20 次迭代，但实验员每次合成+表征要 8 小时——算法等人，不是人等算法。',
+            },
+            {
+              step: '05', name: 'SDL', sub: '自驱动实验室', color: '#00f5d4',
+              solved: '将执行、表征、数据处理和推荐全部自动化，闭环速度从天/周降到小时/分钟，算法和机器一起跑。',
+              leftover: '系统可靠性取决于每个自动化环节的误差积累；"成功"的定义必须在运行前精确指定；表征自动化（XRD解析、缺陷识别）仍有局限。',
+              example: 'A-Lab 在 17 天内执行 355 次自主实验，相当于 2–3 年的人工实验量——但正因如此，验证和误差控制的挑战也成比例放大。',
+            },
+          ].map((item) => (
+            <div key={item.step} className="glass-panel rounded-lg border border-[rgba(67,97,238,0.1)] p-4">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 text-center w-24">
+                  <div className="text-[10px] font-mono mb-0.5" style={{ color: item.color }}>Step {item.step}</div>
+                  <div className="text-xs font-semibold leading-tight" style={{ color: item.color }}>{item.name}</div>
+                  <div className="text-[10px] text-[#5a6377]">{item.sub}</div>
+                </div>
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+                  <div>
+                    <div className="text-[9px] font-mono text-[#00f5d4] mb-1">✓ 解决了</div>
+                    <p className="text-[#8a92a3] leading-5">{item.solved}</p>
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-mono text-[#ff6b6b] mb-1">→ 留下的问题</div>
+                    <p className="text-[#8a92a3] leading-5">{item.leftover}</p>
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-mono text-[#fee440] mb-1">MSE 例子</div>
+                    <p className="text-[#8a92a3] leading-5 italic">{item.example}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* 对比表 */}
-        <div className="overflow-x-auto mb-6">
+        {/* Comparison table */}
+        <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
               <tr className="border-b border-[rgba(67,97,238,0.15)]">
@@ -833,40 +865,20 @@ export default function FoundationsPage() {
               {[
                 ['策略', '直觉驱动', '统计设计', '模型驱动，自适应'],
                 ['数据效率', '低', '中（预设设计）', '高（针对性采样）'],
-                ['参数空间', '窄（1–3 个因子）', '中等（3–8 个因子）', '可处理高维空间'],
-                ['不确定度处理', '隐式 / 忽略', 'ANOVA、残差分析', '显式（GP 后验方差）'],
+                ['参数空间', '窄（1–3因子）', '中等（3–8因子）', '可处理高维空间'],
+                ['不确定度处理', '隐式/忽略', 'ANOVA、残差分析', '显式（GP后验方差）'],
                 ['迭代速度', '慢（人在环中）', '中等（批次）', '快（完全闭环）'],
-                ['最适合', '早期探索', '筛选与主效应估计', '复杂、昂贵实验'],
-                ['关键局限', '无统计保证', '维数灾难、设计固定', '需要合理的先验和准确测量'],
+                ['关键局限', '无统计保证', '维数灾难、设计固定', '需要合理先验和准确测量'],
               ].map(([dim, trial, doe, sdl]) => (
                 <tr key={dim} className="border-b border-[rgba(67,97,238,0.06)]">
                   <td className="py-2.5 px-3 text-[#d0d4dc] font-semibold text-[11px]">{dim}</td>
-                  <td className="py-2.5 px-3 text-[12px]">{trial}</td>
-                  <td className="py-2.5 px-3 text-[12px]">{doe}</td>
-                  <td className="py-2.5 px-3 text-[#d0d4dc] text-[12px]">{sdl}</td>
+                  <td className="py-2.5 px-3">{trial}</td>
+                  <td className="py-2.5 px-3">{doe}</td>
+                  <td className="py-2.5 px-3 text-[#d0d4dc]">{sdl}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* 为什么 SDL 不是简单"更高级 DOE" */}
-        <div className="glass-panel p-5 rounded-lg border border-[rgba(0,245,212,0.1)]">
-          <h3 className="text-sm font-semibold text-[#d0d4dc] mb-3">
-            为什么 SDL 不只是"更高级的 DOE"
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { title: '决策方式不同', desc: 'DOE 在设计阶段一次性确定所有实验点。SDL 每步实验后更新模型，重新决定下一步——这是"学习"和"执行计划"的本质区别。' },
-              { title: '信息对象不同', desc: 'DOE 关注因子效应的统计显著性。SDL 关注代理模型在参数空间中的不确定度分布——即明确回答"我们哪里还不确定"。' },
-              { title: '工程复杂度不同', desc: 'SDL 需要物理自动化（机器人、仪表）和计算自动化（模型更新、推荐生成）的深度耦合。DOE 可以完全手算。' },
-            ].map((item) => (
-              <div key={item.title} className="p-3 rounded border border-[rgba(67,97,238,0.08)]">
-                <div className="text-xs text-[#d0d4dc] font-semibold mb-1">{item.title}</div>
-                <div className="text-[10px] text-[#8a92a3] leading-relaxed">{item.desc}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -900,6 +912,66 @@ export default function FoundationsPage() {
           以下六个概念构成了理解 SDL 闭环的基础。不需要深数学推导，但研究生应当能够解释每个概念
           <strong>解决什么问题</strong>以及<strong>它在闭环中的位置</strong>。
         </p>
+
+        {/* Surrogate–Uncertainty–Acquisition triangle diagram (PRD §5.1) */}
+        <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-4 mb-6">
+          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">三角关系图示 · Surrogate / Uncertainty / Acquisition</div>
+          <svg width="100%" viewBox="0 0 520 200" style={{ display: 'block' }}>
+            {/* Central flow label */}
+            <text x="260" y="104" textAnchor="middle" fontSize="9" fill="#5a6377" fontFamily="monospace">闭环中心</text>
+
+            {/* ── Box: 代理模型 (top-left) ── */}
+            <rect x="20" y="20" width="140" height="64" rx="6"
+              fill="rgba(67,97,238,0.08)" stroke="rgba(67,97,238,0.35)" strokeWidth="1" />
+            <text x="90" y="42" textAnchor="middle" fontSize="11" fontWeight="600" fill="#4361ee" fontFamily="sans-serif">代理模型</text>
+            <text x="90" y="57" textAnchor="middle" fontSize="9" fill="#8a92a3" fontFamily="monospace">Surrogate (GP)</text>
+            <text x="90" y="72" textAnchor="middle" fontSize="9" fill="#8a92a3" fontFamily="monospace">输出 μ 和 σ</text>
+
+            {/* ── Box: 不确定度 (top-right) ── */}
+            <rect x="360" y="20" width="140" height="64" rx="6"
+              fill="rgba(214,158,46,0.08)" stroke="rgba(214,158,46,0.35)" strokeWidth="1" />
+            <text x="430" y="42" textAnchor="middle" fontSize="11" fontWeight="600" fill="#D69E2E" fontFamily="sans-serif">不确定度</text>
+            <text x="430" y="57" textAnchor="middle" fontSize="9" fill="#8a92a3" fontFamily="monospace">Uncertainty (σ)</text>
+            <text x="430" y="72" textAnchor="middle" fontSize="9" fill="#8a92a3" fontFamily="monospace">后验方差</text>
+
+            {/* ── Box: 采集函数 (bottom-center) ── */}
+            <rect x="170" y="130" width="180" height="56" rx="6"
+              fill="rgba(0,245,212,0.08)" stroke="rgba(0,245,212,0.35)" strokeWidth="1" />
+            <text x="260" y="152" textAnchor="middle" fontSize="11" fontWeight="600" fill="#00f5d4" fontFamily="sans-serif">采集函数</text>
+            <text x="260" y="167" textAnchor="middle" fontSize="9" fill="#8a92a3" fontFamily="monospace">Acquisition (EI / UCB)</text>
+            <text x="260" y="180" textAnchor="middle" fontSize="9" fill="#8a92a3" fontFamily="monospace">→ 推荐下一实验点</text>
+
+            {/* Arrow: 代理模型 → 采集函数 (μ) */}
+            <line x1="130" y1="84" x2="210" y2="130" stroke="#4361ee" strokeWidth="1.5" markerEnd="url(#arr)" />
+            <text x="152" y="116" fontSize="9" fill="#4361ee" fontFamily="monospace">μ（预测均值）</text>
+
+            {/* Arrow: 不确定度 → 采集函数 (σ) */}
+            <line x1="390" y1="84" x2="320" y2="130" stroke="#D69E2E" strokeWidth="1.5" markerEnd="url(#arr2)" />
+            <text x="325" y="116" fontSize="9" fill="#D69E2E" fontFamily="monospace">σ（不确定度）</text>
+
+            {/* Arrow: 代理模型 → 不确定度 (σ comes from GP) */}
+            <line x1="160" y1="52" x2="358" y2="52" stroke="rgba(67,97,238,0.4)" strokeWidth="1" strokeDasharray="4 3" markerEnd="url(#arr3)" />
+            <text x="260" y="48" textAnchor="middle" fontSize="8" fill="#5a6377" fontFamily="monospace">GP 同时给出 μ 和 σ</text>
+
+            {/* Arrow markers */}
+            <defs>
+              <marker id="arr"  markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="#4361ee" />
+              </marker>
+              <marker id="arr2" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="#D69E2E" />
+              </marker>
+              <marker id="arr3" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="rgba(67,97,238,0.4)" />
+              </marker>
+            </defs>
+          </svg>
+          <p className="text-[10px] text-[#8a92a3] mt-2 leading-5">
+            三者的关系：GP 代理模型从已有实验数据中学习，同时输出预测均值（μ，估计哪里好）和后验方差（σ，估计哪里不确定）。
+            采集函数把 μ 和 σ 结合起来做决策——μ 高说明这里可能好，σ 高说明探索这里有信息价值。
+            下一实验点执行后，观测结果反馈给 GP，更新 μ 和 σ，循环继续。
+          </p>
+        </div>
 
         {/* 四个核心 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

@@ -150,6 +150,13 @@ export default function LedCaseView() {
     if (timerRef.current) window.clearTimeout(timerRef.current);
   }, []);
 
+  // Lecture mode: R key → reset LED case
+  useEffect(() => {
+    const handler = () => applyReset();
+    window.addEventListener('lecture:reset', handler);
+    return () => window.removeEventListener('lecture:reset', handler);
+  }, [applyReset]);
+
   const createFresh = useCallback((
     ch = channels, tgt = selectedTarget, mode = matchMode, seed = seedVal, obj = objectiveConfig,
   ) => {

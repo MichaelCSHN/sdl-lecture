@@ -35,8 +35,8 @@ export const LECTURE_NODES: LectureNode[] = [
   { id: 8,  title: 'A-Lab 问题定义与系统组成',      path: '/a-lab', hash: '#problem' },
   { id: 9,  title: 'A-Lab 执行闭环与关键结果',      path: '/a-lab', hash: '#results' },
   { id: 10, title: 'A-Lab 争议与再分析',            path: '/a-lab', hash: '#controversy' },
-  { id: 11, title: 'RGB LED Benchmark 演示',        path: '/case-studio' },
-  { id: 12, title: '钙钛矿材料案例',                path: '/case-studio' },
+  { id: 11, title: 'Branin 函数 · 2D 基准演示',     path: '/case-studio' },
+  { id: 12, title: 'LED 光谱定标 · 多通道多目标',   path: '/case-studio' },
 ];
 
 interface LectureContextValue {
@@ -119,6 +119,10 @@ export function LectureProvider({ children }: { children: ReactNode }) {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goNext(); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+      if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('lecture:reset'));
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
