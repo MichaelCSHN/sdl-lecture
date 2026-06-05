@@ -7,37 +7,38 @@ import {
   Grid3X3,
   Menu,
   Network,
+  Video,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useLecture } from '@/contexts/LectureContext';
 
 const MAIN_ITEMS = [
   { to: '/', label: '首页', icon: Grid3X3, exact: true },
-  { to: '/course', label: '课程', icon: BookOpen },
-  { to: '/methods', label: '工作流', icon: Network },
+  { to: '/foundations', label: '基础', icon: BookOpen },
   { to: '/a-lab', label: 'A-Lab', icon: FlaskConical },
   { to: '/case-studio', label: '演示', icon: Beaker },
+  { to: '/methods', label: '工作流', icon: Network },
 ];
 
 const MORE_ITEMS = [
-  { to: '/foundations', label: 'Foundations', icon: BookOpen },
+  { to: '/course', label: '课程地图', icon: Grid3X3 },
   { to: '/design-studio', label: 'Design Studio', icon: DraftingCompass },
-  { to: '/resources', label: 'Resources', icon: BookOpen },
-  { to: '/led-calibration', label: 'LED 校准', icon: Grid3X3 },
-  { to: '/sdl-demo', label: 'SDL Demo', icon: Beaker },
+  { to: '/resources', label: '资源', icon: BookOpen },
 ];
 
 export default function MobileNav() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isLectureMode, toggleLectureMode } = useLecture();
 
   return (
     <>
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
         style={{
-          background: 'rgba(6,22,42,0.94)',
+          background: isLectureMode ? 'rgba(40,20,0,0.97)' : 'rgba(6,22,42,0.94)',
           backdropFilter: 'blur(12px)',
-          borderTop: '1px solid rgba(67,97,238,0.2)',
+          borderTop: `1px solid ${isLectureMode ? 'rgba(183,121,31,0.4)' : 'rgba(67,97,238,0.2)'}`,
         }}
       >
         <div className="flex items-center justify-around px-1 py-1.5">
@@ -99,6 +100,21 @@ export default function MobileNav() {
                   </NavLink>
                 );
               })}
+
+              {/* Lecture mode toggle */}
+              <div className="border-t border-[rgba(67,97,238,0.12)] pt-2 mt-1">
+                <button
+                  onClick={() => { toggleLectureMode(); setMenuOpen(false); }}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-sm font-mono transition-colors ${
+                    isLectureMode
+                      ? 'text-amber-300 bg-[rgba(183,121,31,0.12)]'
+                      : 'text-[#5a6377] hover:text-amber-400'
+                  }`}
+                >
+                  <Video className="w-4 h-4" />
+                  {isLectureMode ? '退出讲者模式 ✓' : '进入讲者模式'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

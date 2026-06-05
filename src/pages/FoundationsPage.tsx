@@ -686,12 +686,61 @@ export default function FoundationsPage() {
           <h2 className="text-lg font-semibold text-[#d0d4dc]">MSE 实验图谱与目录学</h2>
         </div>
 
-        <p className="text-xs text-[#8a92a3] leading-relaxed mb-6 max-w-2xl">
-          以实验目的（而非材料类别）为组织框架，将 MSE 实验分为八大类。
-          这种分类法本身就是本课程的核心原创资产，帮助学生建立"实验视角"而非"材料视角"。
+        {/* Visual paradigm × scale matrix */}
+        <div className="overflow-x-auto mb-8">
+          <table className="w-full border-collapse text-[11px] font-mono min-w-[580px]">
+            <thead>
+              <tr>
+                <th className="p-2 text-left text-[#5a6377] font-normal border-b border-r border-[rgba(67,97,238,0.15)] w-28">
+                  范式 ╲ 尺度
+                </th>
+                {[['量子/电子','Å'], ['原子/纳米','nm'], ['微观','μm'], ['宏观','mm–m']].map(([label, unit]) => (
+                  <th key={label} className="p-2 text-center text-[#8a92a3] font-normal border-b border-[rgba(67,97,238,0.15)]">
+                    <div>{label}</div>
+                    <div className="text-[#5a6377]">{unit}</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { paradigm: '第一范式', sub: '经验/实验室', color: '#8a92a3',
+                  cells: ['XPS\n电子结构', 'TEM / APT\nAFM', 'SEM / XRD\n光学', '力学测试\n器件表征'] },
+                { paradigm: '第二范式', sub: '理论驱动', color: '#4361ee',
+                  cells: ['DFT\n量子化学', '分子动力学\nMC 模拟', '相场法\n晶体塑性', '有限元\n连续介质'] },
+                { paradigm: '第三范式', sub: '计算科学', color: '#00b4d8',
+                  cells: ['GW / TDDFT\n高精度', 'AIMD / ReaxFF', 'CALPHAD\n热力学库', '多尺度耦合'] },
+                { paradigm: '第四范式', sub: '数据驱动+AI', color: '#00f5d4', sdl: true,
+                  cells: ['ML 势函数\n图神经网络', '高通量 DFT\nMatProj', 'ML 辅助 XRD\n成分优化', '★ SDL 闭环\n自动化合成'] },
+              ].map((row) => (
+                <tr key={row.paradigm} className="border-b border-[rgba(67,97,238,0.08)]">
+                  <td className="p-2 border-r border-[rgba(67,97,238,0.15)]" style={{ color: row.color }}>
+                    <div className="font-semibold">{row.paradigm}</div>
+                    <div className="text-[#5a6377] text-[10px]">{row.sub}</div>
+                  </td>
+                  {row.cells.map((cell, ci) => (
+                    <td key={ci} className="p-2 text-center leading-5 whitespace-pre-line"
+                      style={{
+                        color: row.sdl && ci === 3 ? '#00f5d4' : '#8a92a3',
+                        background: row.sdl && ci === 3 ? 'rgba(0,245,212,0.06)' : undefined,
+                      }}>
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="text-[10px] text-[#5a6377] mt-2 leading-5">
+            ★ SDL 的典型落点（宏观 × 数据驱动），但实际横跨多个格——闭环需要跨尺度信息流。
+          </p>
+        </div>
+
+        <p className="text-xs text-[#8a92a3] leading-relaxed mb-4 max-w-2xl">
+          以实验目的为框架，将 MSE 实验分为八大类——展开查看各类的典型问题、代表技术和与 SDL 的关系：
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {TAXONOMY_CATEGORIES.map((cat) => (
             <details key={cat.name} className="glass-panel rounded-lg border border-[rgba(67,97,238,0.1)] group">
               <summary className="p-4 cursor-pointer hover:bg-[rgba(67,97,238,0.03)] transition-colors list-none">
