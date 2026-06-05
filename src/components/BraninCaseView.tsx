@@ -6,8 +6,8 @@
  * Global optima of the negative ≈ -0.3979, reachable near x1 ∈ {-π, π, 9.42}.
  */
 
-import { useState, useCallback, useMemo } from 'react';
-import { Play, RotateCcw, Zap } from 'lucide-react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { Play, RotateCcw, Square } from 'lucide-react';
 import { liveCases } from '@/lib/bo_engine';
 import { CaseSession } from '@/cases/caseEngine';
 
@@ -70,7 +70,15 @@ const cellW = PW / GCols, cellH = PH / GRows;
 export default function BraninCaseView() {
   const [session] = useState(() => new CaseSession(BRANINCASE, 42));
   const [, setTick] = useState(0);
+  const [autoRunning, setAutoRunning] = useState(false);
+  const autoRef = useRef(false);
+  const timerRef = useRef<number | null>(null);
   const rerender = () => setTick((n) => n + 1);
+
+  useEffect(() => () => {
+    autoRef.current = false;
+    if (timerRef.current) window.clearTimeout(timerRef.current);
+  }, []);
 
   const rec = session.state.currentRecommendation;
   const history = session.state.history;
@@ -84,7 +92,31 @@ export default function BraninCaseView() {
   }, [session]);
 
   const runFive = useCallback(() => { session.runSteps(5); rerender(); }, [session]);
-  const doReset = useCallback(() => { session.reset(42); rerender(); }, [session]);
+  const stopAuto = useCallback(() => {
+    autoRef.current = false;
+    setAutoRunning(false);
+    if (timerRef.current) window.clearTimeout(timerRef.current);
+  }, []);
+
+  const startAuto = useCallback(() => {
+    autoRef.current = true;
+    setAutoRunning(true);
+    const loop = () => {
+      if (!autoRef.current) { setAutoRunning(false); return; }
+      session.recommend();
+      const r = session.state.currentRecommendation;
+      if (r) { session.observe(r.params); session.recommend(); }
+      rerender();
+      timerRef.current = window.setTimeout(loop, 550);
+    };
+    loop();
+  }, [session]);
+
+  const doReset = useCallback(() => {
+    stopAuto();
+    session.reset(42);
+    rerender();
+  }, [session, stopAuto]);
 
   // SVG data
   const recSvg = rec ? [toSX(rec.params[0]), toSY(rec.params[1])] as [number, number] : null;
@@ -194,19 +226,30 @@ export default function BraninCaseView() {
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-2 mt-3">
-          <button onClick={runOne}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(0,245,212,0.3)] text-[#00f5d4] text-[10px] font-mono hover:bg-[rgba(0,245,212,0.08)] transition-colors">
-            <Play className="w-3 h-3" /> 运行 1 步
-          </button>
-          <button onClick={runFive}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(67,97,238,0.2)] text-[#8a92a3] text-[10px] font-mono hover:bg-[rgba(67,97,238,0.06)] transition-colors">
-            <Zap className="w-3 h-3" /> 运行 5 步
-          </button>
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
           <button onClick={doReset}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(255,107,107,0.2)] text-[#ff6b6b] text-[10px] font-mono hover:bg-[rgba(255,107,107,0.06)] transition-colors">
-            <RotateCcw className="w-3 h-3" /> 重置（种子 42）
+            <RotateCcw className="w-3 h-3" /> 重置
           </button>
+          <button onClick={runOne} disabled={autoRunning}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(0,245,212,0.3)] text-[#00f5d4] text-[10px] font-mono hover:bg-[rgba(0,245,212,0.08)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            <Play className="w-3 h-3" /> Run 1
+          </button>
+          <button onClick={runFive} disabled={autoRunning}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(76,201,240,0.3)] text-[#4cc9f0] text-[10px] font-mono hover:bg-[rgba(76,201,240,0.06)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            <Play className="w-3 h-3" /> Run 5
+          </button>
+          {autoRunning ? (
+            <button onClick={stopAuto}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(245,158,11,0.28)] text-[#f59e0b] text-[10px] font-mono hover:bg-[rgba(245,158,11,0.06)] transition-colors">
+              <Square className="w-3 h-3" /> 停止
+            </button>
+          ) : (
+            <button onClick={startAuto}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(67,97,238,0.2)] text-[#8a92a3] text-[10px] font-mono hover:bg-[rgba(67,97,238,0.06)] transition-colors">
+              <Play className="w-3 h-3" /> Auto
+            </button>
+          )}
           <span className="ml-auto text-[10px] font-mono text-[#5a6377]">迭代 {history.length}</span>
         </div>
       </div>
