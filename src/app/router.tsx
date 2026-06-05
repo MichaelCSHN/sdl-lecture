@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, createHashRouter } from 'react-router';
 import AppShell from '@/layouts/AppShell';
 import HomePage from '@/pages/HomePage';
 import CoursePage from '@/pages/CoursePage';
@@ -12,7 +12,7 @@ import ParadigmsPage from '@/pages/ParadigmsPage';
 import SDLDemoPage from '@/pages/SDLDemoPage';
 import LedCalibrationPage from '@/pages/LedCalibrationPage';
 
-export const router = createBrowserRouter([
+const routes = [
   {
     path: '/',
     element: <AppShell />,
@@ -30,4 +30,10 @@ export const router = createBrowserRouter([
       { path: 'resources', element: <ResourcesPage /> },
     ],
   },
-]);
+];
+
+const isGitHubPagesBuild = import.meta.env.MODE === 'github-pages';
+
+export const router = isGitHubPagesBuild
+  ? createHashRouter(routes)
+  : createBrowserRouter(routes, { basename: import.meta.env.BASE_URL });
