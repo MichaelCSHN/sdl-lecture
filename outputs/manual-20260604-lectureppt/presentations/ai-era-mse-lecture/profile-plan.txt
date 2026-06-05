@@ -1,0 +1,39 @@
+task mode: create
+primary deck-profile: engineering-platform
+secondary profile gates:
+- strategy-leadership
+- appendix-light lecture backup
+
+required proof objects:
+- experiment-centered course/lecture framing
+- paradigm evolution timeline
+- MSE experiment taxonomy map
+- DOE vs SDL comparison matrix
+- SDL closed-loop workflow diagram
+- A-Lab real-system case analysis
+- live-demo handoff slides for RGB LED Case Studio
+
+source and asset requirements:
+- repository course documents under D:\A-Lab\sdl-lecture\docs
+- live website structure and screenshots under https://sdl-lecture.vercel.app
+- no invented claims; when details remain uncertain, use cautious wording
+- editable PPTX with speaker notes on every slide
+
+brand and design authenticity constraints:
+- blue minimalist technology aesthetic
+- simplified academic tone, not marketing tone
+- Chinese-first language
+- English terms formatted as English（中文）on first mention
+
+profile-specific QA gates:
+- every slide has a clear claim or function
+- <= 100 slides total
+- speaker notes present on every slide
+- lecture narration note <= 300 Chinese characters per slide
+- thumbnails should show visual rhythm, not generic bullet walls
+- charts/tables/diagrams must remain readable under classroom projection
+
+known missing inputs:
+- final speaker bio block
+- final institutional logo usage decision
+- final room/projector aspect-ratio validation

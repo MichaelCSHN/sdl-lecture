@@ -44,7 +44,7 @@
   body {
     background: var(--void-blue);
     color: var(--research-white);
-    font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
+    font-family: 'Microsoft YaHei', -apple-system, sans-serif;
     font-size: 14px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
