@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { experimentTimeline, type TimelineEvent } from '@/data/experiment_timeline';
+import ExperimentHistorySpine from '@/components/ExperimentHistorySpine';
+import {
+  curatedResources,
+  historicalMilestones,
+  methodShifts,
+  mseBridgeCards,
+} from '@/data/experimentNarrative';
 
 // ============================================================
 // Scroll-to-hash on mount (fixes react-router hash navigation)
@@ -168,8 +175,124 @@ export default function FoundationsPage() {
           </div>
         </div>
 
-        {/* 实验史时间轴 */}
-        <h3 className="text-sm font-semibold text-[#d0d4dc] mb-4">实验史时间轴</h3>
+        <div className="mb-8 grid gap-4 md:grid-cols-3">
+          {methodShifts.map((shift, index) => (
+            <div
+              key={shift.title}
+              className="rounded-2xl border p-5"
+              style={{
+                borderColor:
+                  index === 0
+                    ? 'rgba(0,245,212,0.16)'
+                    : index === 1
+                      ? 'rgba(254,228,64,0.18)'
+                      : 'rgba(255,107,107,0.16)',
+                background:
+                  index === 0
+                    ? 'linear-gradient(180deg, rgba(0,245,212,0.06), rgba(6,22,42,0.84))'
+                    : index === 1
+                      ? 'linear-gradient(180deg, rgba(254,228,64,0.05), rgba(6,22,42,0.84))'
+                      : 'linear-gradient(180deg, rgba(255,107,107,0.05), rgba(6,22,42,0.84))',
+              }}
+            >
+              <div className="text-[10px] font-mono tracking-[0.18em] text-[#5a6377] mb-2">{shift.title}</div>
+              <h3 className="text-sm font-semibold text-[#f3f6fb] mb-2">
+                {shift.from} <span className="text-[#5a6377]">→</span> {shift.to}
+              </h3>
+              <p className="text-xs text-[#9da8bb] leading-6 mb-3">{shift.summary}</p>
+              <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] p-3 text-[11px] leading-5 text-[#d8e0ec]">
+                {shift.implication}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="glass-panel p-5 md:p-6 rounded-2xl border border-[rgba(67,97,238,0.12)] mb-8">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-6">
+            <div>
+              <div className="text-[10px] text-[#00f5d4] font-mono tracking-[0.22em] mb-2">HISTORY AS METHOD</div>
+              <h3 className="text-lg md:text-xl font-semibold text-[#f3f6fb] mb-2">
+                实验史不是名人墙，而是控制逻辑的增长史
+              </h3>
+              <p className="text-xs md:text-sm text-[#8a92a3] max-w-2xl leading-relaxed">
+                下面这条时间轴不是简单罗列人物，而是追踪一个更重要的问题：科学共同体是怎样一步步学会
+                设计条件、管理偏差、利用变异，并最终把实验组织成闭环搜索系统的。
+              </p>
+            </div>
+            <div className="rounded-full border border-[rgba(0,245,212,0.14)] px-3 py-1 text-[10px] font-mono text-[#00f5d4]">
+              从观察到闭环
+            </div>
+          </div>
+
+          <ExperimentHistorySpine milestones={historicalMilestones} />
+        </div>
+
+        <div className="glass-panel p-5 md:p-6 rounded-2xl border border-[rgba(0,245,212,0.12)] mb-8">
+          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <div>
+              <div className="text-[10px] text-[#00f5d4] font-mono tracking-[0.22em] mb-2">MSE BRIDGE</div>
+              <h3 className="text-lg font-semibold text-[#f3f6fb]">这条历史线为什么会汇入 MSE</h3>
+            </div>
+            <Link
+              to="/resources"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(67,97,238,0.16)] px-3 py-1.5 text-[10px] font-mono text-[#8a92a3] no-underline hover:border-[#00f5d4] hover:text-[#00f5d4] transition-colors"
+            >
+              延伸阅读与资源 →
+            </Link>
+          </div>
+          <p className="text-xs text-[#8a92a3] leading-relaxed mb-5 max-w-3xl">
+            这份外部参考材料最有价值的地方，不是多给了几个历史点，而是提醒我们：
+            MSE 里的实验从来不是孤立动作。它同时承担发现、制备、表征、测量和决策五层任务，
+            因而比很多基础学科更早暴露出实验设计、校准标准和闭环优化的复杂性。
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {mseBridgeCards.map((card) => (
+              <div key={card.title} className="rounded-2xl border border-[rgba(67,97,238,0.1)] bg-[rgba(255,255,255,0.02)] p-5">
+                <h4 className="text-sm font-semibold text-[#d0d4dc] mb-2">{card.title}</h4>
+                <p className="text-xs text-[#8a92a3] leading-6 mb-3">{card.body}</p>
+                <p className="text-[11px] text-[#d8e0ec] leading-5 mb-3">{card.implication}</p>
+                <div className="flex flex-wrap gap-2">
+                  {card.chips.map((chip) => (
+                    <span
+                      key={chip}
+                      className="rounded-full border border-[rgba(0,245,212,0.14)] bg-[rgba(0,245,212,0.05)] px-2.5 py-1 text-[10px] font-mono text-[#00f5d4]"
+                    >
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 rounded-2xl border border-[rgba(67,97,238,0.1)] bg-[rgba(6,22,42,0.72)] p-4">
+            <div className="text-[10px] font-mono tracking-[0.18em] text-[#5a6377] mb-2">建议放进 PPT 的一句话</div>
+            <p className="text-sm text-[#f3f6fb] leading-6">
+              “SDL 不是凭空出现的新技术，它是实验史上第三次组织方式跃迁在 MSE 中的集中体现。”
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-[rgba(67,97,238,0.08)] bg-[rgba(255,255,255,0.015)] p-4 mb-6">
+          <div className="text-[10px] text-[#5a6377] font-mono tracking-[0.18em] mb-2">RESOURCE PREVIEW</div>
+          <p className="text-xs text-[#8a92a3] leading-relaxed mb-3">
+            讲座站不应该把参考书目孤立地放在最后。这里先给出本单元最相关的四个入口，完整阅读架构见资源页。
+          </p>
+          <div className="grid gap-3 md:grid-cols-2">
+            {curatedResources.slice(0, 4).map((resource) => (
+              <div key={resource.title} className="rounded-xl border border-[rgba(67,97,238,0.08)] p-3">
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <div className="text-xs font-semibold text-[#d0d4dc]">{resource.title}</div>
+                  <span className="text-[10px] font-mono text-[#00f5d4]">{resource.year}</span>
+                </div>
+                <div className="text-[10px] text-[#5a6377] mb-2">{resource.author}</div>
+                <p className="text-[11px] text-[#8a92a3] leading-5">{resource.whyRead}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 实验史索引视图 */}
+        <h3 className="text-sm font-semibold text-[#d0d4dc] mb-4">实验史索引视图</h3>
         <div className="flex flex-wrap gap-2 mb-6">
           <button
             onClick={() => setActiveCategory(null)}
@@ -225,10 +348,10 @@ export default function FoundationsPage() {
 
               if (event.route) {
                 return (
-                  <a key={event.year + event.labelEn} href={event.route}
+                  <Link key={event.year + event.labelEn} to={event.route}
                     className="relative pl-12 py-3 group block no-underline hover:bg-[rgba(0,245,212,0.02)] transition-colors rounded-r">
                     {content}
-                  </a>
+                  </Link>
                 );
               }
               return (
@@ -292,13 +415,13 @@ export default function FoundationsPage() {
                   <span className="px-2 py-0.5 rounded bg-[rgba(0,245,212,0.06)] text-[#00f5d4] border border-[rgba(0,245,212,0.1)]">Gray · 四范式</span>
                   <span className="px-2 py-0.5 rounded bg-[rgba(255,107,107,0.06)] text-[#ff6b6b] border border-[rgba(255,107,107,0.1)]">第五范式之争</span>
                 </div>
-                <a
-                  href="/paradigms"
+                <Link
+                  to="/paradigms"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-mono text-[#000d1d] no-underline"
                   style={{ background: 'linear-gradient(135deg, #00f5d4, #4361ee)' }}
                 >
                   阅读完整单元 →
-                </a>
+                </Link>
               </div>
             </div>
           </div>
