@@ -1,56 +1,126 @@
-import { useState, useCallback } from 'react';
-import { Play, RotateCcw, Zap, Hash, Target, Crosshair, TrendingUp } from 'lucide-react';
-import { liveCases } from '@/lib/bo_engine';
+/**
+ * CaseStudioPage — multi-case SDL demo.
+ *
+ * Supports all cases defined in bo_engine.ts liveCases.
+ * Lecture MVP highlights: RGB LED (benchmark) and Perovskite (materials case).
+ */
+
+import { useState, useCallback, useMemo } from 'react';
+import { Play, RotateCcw, Zap, ChevronDown } from 'lucide-react';
+import { liveCases, type LiveCase } from '@/lib/bo_engine';
 import { CaseSession, type ExperimentRecord } from '@/cases/caseEngine';
+import { useLecture } from '@/contexts/LectureContext';
 
-// ============================================================
-// RGB LED 案例定义（来源：bo_engine liveCases）
-// ============================================================
+// ── Cases available in the selector ──────────────────────────────────────
 
-const RGB_LED_CASE = liveCases.find((c) => c.id === 'rgb_led')!;
+const SELECTOR_CASES = [
+  'rgb_led',
+  'perovskite',
+  'suzuki',
+  'snar_pareto',
+  'catalyst_yield',
+  'battery',
+].map((id) => liveCases.find((c) => c.id === id)!).filter(Boolean);
 
-const TARGET_COLOR = { r: 180, g: 120, b: 60, hex: '#B4783C', name: '暖橙色' };
+// ── RGB LED color preview helper ──────────────────────────────────────────
 
-// ============================================================
-// 颜色预览辅助组件
-// ============================================================
+function isRgbLed(caseId: string) { return caseId === 'rgb_led'; }
 
-function pwmToRgb(rPwm: number, gPwm: number, bPwm: number): { r: number; g: number; b: number; hex: string } {
-  const r = Math.round(2.55 * rPwm);
-  const g = Math.round(2.55 * gPwm);
-  const b = Math.round(2.55 * bPwm);
-  const hex = '#' + [r, g, b].map((v) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
-  return { r, g, b, hex };
+function pwmToHex(r: number, g: number, b: number): string {
+  const toV = (pwm: number) => Math.max(0, Math.min(255, Math.round(2.55 * pwm)));
+  return '#' + [toV(r), toV(g), toV(b)]
+    .map((v) => v.toString(16).padStart(2, '0'))
+    .join('');
 }
 
-function ColorSwatch({ r, g, b, label, size }: { r: number; g: number; b: number; label?: string; size?: 'sm' | 'md' }) {
-  const s = size === 'sm' ? 'w-5 h-5' : 'w-8 h-8';
+function ColorDot({ hex, size = 16 }: { hex: string; size?: number }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className={`${s} rounded border border-[rgba(255,255,255,0.15)]`} style={{ background: `rgb(${r},${g},${b})` }} />
-      {label && <span className="text-[10px] font-mono text-[#8a92a3]">{label}</span>}
+    <div
+      className="rounded-sm border border-[rgba(255,255,255,0.15)] inline-block"
+      style={{ width: size, height: size, background: hex, flexShrink: 0 }}
+    />
+  );
+}
+
+// ── Generic param value formatter ────────────────────────────────────────
+
+function fmtParam(value: number, unit: string): string {
+  return `${value.toFixed(unit === '%' || unit === '' ? 0 : 1)} ${unit}`.trim();
+}
+
+// ── Case selector dropdown ────────────────────────────────────────────────
+
+function CaseSelector({
+  selected,
+  onChange,
+}: {
+  selected: LiveCase;
+  onChange: (c: LiveCase) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 px-3 py-1.5 rounded border border-[rgba(0,245,212,0.25)]
+                   text-xs font-mono text-[#d0d4dc] hover:border-[#00f5d4] transition-colors"
+      >
+        <span className="text-[#00f5d4]">案例：</span>
+        {selected.name}
+        <ChevronDown className="w-3.5 h-3.5 text-[#8a92a3]" />
+      </button>
+      {open && (
+        <div
+          className="absolute top-full left-0 mt-1 z-20 rounded-lg border border-[rgba(67,97,238,0.25)] overflow-hidden"
+          style={{ background: '#06162a', minWidth: 220 }}
+        >
+          {SELECTOR_CASES.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => { onChange(c); setOpen(false); }}
+              className={`w-full text-left px-4 py-2.5 text-[11px] font-mono transition-colors
+                          hover:bg-[rgba(0,245,212,0.06)] border-b border-[rgba(67,97,238,0.08)] last:border-0
+                          ${c.id === selected.id ? 'text-[#00f5d4]' : 'text-[#8a92a3]'}`}
+            >
+              <div className="text-[#d0d4dc] mb-0.5">{c.name}</div>
+              <div className="text-[9px] opacity-70 truncate">{c.description.slice(0, 55)}…</div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-// ============================================================
-// 页面
-// ============================================================
+// ── Main page ─────────────────────────────────────────────────────────────
 
 export default function CaseStudioPage() {
-  const [session] = useState<CaseSession>(() => new CaseSession(RGB_LED_CASE, 42));
-  const [, setTick] = useState(0);
+  const { isLectureMode } = useLecture();
+
+  const [selectedCase, setSelectedCase] = useState<LiveCase>(
+    SELECTOR_CASES[0] // rgb_led by default
+  );
+
+  // Create a new session whenever the case changes
+  const [session, setSession] = useState<CaseSession>(
+    () => new CaseSession(selectedCase, 42)
+  );
+  const [tick, setTick] = useState(0);
   const [lastRecords, setLastRecords] = useState<ExperimentRecord[]>([]);
+
   const rerender = () => setTick((t) => t + 1);
+
+  const switchCase = useCallback((c: LiveCase) => {
+    setSelectedCase(c);
+    setSession(new CaseSession(c, 42));
+    setLastRecords([]);
+    setTick(0);
+  }, []);
 
   const rec = session.state.currentRecommendation;
   const bestObs = session.state.bestObservation;
   const history = session.state.history;
-
-  const bestParams = session.state.bestParams.length > 0 ? session.state.bestParams : null;
-  const bestColor = bestParams
-    ? pwmToRgb(bestParams[0], bestParams[1], bestParams[2])
-    : null;
+  const caseDef = session.caseDef;
 
   const runOne = useCallback(() => {
     session.recommend();
@@ -75,137 +145,175 @@ export default function CaseStudioPage() {
     rerender();
   }, [session]);
 
+  // For RGB LED: color preview of best params
+  const bestHex = useMemo(() => {
+    if (!isRgbLed(caseDef.id) || session.state.bestParams.length < 3) return null;
+    const [r, g, b] = session.state.bestParams;
+    return pwmToHex(r, g, b);
+  }, [caseDef.id, session.state.bestParams, tick]);
+
+  const TARGET_HEX = '#B4783C'; // fixed target for RGB LED
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
-      <div className="text-[#00f5d4] font-mono text-xs tracking-widest mb-3">现场演示</div>
-      <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2">案例工作台</h1>
-      <p className="text-[#8a92a3] max-w-2xl leading-relaxed text-sm mb-8">
-        SDL 闭环的实时演示。观察贝叶斯优化如何选择下一个实验点：参数输入 → 生成观测 → 更新模型 → 推荐下一点。
-      </p>
+      {/* Header */}
+      <div className="text-[#00f5d4] font-mono text-xs tracking-widest mb-2">案例工作台</div>
+      <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight mb-1">SDL 闭环演示</h1>
+          <p className="text-[#8a92a3] text-sm max-w-xl leading-relaxed">
+            贝叶斯优化实时运行：参数推荐 → 模拟实验 → 更新 surrogate → 再推荐。
+            观察模型如何平衡探索（高不确定性区域）与利用（预测高值区域）。
+          </p>
+        </div>
+        <CaseSelector selected={selectedCase} onChange={switchCase} />
+      </div>
 
-      {/* ===== 工作台 ===== */}
+      {/* Studio panel */}
       <div className="glass-panel p-5 rounded-lg border border-[rgba(0,245,212,0.2)] mb-6">
-        {/* 头部 */}
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+        {/* Meta bar */}
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <Zap className="w-4 h-4 text-[#00f5d4]" />
-            <span className="text-sm font-mono text-[#d0d4dc]">RGB LED 颜色匹配</span>
+            <span className="text-sm font-mono text-[#d0d4dc]">{caseDef.name}</span>
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-[rgba(0,245,212,0.15)] text-[#00f5d4] font-mono">
-              实时运行
+              离线运行
             </span>
           </div>
-          <div className="flex items-center gap-2 text-[10px] font-mono text-[#8a92a3]">
-            <Hash className="w-3 h-3" />
-            种子: <span className="text-[#00f5d4]">{session.state.seed}</span>
-            <span className="text-[#8a92a3]">|</span>
-            <span>迭代: <span className="text-[#d0d4dc]">{session.state.iteration}</span></span>
+          <div className="flex items-center gap-3 text-[10px] font-mono text-[#8a92a3]">
+            <span>种子 <span className="text-[#00f5d4]">{session.state.seed}</span></span>
+            <span>|</span>
+            <span>迭代 <span className="text-[#d0d4dc]">{session.state.iteration}</span></span>
+            <span>|</span>
+            <span>AF <span className="text-[#d0d4dc]">EI</span></span>
           </div>
         </div>
 
-        {/* 三列面板：目标 | 当前最佳 | 推荐 */}
+        {/* Info cards: objective | best | recommendation */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-          {/* 目标 */}
+          {/* Objective */}
           <div className="p-4 rounded-lg border border-[rgba(67,97,238,0.12)]">
-            <div className="flex items-center gap-1.5 mb-3">
-              <Target className="w-3.5 h-3.5 text-[#fee440]" />
-              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">目标</span>
-            </div>
-            <ColorSwatch r={TARGET_COLOR.r} g={TARGET_COLOR.g} b={TARGET_COLOR.b} label={TARGET_COLOR.name} />
-            <div className="mt-2 space-y-1 text-[10px] font-mono">
-              <div className="flex justify-between"><span className="text-[#8a92a3]">RGB</span><span className="text-[#d0d4dc]">({TARGET_COLOR.r}, {TARGET_COLOR.g}, {TARGET_COLOR.b})</span></div>
-              <div className="flex justify-between"><span className="text-[#8a92a3]">指标</span><span className="text-[#d0d4dc]">颜色距离（最高 100）</span></div>
-              <div className="flex justify-between"><span className="text-[#8a92a3]">优化目标</span><span className="text-[#00f5d4]">最大化匹配得分</span></div>
+            <div className="text-[9px] text-[#8a92a3] font-mono tracking-widest mb-3">目标与参数</div>
+            <div className="space-y-1.5 text-[10px] font-mono">
+              <div className="flex justify-between gap-2">
+                <span className="text-[#8a92a3]">优化目标</span>
+                <span className="text-[#00f5d4]">最大化 {caseDef.unit}</span>
+              </div>
+              {caseDef.params.map((p) => (
+                <div key={p.nameEn} className="flex justify-between gap-2">
+                  <span className="text-[#8a92a3]">{p.name}</span>
+                  <span className="text-[#d0d4dc]">{p.min}–{p.max} {p.unit}</span>
+                </div>
+              ))}
+              {isRgbLed(caseDef.id) && (
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[rgba(67,97,238,0.1)]">
+                  <span className="text-[#8a92a3]">目标颜色</span>
+                  <ColorDot hex={TARGET_HEX} />
+                  <span className="text-[#d0d4dc]">{TARGET_HEX}</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* 当前最佳 */}
+          {/* Best so far */}
           <div className="p-4 rounded-lg border border-[rgba(0,245,212,0.15)]">
-            <div className="flex items-center gap-1.5 mb-3">
-              <TrendingUp className="w-3.5 h-3.5 text-[#00f5d4]" />
-              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">当前最佳</span>
-            </div>
-            {bestColor ? (
-              <>
-                <ColorSwatch r={bestColor.r} g={bestColor.g} b={bestColor.b}
-                  label={`(${bestParams![0].toFixed(0)}, ${bestParams![1].toFixed(0)}, ${bestParams![2].toFixed(0)})`} />
-                <div className="mt-2 space-y-1 text-[10px] font-mono">
-                  <div className="flex justify-between">
-                    <span className="text-[#8a92a3]">得分</span>
-                    <span className="text-[#00f5d4] text-lg font-semibold">{bestObs.toFixed(1)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#8a92a3]">RGB</span>
-                    <span className="text-[#d0d4dc]">({bestColor.r}, {bestColor.g}, {bestColor.b})</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#8a92a3]">轮次</span>
-                    <span className="text-[#d0d4dc]">{history.find((r) => r.observation >= bestObs)?.iteration ?? '—'}</span>
-                  </div>
+            <div className="text-[9px] text-[#8a92a3] font-mono tracking-widest mb-3">当前最佳</div>
+            {bestObs > -Infinity ? (
+              <div className="space-y-1.5 text-[10px] font-mono">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#8a92a3]">最佳值</span>
+                  <span className="text-[#00f5d4] text-base font-semibold">
+                    {bestObs.toFixed(1)} {caseDef.unit}
+                  </span>
                 </div>
-              </>
+                {session.state.bestParams.map((v, i) => (
+                  <div key={i} className="flex justify-between gap-2">
+                    <span className="text-[#8a92a3]">{caseDef.params[i]?.name}</span>
+                    <span className="text-[#d0d4dc]">{fmtParam(v, caseDef.params[i]?.unit ?? '')}</span>
+                  </div>
+                ))}
+                {isRgbLed(caseDef.id) && bestHex && (
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[rgba(67,97,238,0.1)]">
+                    <span className="text-[#8a92a3]">当前颜色</span>
+                    <ColorDot hex={bestHex} />
+                    <span className="text-[#d0d4dc]">{bestHex}</span>
+                  </div>
+                )}
+              </div>
             ) : (
-              <div className="text-[10px] text-[#8a92a3] py-3">尚未运行实验。点击下方按钮开始。</div>
+              <div className="text-[10px] text-[#5a6377] py-2">尚未运行实验</div>
             )}
           </div>
 
-          {/* 推荐 */}
-          <div className="p-4 rounded-lg border border-[rgba(67,97,238,0.12)]">
-            <div className="flex items-center gap-1.5 mb-3">
-              <Crosshair className="w-3.5 h-3.5 text-[#4361ee]" />
-              <span className="text-[10px] text-[#8a92a3] font-mono tracking-wide">下一推荐</span>
-            </div>
+          {/* Recommendation */}
+          <div className="p-4 rounded-lg border border-[rgba(67,97,238,0.15)]">
+            <div className="text-[9px] text-[#8a92a3] font-mono tracking-widest mb-3">下一推荐点</div>
             {rec ? (
               <>
-                <div className="text-xs text-[#d0d4dc] mb-1">
-                  <span className="text-[#8a92a3]">R </span>
-                  <span className="text-[#ff6b6b] font-mono">{rec.params[0].toFixed(1)}%</span>
-                  <span className="text-[#8a92a3] ml-2">G </span>
-                  <span className="text-[#00f5d4] font-mono">{rec.params[1].toFixed(1)}%</span>
-                  <span className="text-[#8a92a3] ml-2">B </span>
-                  <span className="text-[#4361ee] font-mono">{rec.params[2].toFixed(1)}%</span>
-                </div>
-                <div className="mt-2 space-y-1 text-[10px] font-mono">
-                  <div className="flex justify-between">
+                <div className="space-y-1.5 text-[10px] font-mono mb-3">
+                  {rec.params.map((v, i) => (
+                    <div key={i} className="flex justify-between gap-2">
+                      <span className="text-[#8a92a3]">{caseDef.params[i]?.name}</span>
+                      <span className="text-[#00f5d4]">{fmtParam(v, caseDef.params[i]?.unit ?? '')}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between gap-2 pt-2 border-t border-[rgba(67,97,238,0.08)]">
                     <span className="text-[#8a92a3]">预测值</span>
-                    <span className="text-[#d0d4dc]">{rec.predictedMean.toFixed(1)} ± {rec.predictedStd.toFixed(1)}</span>
+                    <span className="text-[#d0d4dc]">
+                      {rec.predictedMean.toFixed(1)} ± {rec.predictedStd.toFixed(1)}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-2">
                     <span className="text-[#8a92a3]">EI 值</span>
-                    <span className="text-[#00f5d4]">{rec.acquisitionValue.toFixed(4)}</span>
+                    <span className="text-[#d0d4dc]">{rec.acquisitionValue.toFixed(4)}</span>
                   </div>
+                </div>
+                {/* Recommendation reason — required by PRD success criteria */}
+                <div className="mt-3 pt-3 border-t border-[rgba(67,97,238,0.12)]">
+                  <div className="text-[9px] text-[#00f5d4] font-mono mb-1.5 tracking-wide">
+                    为什么推荐这个点？
+                  </div>
+                  <p className="text-[10px] text-[#8a92a3] leading-relaxed">{rec.explanation}</p>
                 </div>
               </>
             ) : (
-              <div className="text-[10px] text-[#8a92a3] py-3">初始化中…</div>
-            )}
-            {/* 推荐解释 */}
-            {rec && (
-              <div className="mt-3 pt-3 border-t border-[rgba(67,97,238,0.1)]">
-                <div className="text-[10px] text-[#8a92a3] font-mono mb-1">为什么推荐这个点？</div>
-                <p className="text-[10px] text-[#8a92a3] leading-relaxed">{rec.explanation}</p>
-              </div>
+              <div className="text-[10px] text-[#5a6377] py-2">初始化中…</div>
             )}
           </div>
         </div>
 
-        {/* 讲者控制 */}
-        <div className="flex items-center gap-3 mb-5 p-3 rounded-lg border border-[rgba(67,97,238,0.1)]">
-          <span className="text-[10px] text-[#8a92a3] font-mono mr-2">操作</span>
-          <button onClick={runOne}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(0,245,212,0.3)] text-[#00f5d4] text-[10px] font-mono hover:bg-[rgba(0,245,212,0.08)] active:bg-[rgba(0,245,212,0.15)] transition-colors">
+        {/* Controls */}
+        <div className="flex items-center gap-3 mb-5 p-3 rounded-lg border border-[rgba(67,97,238,0.1)] flex-wrap">
+          <span className="text-[10px] text-[#8a92a3] font-mono mr-1">操作</span>
+          <button
+            onClick={runOne}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(0,245,212,0.3)]
+                       text-[#00f5d4] text-[10px] font-mono hover:bg-[rgba(0,245,212,0.08)] transition-colors"
+          >
             <Play className="w-3 h-3" /> 运行 1 步
           </button>
-          <button onClick={runFive}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(67,97,238,0.2)] text-[#8a92a3] text-[10px] font-mono hover:bg-[rgba(67,97,238,0.06)] active:bg-[rgba(67,97,238,0.12)] transition-colors">
+          <button
+            onClick={runFive}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(67,97,238,0.2)]
+                       text-[#8a92a3] text-[10px] font-mono hover:bg-[rgba(67,97,238,0.06)] transition-colors"
+          >
             <Zap className="w-3 h-3" /> 运行 5 步
           </button>
-          <button onClick={doReset}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(255,107,107,0.2)] text-[#ff6b6b] text-[10px] font-mono hover:bg-[rgba(255,107,107,0.06)] active:bg-[rgba(255,107,107,0.12)] transition-colors">
+          <button
+            onClick={doReset}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[rgba(255,107,107,0.2)]
+                       text-[#ff6b6b] text-[10px] font-mono hover:bg-[rgba(255,107,107,0.06)] transition-colors"
+          >
             <RotateCcw className="w-3 h-3" /> 重置（种子 42）
           </button>
+          {isLectureMode && (
+            <span className="text-[9px] text-amber-400 font-mono ml-auto">
+              讲者模式：← → 切换节点，R = Reset
+            </span>
+          )}
         </div>
 
-        {/* 历史表 */}
+        {/* History table */}
         <div>
           <div className="text-[10px] text-[#8a92a3] font-mono mb-2 tracking-wide">
             实验历史（{history.length} 次）
@@ -221,34 +329,54 @@ export default function CaseStudioPage() {
                 <thead className="sticky top-0" style={{ background: 'rgba(6,22,42,0.98)' }}>
                   <tr className="border-b border-[rgba(67,97,238,0.2)]">
                     <th className="text-left py-2 px-2 text-[#8a92a3]">#</th>
-                    <th className="text-left py-2 px-2 text-[#8a92a3]">R%</th>
-                    <th className="text-left py-2 px-2 text-[#8a92a3]">G%</th>
-                    <th className="text-left py-2 px-2 text-[#8a92a3]">B%</th>
-                    <th className="text-left py-2 px-2 text-[#8a92a3]">得分</th>
+                    {caseDef.params.map((p) => (
+                      <th key={p.nameEn} className="text-left py-2 px-2 text-[#8a92a3]">
+                        {p.name} ({p.unit})
+                      </th>
+                    ))}
+                    <th className="text-left py-2 px-2 text-[#8a92a3]">
+                      {caseDef.unit}
+                    </th>
                     <th className="text-left py-2 px-2 text-[#8a92a3]">最佳</th>
-                    <th className="text-left py-2 px-2 text-[#8a92a3] w-8">颜色</th>
+                    {isRgbLed(caseDef.id) && (
+                      <th className="text-left py-2 px-2 text-[#8a92a3] w-8">色</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((row) => {
-                    const { hex } = pwmToRgb(row.params[0], row.params[1], row.params[2]);
                     const isBest = row.observation >= bestObs && bestObs > -Infinity;
+                    const hex = isRgbLed(caseDef.id) && row.params.length >= 3
+                      ? pwmToHex(row.params[0], row.params[1], row.params[2])
+                      : null;
                     return (
-                      <tr key={row.iteration}
-                        className={`border-b border-[rgba(67,97,238,0.06)] ${isBest ? 'bg-[rgba(0,245,212,0.04)]' : ''}`}>
+                      <tr
+                        key={row.iteration}
+                        className={`border-b border-[rgba(67,97,238,0.06)] ${
+                          isBest ? 'bg-[rgba(0,245,212,0.04)]' : ''
+                        }`}
+                      >
                         <td className="py-1.5 px-2 text-[#8a92a3]">{row.iteration}</td>
-                        <td className="py-1.5 px-2 text-[#ff6b6b]">{row.params[0].toFixed(0)}</td>
-                        <td className="py-1.5 px-2 text-[#00f5d4]">{row.params[1].toFixed(0)}</td>
-                        <td className="py-1.5 px-2 text-[#4361ee]">{row.params[2].toFixed(0)}</td>
-                        <td className={`py-1.5 px-2 ${isBest ? 'text-[#00f5d4] font-semibold' : 'text-[#d0d4dc]'}`}>
+                        {row.params.map((v, i) => (
+                          <td key={i} className="py-1.5 px-2 text-[#d0d4dc]">
+                            {fmtParam(v, caseDef.params[i]?.unit ?? '')}
+                          </td>
+                        ))}
+                        <td
+                          className={`py-1.5 px-2 font-semibold ${
+                            isBest ? 'text-[#00f5d4]' : 'text-[#d0d4dc]'
+                          }`}
+                        >
                           {row.observation.toFixed(1)}
                         </td>
                         <td className={`py-1.5 px-2 ${isBest ? 'text-[#00f5d4]' : 'text-[#8a92a3]'}`}>
                           {row.bestSoFar.toFixed(1)}
                         </td>
-                        <td className="py-1.5 px-2">
-                          <div className="w-4 h-4 rounded border border-[rgba(255,255,255,0.1)]" style={{ background: hex }} />
-                        </td>
+                        {isRgbLed(caseDef.id) && (
+                          <td className="py-1.5 px-2">
+                            {hex && <ColorDot hex={hex} size={14} />}
+                          </td>
+                        )}
                       </tr>
                     );
                   })}
@@ -257,40 +385,31 @@ export default function CaseStudioPage() {
             </div>
           ) : (
             <div className="text-[10px] text-[#8a92a3] py-6 text-center border border-dashed border-[rgba(67,97,238,0.1)] rounded">
-              点击「运行 1 步」开始第一个实验。所有结果种子固定，可重复。
+              点击「运行 1 步」开始第一个实验。种子固定（42），结果完全可重复。
             </div>
           )}
         </div>
       </div>
 
-      {/* 其他案例（计划中） */}
-      <div className="mb-8">
-        <h2 className="text-xs text-[#8a92a3] font-mono tracking-widest mb-4">其他案例（后续版本提供）</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {liveCases
-            .filter((c) => c.id !== 'rgb_led' && c.params.length <= 3)
-            .slice(0, 2)
-            .map((c) => (
-              <div key={c.id} className="glass-panel p-4 rounded-lg border border-[rgba(67,97,238,0.08)] opacity-60">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-[rgba(67,97,238,0.08)] text-[#8a92a3] font-mono">
-                    计划中
-                  </span>
-                  <span className="text-xs font-mono text-[#d0d4dc]">{c.nameEn}</span>
-                </div>
-                <p className="text-[10px] text-[#8a92a3] leading-relaxed">{c.description.slice(0, 60)}…</p>
-              </div>
-            ))}
+      {/* Lecture note */}
+      {isLectureMode && (
+        <div className="p-3 rounded border border-amber-800 bg-[rgba(120,53,15,0.15)]">
+          <p className="text-[10px] text-amber-300 font-mono leading-relaxed">
+            <strong>讲者提示：</strong>RGB LED 为首选演示案例（参数直觉最强）；
+            钙钛矿案例适合讲完 A-Lab 后切换，展示材料领域闭环。
+            种子 42 固定，重置后结果序列完全相同，可在讲座前彩排。
+          </p>
         </div>
-      </div>
+      )}
 
-      {/* 讲座说明 */}
-      <div className="p-3 rounded border border-[rgba(67,97,238,0.1)]">
-        <p className="text-[10px] text-[#8a92a3] leading-relaxed">
-          <strong>讲者说明：</strong>RGB LED 案例完全可运行，种子固定（42），每次重置后可得到完全相同的结果序列。
-          运行 1 步展示单步推荐逻辑；运行 5 步展示收敛过程。其他案例为后续课程扩展，本次讲座以 A-Lab 案例档案替代。
-        </p>
-      </div>
+      {!isLectureMode && (
+        <div className="p-3 rounded border border-[rgba(67,97,238,0.1)]">
+          <p className="text-[10px] text-[#8a92a3] leading-relaxed">
+            <strong>说明：</strong>所有案例完全在浏览器内运行，不调用任何外部 API。
+            Surrogate 使用 RBF 核的 Gaussian Process，Acquisition Function 为 Expected Improvement。
+          </p>
+        </div>
+      )}
     </div>
   );
 }

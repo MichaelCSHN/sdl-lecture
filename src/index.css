@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,6 +7,8 @@
 @layer base {
   :root {
     --void-blue: #000d1d;
+    --lecture-amber: #92400e;
+    --lecture-amber-text: #fcd34d;
     --glass-surface: rgba(6, 22, 42, 0.85);
     --neon-edge: rgba(67, 97, 238, 0.3);
     --algo-cyan: #00f5d4;
@@ -53,7 +57,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-family: 'Crimson Pro', 'Georgia', 'Times New Roman', serif;
     color: var(--research-white);
   }
 
@@ -82,7 +86,7 @@
 
 @layer components {
   .font-mono-title {
-    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-family: 'Crimson Pro', 'Georgia', 'Times New Roman', serif;
   }
 
   .glass-panel {
