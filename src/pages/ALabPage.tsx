@@ -132,7 +132,7 @@ export default function ALabPage() {
       {/* ================================================================ */}
       {/* 01 — A-Lab 是什么 */}
       {/* ================================================================ */}
-      <section className="mb-14" id="what">
+      <section className="mb-14" id="problem">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-xs text-[#00f5d4] font-mono tracking-wider">01</span>
           <h2 className="text-lg font-semibold text-[#d0d4dc]">A-Lab 是什么</h2>
@@ -208,7 +208,7 @@ export default function ALabPage() {
       {/* ================================================================ */}
       {/* 03 — 论文原始声称 */}
       {/* ================================================================ */}
-      <section className="mb-14" id="claims">
+      <section className="mb-14" id="results">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-xs text-[#00f5d4] font-mono tracking-wider">03</span>
           <h2 className="text-lg font-semibold text-[#d0d4dc]">
