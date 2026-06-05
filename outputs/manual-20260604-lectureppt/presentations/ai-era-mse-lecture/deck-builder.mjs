@@ -336,6 +336,187 @@ function processSlide(presentation, meta) {
   addNotes(slide, meta.script, meta.annotations, meta.sources, meta.pace, meta.figureSuggestions);
 }
 
+function workflowBridgeSlide(presentation, meta) {
+  const slide = slideBase(presentation);
+  header(slide, meta.section, meta.page, meta.total);
+  titleBlock(slide, meta.title, meta.subtitle);
+
+  if (meta.bandTitle) {
+    shape(slide, { left: 88, top: 214, width: 1096, height: 44 }, {
+      fill: { type: "solid", color: meta.bandFill || C.panel },
+      line: { width: 1, fill: meta.bandLine || C.line },
+    });
+    text(slide, { left: 108, top: 226, width: 220, height: 18 }, meta.bandTitle, {
+      fontSize: 11,
+      mono: true,
+      color: meta.bandAccent || C.cyan,
+    });
+    text(slide, { left: 320, top: 224, width: 840, height: 18 }, meta.bandBody || "", {
+      fontSize: 13,
+      color: C.text,
+      align: "right",
+    });
+  }
+
+  const left = 88;
+  const top = 280;
+  const gap = 16;
+  const width = 262;
+  const height = 236;
+  meta.steps.forEach((step, i) => {
+    const x = left + i * (width + gap);
+    shape(slide, { left: x, top, width, height }, {
+      fill: { type: "solid", color: step.fill || C.panel2 },
+      line: { width: 1, fill: step.line || C.line },
+    });
+    shape(slide, { left: x, top, width, height: 10 }, {
+      geometry: "rect",
+      fill: { type: "solid", color: step.accent || C.cyan },
+      line: { width: 0, fill: step.accent || C.cyan },
+    });
+    text(slide, { left: x + 18, top: top + 24, width: 42, height: 18 }, step.kicker, {
+      fontSize: 12,
+      mono: true,
+      color: step.accent || C.cyan,
+    });
+    text(slide, { left: x + 18, top: top + 54, width: width - 36, height: 28 }, step.title, {
+      fontSize: 20,
+      color: C.white,
+      bold: true,
+    });
+    text(slide, { left: x + 18, top: top + 96, width: width - 36, height: 88 }, step.body, {
+      fontSize: 14,
+      color: C.text,
+    });
+    shape(slide, { left: x + 18, top: top + 192, width: width - 36, height: 28 }, {
+      geometry: "roundRect",
+      fill: { type: "solid", color: C.panel },
+      line: { width: 1, fill: step.accent || C.line },
+    });
+    text(slide, { left: x + 28, top: top + 199, width: width - 56, height: 14 }, step.note || "", {
+      fontSize: 11,
+      color: C.muted,
+      mono: true,
+      align: "center",
+    });
+    if (i < meta.steps.length - 1) {
+      slide.shapes.add({
+        geometry: "rightArrow",
+        position: { left: x + width + 1, top: top + 96, width: 30, height: 30 },
+        fill: { type: "solid", color: C.blue },
+        line: { width: 0, fill: C.blue },
+      });
+    }
+  });
+
+  if (meta.footer) {
+    shape(slide, { left: 88, top: 548, width: 1096, height: 80 }, {
+      fill: { type: "solid", color: C.panel },
+      line: { width: 1, fill: C.line },
+    });
+    text(slide, { left: 108, top: 570, width: 140, height: 18 }, meta.footer.title, {
+      fontSize: 11,
+      mono: true,
+      color: meta.footer.accent || C.cyan,
+    });
+    text(slide, { left: 256, top: 566, width: 900, height: 34 }, meta.footer.body, {
+      fontSize: 18,
+      color: C.white,
+    });
+  }
+
+  addNotes(slide, meta.script, meta.annotations, meta.sources, meta.pace, meta.figureSuggestions);
+}
+
+function workflowRoleMapSlide(presentation, meta) {
+  const slide = slideBase(presentation);
+  header(slide, meta.section, meta.page, meta.total);
+  titleBlock(slide, meta.title, meta.subtitle);
+
+  shape(slide, { left: 88, top: 220, width: 280, height: 392 }, {
+    fill: { type: "solid", color: C.panel2 },
+    line: { width: 1, fill: C.line },
+  });
+  text(slide, { left: 108, top: 238, width: 220, height: 18 }, "8-STEP MAP", {
+    fontSize: 11,
+    mono: true,
+    color: C.cyan,
+  });
+  meta.stepMap.forEach((step, i) => {
+    const y = 270 + i * 38;
+    shape(slide, { left: 108, top: y, width: 228, height: 28 }, {
+      geometry: "roundRect",
+      fill: { type: "solid", color: C.panel },
+      line: { width: 1, fill: step.accent || C.line },
+    });
+    text(slide, { left: 120, top: y + 6, width: 28, height: 14 }, step.kicker, {
+      fontSize: 10,
+      mono: true,
+      color: step.accent || C.cyan,
+    });
+    text(slide, { left: 158, top: y + 5, width: 160, height: 16 }, step.title, {
+      fontSize: 13,
+      color: C.text,
+      bold: true,
+    });
+  });
+
+  const roleLeft = 402;
+  const roleTop = 220;
+  const roleGap = 18;
+  const roleWidth = 250;
+  meta.roles.forEach((role, i) => {
+    const x = roleLeft + i * (roleWidth + roleGap);
+    shape(slide, { left: x, top: roleTop, width: roleWidth, height: 392 }, {
+      fill: { type: "solid", color: role.fill || C.panel2 },
+      line: { width: 1, fill: role.accent || C.line },
+    });
+    text(slide, { left: x + 16, top: roleTop + 16, width: roleWidth - 32, height: 18 }, role.kicker, {
+      fontSize: 11,
+      mono: true,
+      color: role.accent || C.cyan,
+    });
+    text(slide, { left: x + 16, top: roleTop + 42, width: roleWidth - 32, height: 24 }, role.title, {
+      fontSize: 20,
+      color: C.white,
+      bold: true,
+      align: "center",
+    });
+    text(slide, { left: x + 18, top: roleTop + 86, width: roleWidth - 36, height: 138 }, bullets(role.points), {
+      fontSize: 15,
+      color: C.text,
+    });
+    shape(slide, { left: x + 16, top: roleTop + 250, width: roleWidth - 32, height: 112 }, {
+      geometry: "roundRect",
+      fill: { type: "solid", color: C.panel },
+      line: { width: 1, fill: role.accent || C.line },
+    });
+    text(slide, { left: x + 28, top: roleTop + 266, width: roleWidth - 56, height: 16 }, role.focusTitle, {
+      fontSize: 11,
+      mono: true,
+      color: role.accent || C.cyan,
+    });
+    text(slide, { left: x + 28, top: roleTop + 292, width: roleWidth - 56, height: 52 }, role.focusBody, {
+      fontSize: 14,
+      color: C.text,
+    });
+  });
+
+  shape(slide, { left: 88, top: 636, width: 1096, height: 26 }, {
+    geometry: "roundRect",
+    fill: { type: "solid", color: C.panel },
+    line: { width: 1, fill: C.line },
+  });
+  text(slide, { left: 108, top: 642, width: 1048, height: 14 }, meta.bottomLine, {
+    fontSize: 12,
+    color: C.muted,
+    mono: true,
+    align: "center",
+  });
+
+  addNotes(slide, meta.script, meta.annotations, meta.sources, meta.pace, meta.figureSuggestions);
+}
+
 function imageSlide(presentation, meta) {
   const slide = slideBase(presentation);
   header(slide, meta.section, meta.page, meta.total);
@@ -901,6 +1082,124 @@ function buildSlides() {
       script: "我对这个问题的判断很明确：DOE 不会死。更好的问法是，它会以什么方式继续存在。通常就是三种：串联、并联、集成。很多 SDL 工作流内部，本来就还在用 DOE 的语言、初始化和结构化采样思想。",
       annotations: ["这页可直接回应“AI 时代 DOE 是否过时”"],
       sources: [SRC.fisher, SRC.box, SRC.boReview, SRC.shahriari],
+    },
+    {
+      type: "workflowBridge",
+      section: "研究工作流",
+      title: "8 步实验工作流：先把问题翻译成可执行设计",
+      subtitle: "01–04 不是“前戏”，而是后面所有 DOE、SDL 和统计推断的地基。",
+      bandTitle: "PHASE A",
+      bandBody: "把模糊研究问题收束成可执行、可测量、可重复的实验结构",
+      bandAccent: C.cyan,
+      bandFill: C.panel,
+      steps: [
+        { kicker: "01", title: "问题定义", body: "把研究问题压缩成可检验假设与可测结果变量。", note: "hypothesis / outcome", accent: C.cyan },
+        { kicker: "02", title: "实验设计", body: "明确因素、响应、对照、样本量与随机化结构。", note: "factor / response / control", accent: C.blue },
+        { kicker: "03", title: "前期准备", body: "写 SOP、校准设备、验证样品与记录体系。", note: "SOP / calibration / traceability", accent: C.yellow },
+        { kicker: "04", title: "预实验", body: "小规模跑通流程，暴露技术障碍并修正设计。", note: "pilot / revise / de-risk", accent: C.red },
+      ],
+      footer: {
+        title: "IF THIS FAILS",
+        body: "后面的 DOE、优化器和统计推断都会建立在松动地基上。",
+        accent: C.red,
+      },
+      script: "在从 DOE 转入 SDL 之前，我想补一条更底层的主线：真正的研究不是‘挑一个优化器’开始的，而是先把问题翻译成可执行设计。前四步负责定义问题、组织变量、校准测量和排查流程缺陷，它们是后面所有高级方法的承重墙。",
+      annotations: [
+        "workflow discipline（工作流纪律）",
+        "pilot study（预实验）",
+      ],
+      sources: [SRC.hacking, SRC.fisher, SRC.box, SRC.montgomery],
+      pace: "2–3 分钟；作为 DOE 与 SDL 之间的桥，不展开成方法细节课。",
+    },
+    {
+      type: "workflowBridge",
+      section: "研究工作流",
+      title: "8 步实验工作流：再把实验变成可信结论",
+      subtitle: "05–08 决定结果能否被重复、被审计、被真正写进科学结论。",
+      bandTitle: "PHASE B",
+      bandBody: "把执行、数据、统计和报告接成一条可审计的证据链",
+      bandAccent: C.green,
+      bandFill: C.panel,
+      steps: [
+        { kicker: "05", title: "实验执行", body: "按随机化与 SOP 执行，并实时记录原始数据与环境条件。", note: "discipline / raw log / QC", accent: C.green },
+        { kicker: "06", title: "数据管理", body: "保留原始文件、元数据和清洗决策，保证可追溯。", note: "FAIR / provenance / backup", accent: C.cyan },
+        { kicker: "07", title: "统计分析", body: "按预定计划检验、报告效应量与不确定性。", note: "effect size / uncertainty", accent: C.blue },
+        { kicker: "08", title: "解释报告", body: "把结果放回机制与边界中解释，并透明报告局限。", note: "mechanism / limits / honesty", accent: C.yellow },
+      ],
+      footer: {
+        title: "WHY IT MATTERS",
+        body: "真正让结果站得住的，通常不是第一个漂亮数字，而是整条证据链是否可复查。",
+        accent: C.cyan,
+      },
+      script: "真正让一个实验站得住的，往往不是第一个漂亮结果，而是后四步：执行是否守纪律，数据是否留痕，统计是否按计划，报告是否诚实。很多所谓‘AI 时代的方法创新’，最后都败在这些最传统的科研纪律上。",
+      annotations: [
+        "data provenance（数据来源留痕）",
+        "effect size（效应量）",
+      ],
+      sources: [SRC.box, SRC.montgomery, SRC.chemrevSDL, SRC.futureSDL],
+      pace: "2–3 分钟；强调可信与可复现，而不是堆更多术语。",
+    },
+    {
+      type: "workflowRoleMap",
+      section: "工作流分工",
+      title: "把 DOE、SDL 和人的判断放回这 8 步里",
+      subtitle: "它们不是平行替代方案，而是在不同决策节点上承担不同角色。",
+      stepMap: [
+        { kicker: "01", title: "问题定义", accent: C.cyan },
+        { kicker: "02", title: "实验设计", accent: C.blue },
+        { kicker: "03", title: "前期准备", accent: C.yellow },
+        { kicker: "04", title: "预实验", accent: C.red },
+        { kicker: "05", title: "实验执行", accent: C.green },
+        { kicker: "06", title: "数据管理", accent: C.cyan },
+        { kicker: "07", title: "统计分析", accent: C.blue },
+        { kicker: "08", title: "解释报告", accent: C.yellow },
+      ],
+      roles: [
+        {
+          kicker: "HUMAN",
+          title: "人的判断",
+          accent: C.red,
+          points: [
+            "定义真正值得回答的问题",
+            "规定测量语义与边界条件",
+            "承担解释与报告责任",
+          ],
+          focusTitle: "最不可外包",
+          focusBody: "01 / 03 / 08 步。问题、测量含义和科学结论，不能只交给系统自动生成。",
+        },
+        {
+          kicker: "DOE",
+          title: "设计结构",
+          accent: C.blue,
+          points: [
+            "组织因素、响应与对照",
+            "安排随机化、样本量与批次结构",
+            "用预实验修正正式设计",
+          ],
+          focusTitle: "介入最深",
+          focusBody: "02–04 步。DOE 把问题翻译成统计结构，是闭环前最重要的结构化语言。",
+        },
+        {
+          kicker: "SDL",
+          title: "闭环决策",
+          accent: C.green,
+          points: [
+            "把观测、更新和推荐高速串联",
+            "在昂贵实验中提高信息效率",
+            "把数据、执行和决策接成系统",
+          ],
+          focusTitle: "介入最深",
+          focusBody: "02 / 04 / 05 / 06 / 07 步之间。SDL 改写的是若干决策节点的速度与密度。",
+        },
+      ],
+      bottomLine:
+        "结论：AI 时代真正变化的，不是 8 步被取消，而是其中若干决策节点被更密集地数据化、自动化和审计化。",
+      script: "这页是桥接结论。DOE 更像把问题翻译成统计设计，SDL 更像把其中若干决策节点高速闭环化，而真正不能外包的仍是问题定义、测量语义和结论责任。这样一来，后面讲 SDL 就不会悬空在半空中。",
+      annotations: [
+        "human-in-the-loop（人仍在决策环中）",
+        "scientific accountability（科学责任）",
+      ],
+      sources: [SRC.hacking, SRC.box, SRC.montgomery, SRC.chemrevSDL, SRC.futureSDL],
     },
     {
       type: "divider",
@@ -1618,6 +1917,8 @@ function renderDeck(presentation, slides) {
     if (meta.type === "cards") return cardsSlide(presentation, meta);
     if (meta.type === "compare") return compareSlide(presentation, meta);
     if (meta.type === "process") return processSlide(presentation, meta);
+    if (meta.type === "workflowBridge") return workflowBridgeSlide(presentation, meta);
+    if (meta.type === "workflowRoleMap") return workflowRoleMapSlide(presentation, meta);
     if (meta.type === "image") return imageSlide(presentation, meta);
     if (meta.type === "quote") return quoteSlide(presentation, meta);
   });

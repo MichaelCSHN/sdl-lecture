@@ -1,19 +1,29 @@
 import { NavLink, useLocation } from 'react-router';
-import { BookOpen, Beaker, FlaskConical, Grid3X3, Menu, Lightbulb } from 'lucide-react';
+import {
+  Beaker,
+  BookOpen,
+  DraftingCompass,
+  FlaskConical,
+  Grid3X3,
+  Menu,
+  Network,
+} from 'lucide-react';
 import { useState } from 'react';
 
 const MAIN_ITEMS = [
   { to: '/', label: '首页', icon: Grid3X3, exact: true },
   { to: '/course', label: '课程', icon: BookOpen },
-  { to: '/foundations', label: '基础', icon: Lightbulb },
+  { to: '/methods', label: '工作流', icon: Network },
   { to: '/a-lab', label: 'A-Lab', icon: FlaskConical },
   { to: '/case-studio', label: '演示', icon: Beaker },
 ];
 
 const MORE_ITEMS = [
-  { to: '/methods', label: '方法（扩展）', icon: Lightbulb },
-  { to: '/design-studio', label: '设计（扩展）', icon: Grid3X3 },
-  { to: '/resources', label: '资源（扩展）', icon: BookOpen },
+  { to: '/foundations', label: 'Foundations', icon: BookOpen },
+  { to: '/design-studio', label: 'Design Studio', icon: DraftingCompass },
+  { to: '/resources', label: 'Resources', icon: BookOpen },
+  { to: '/led-calibration', label: 'LED 校准', icon: Grid3X3 },
+  { to: '/sdl-demo', label: 'SDL Demo', icon: Beaker },
 ];
 
 export default function MobileNav() {
@@ -22,7 +32,6 @@ export default function MobileNav() {
 
   return (
     <>
-      {/* Bottom nav bar */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
         style={{
@@ -41,7 +50,7 @@ export default function MobileNav() {
                 key={item.to}
                 to={item.to}
                 end={item.exact}
-                className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition-colors ${
+                className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition-colors no-underline ${
                   isActive ? 'text-[#00f5d4]' : 'text-[#8a92a3]'
                 }`}
               >
@@ -52,7 +61,6 @@ export default function MobileNav() {
             );
           })}
 
-          {/* More button */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className={`flex flex-col items-center gap-0.5 px-1.5 py-1 rounded transition-colors ${
@@ -65,7 +73,6 @@ export default function MobileNav() {
         </div>
       </nav>
 
-      {/* More menu overlay */}
       {menuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" onClick={() => setMenuOpen(false)}>
           <div
@@ -75,13 +82,13 @@ export default function MobileNav() {
           >
             <div className="flex flex-col gap-2">
               {MORE_ITEMS.map((item) => {
-                const isActive = location.pathname.startsWith(item.to.split('（')[0]);
+                const isActive = location.pathname.startsWith(item.to);
                 return (
                   <NavLink
                     key={item.to}
                     to={item.to}
                     onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded text-sm font-mono transition-colors ${
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded text-sm font-mono transition-colors no-underline ${
                       isActive
                         ? 'text-[#00f5d4] bg-[rgba(0,245,212,0.06)]'
                         : 'text-[#5a6377]'
