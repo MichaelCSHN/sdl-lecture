@@ -150,13 +150,6 @@ export default function LedCaseView() {
     if (timerRef.current) window.clearTimeout(timerRef.current);
   }, []);
 
-  // Lecture mode: R key → reset LED case
-  useEffect(() => {
-    const handler = () => applyReset();
-    window.addEventListener('lecture:reset', handler);
-    return () => window.removeEventListener('lecture:reset', handler);
-  }, [applyReset]);
-
   const createFresh = useCallback((
     ch = channels, tgt = selectedTarget, mode = matchMode, seed = seedVal, obj = objectiveConfig,
   ) => {
@@ -178,6 +171,13 @@ export default function LedCaseView() {
     setOptState(state); setCurrentMetrics(metrics); setHistory([metrics]); setIter(1);
     setCurrentReason(`初始化：${metrics.channelCount} 通道，${metrics.objectiveLabel}=${metrics.objectiveValue.toFixed(4)}`);
   }, [channels, createFresh, matchMode, objectiveConfig, seedVal, selectedTarget]);
+
+  // Lecture mode: R key → reset LED case (must be after applyReset)
+  useEffect(() => {
+    const handler = () => applyReset();
+    window.addEventListener('lecture:reset', handler);
+    return () => window.removeEventListener('lecture:reset', handler);
+  }, [applyReset]);
 
   const ensureAligned = useCallback(() => {
     const cur = optStateRef.current;
