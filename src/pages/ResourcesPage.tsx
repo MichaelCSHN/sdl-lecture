@@ -19,6 +19,56 @@ const STAGE_META = {
 
 type CategoryKey = keyof typeof CATEGORY_META;
 
+const TIMEBOXED_TRACKS = [
+  {
+    title: '2 小时：抓住主线',
+    body: '只处理三个问题：实验为什么不是理论附庸；DOE 解决什么；SDL 在哪里改变了“下一步做什么”的决策。',
+  },
+  {
+    title: '2 周：建立方法语言',
+    body: '补 DOE、Bayesian Optimization、材料数据库和真实 SDL 案例，能看懂一篇相关论文的主张与证据链。',
+  },
+  {
+    title: '2 个月：迁移到自己的课题',
+    body: '用工作流检查自己的研究设计，形成目标、变量、约束、测量、数据留痕和验证计划。',
+  },
+];
+
+const APPENDIX_RESOURCE_GROUPS = [
+  {
+    title: 'GP-BO 与代理模型',
+    items: [
+      'Shahriari et al.：Bayesian Optimization 综述',
+      'Rasmussen & Williams：Gaussian Processes for Machine Learning',
+      'BoTorch / Ax：现代 BO 工程工具链',
+    ],
+  },
+  {
+    title: '材料数据库与数据基础设施',
+    items: [
+      'Materials Project：计算材料数据库入口',
+      'AFLOW：高通量材料数据与筛选',
+      'Materials Cloud：开放计算数据与工作流归档',
+    ],
+  },
+  {
+    title: 'SDL 系统与实验编排',
+    items: [
+      'ChemOS：自主实验软件栈代表',
+      'Olympus：优化算法与实验基准平台',
+      'HELAO / CAMEO：材料与化学实验室自动化案例',
+    ],
+  },
+  {
+    title: '开放科学与可复现性',
+    items: [
+      'FAIR 原则：让数据可发现、可访问、可互操作、可复用',
+      'OSF / Zenodo：项目、数据和代码归档',
+      '元数据规范：记录失败、异常和边界条件',
+    ],
+  },
+];
+
 export default function ResourcesPage() {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('all');
 
@@ -32,31 +82,17 @@ export default function ResourcesPage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       <div className="mb-10">
-        <div className="text-[#00f5d4] font-mono text-xs tracking-widest mb-3">课程延伸</div>
+        <div className="text-[#00f5d4] font-mono text-xs tracking-widest mb-3">学习资源（Resources）</div>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-4 text-[#f3f6fb]">
-          资源与参考
+          课后阅读、工具与事实来源
         </h1>
         <p className="text-[#8a92a3] max-w-3xl leading-relaxed text-sm mb-6">
-          这一页不是“附录书单”，而是课程结构的一部分。它回答三个问题：讲座后先读什么，
-          如果要把自己的课题真正放进方法论框架里该沿哪条线深入，以及哪些资源最适合把
-          MSE、DOE、计算与 SDL 串起来。
+          这页回答三个问题：讲座后先读什么，怎样把自己的课题放进方法论框架，
+          以及哪些来源适合核实 A-Lab、GNoME、Coscientist、Materials Project 等事实。
         </p>
 
         <div className="grid gap-4 md:grid-cols-3">
-          {[
-            {
-              title: '先抓框架，再追细节',
-              body: '优先理解实验为何重要、DOE 改变了什么、SDL 又改变了哪一层，而不是一开始就陷进算法名词表。',
-            },
-            {
-              title: '按问题而不是按书名阅读',
-              body: '每条资源都标了它最适合回答什么问题，这比堆砌权威书单更适合研究生快速建立方法论判断。',
-            },
-            {
-              title: '网站与未来 PPT 共用同一套内容骨架',
-              body: '这页的阅读轨、历史节点和 MSE 桥接内容，后续可以直接转成幻灯片结构，不需要重新起草。',
-            },
-          ].map((item) => (
+          {TIMEBOXED_TRACKS.map((item) => (
             <div key={item.title} className="glass-panel rounded-2xl border border-[rgba(67,97,238,0.12)] p-5">
               <h2 className="text-sm font-semibold text-[#d0d4dc] mb-2">{item.title}</h2>
               <p className="text-xs text-[#8a92a3] leading-6">{item.body}</p>
@@ -68,7 +104,7 @@ export default function ResourcesPage() {
       <section className="mb-12">
         <div className="flex items-center gap-3 mb-5">
           <span className="text-xs text-[#fee440] font-mono tracking-wider">01</span>
-          <h2 className="text-lg font-semibold text-[#d0d4dc]">讲座后先读这五项</h2>
+          <h2 className="text-lg font-semibold text-[#d0d4dc]">讲座后优先读这五项</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-5">
           {quickStartResources.map((resource) => (
@@ -92,7 +128,7 @@ export default function ResourcesPage() {
       <section className="mb-12">
         <div className="flex items-center gap-3 mb-5">
           <span className="text-xs text-[#4361ee] font-mono tracking-wider">02</span>
-          <h2 className="text-lg font-semibold text-[#d0d4dc]">按四条阅读轨进入，而不是漫无目的搜资料</h2>
+          <h2 className="text-lg font-semibold text-[#d0d4dc]">按问题进入，而不是漫无目的搜索资料</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {readingTracks.map((track, index) => (
@@ -151,6 +187,7 @@ export default function ResourcesPage() {
               return (
                 <button
                   key={key}
+                  type="button"
                   onClick={() => setActiveCategory(key)}
                   className="rounded-full border px-3 py-1.5 text-[10px] font-mono transition-colors"
                   style={{
@@ -205,16 +242,41 @@ export default function ResourcesPage() {
         </div>
       </section>
 
+      <section className="mb-12 rounded-2xl border border-[rgba(0,245,212,0.14)] bg-[rgba(0,245,212,0.03)] p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-xs text-[#00f5d4] font-mono tracking-wider">04</span>
+          <h2 className="text-lg font-semibold text-[#d0d4dc]">工具与延伸阅读组</h2>
+        </div>
+        <p className="text-xs text-[#8a92a3] max-w-3xl leading-6 mb-5">
+          这组资源用于承接讲座主线之后的自学：从 GP-BO 演示、Case Studio 到真实 SDL 系统，
+          重点是让学生知道下一步该查什么、练什么、核实什么。
+        </p>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {APPENDIX_RESOURCE_GROUPS.map((group) => (
+            <div key={group.title} className="rounded-2xl border border-[rgba(0,245,212,0.1)] bg-[rgba(6,22,42,0.55)] p-4">
+              <h3 className="text-sm font-semibold text-[#f3f6fb] mb-3">{group.title}</h3>
+              <div className="space-y-2">
+                {group.items.map((item) => (
+                  <div key={item} className="text-[11px] text-[#8a92a3] leading-5 rounded-xl border border-[rgba(67,97,238,0.08)] px-3 py-2">
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-[rgba(67,97,238,0.12)] bg-[rgba(255,255,255,0.02)] p-5">
         <div className="flex items-center gap-3 mb-3">
-          <span className="text-xs text-[#ff6b6b] font-mono tracking-wider">04</span>
-          <h2 className="text-lg font-semibold text-[#d0d4dc]">这页如何反哺讲座与 PPT</h2>
+          <span className="text-xs text-[#ff6b6b] font-mono tracking-wider">05</span>
+          <h2 className="text-lg font-semibold text-[#d0d4dc]">事实来源优先级</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            '时间轴内容可以直接拆成“实验史的 9 个节点”幻灯片，或压缩成“3 次跃迁 + 1 条主轴”。',
-            '阅读轨可以直接改造成讲座结尾的“课后行动清单”，避免只给一堆书名不告诉学生怎么开始。',
-            '资源卡里的“为什么值得读”和“和课程的关系”两段，正好可以成为 PPT 备注或讲稿补充句。',
+            '论文事实优先使用 DOI、Nature、PubMed、APS、官方文档或机构页面。',
+            '新闻报道只用于争议背景和社会反应，不作为核心事实的唯一来源。',
+            '数据、趋势和技术成熟度判断必须标注为当前记录、争议记录或讲者判断。',
           ].map((item) => (
             <div key={item} className="rounded-xl border border-[rgba(67,97,238,0.08)] p-4">
               <p className="text-xs leading-6 text-[#8a92a3]">{item}</p>

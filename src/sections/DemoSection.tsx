@@ -5,7 +5,10 @@ import { generateRandom, generateLHS, generateSobol, generateFullFactorial, runR
 import { quizQuestions } from '../data/quiz_data';
 const Plot = lazy(() => import('../components/PlotlyChart'));
 
-// ===================== Deepseek API =====================
+// ===================== Archived AI streaming demo =====================
+// This legacy section is not rendered. Do not expose direct provider API
+// endpoints in public learning resources; route through a server-side proxy
+// and official documentation if this demo is restored.
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -14,7 +17,7 @@ interface ChatMessage {
 
 async function* streamDeepseek(apiKey: string, messages: ChatMessage[]): AsyncGenerator<string, void, unknown> {
   try {
-    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+    const resp = await fetch('/api/ai-chat-proxy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

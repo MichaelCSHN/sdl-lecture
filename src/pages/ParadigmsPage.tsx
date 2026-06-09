@@ -371,7 +371,7 @@ export default function ParadigmsPage() {
             <div className="text-[#00f5d4] font-mono text-[10px] mb-1">基础 → D 节</div>
             <div className="text-[#d0d4dc]">SDL 核心概念：目标 / 约束 / 测量</div>
           </a>
-          <a href="/a-lab#validation" className="p-3 rounded border border-[rgba(67,97,238,0.08)] hover:border-[#00f5d4] transition-colors no-underline">
+          <a href="/a-lab#controversy" className="p-3 rounded border border-[rgba(67,97,238,0.08)] hover:border-[#00f5d4] transition-colors no-underline">
             <div className="text-[#00f5d4] font-mono text-[10px] mb-1">A-Lab → 05 节</div>
             <div className="text-[#d0d4dc]">争议与可证伪性：SDL 声称的独立验证</div>
           </a>

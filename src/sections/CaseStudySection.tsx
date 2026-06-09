@@ -101,7 +101,7 @@ function ValidationDiscussionPanel() {
 
 const MILESTONES = [
   { year: '2023', event: 'A-Lab 论文发表于 Nature', detail: 'Demonstrated autonomous synthesis of novel inorganic materials' },
-  { year: '2023.11', event: '首次 17 天发现 41 种新材料', detail: 'Including 35 novel ternary oxides with validated structures' },
+  { year: '2023.11', event: '原始声称 41/58；后续修正为 36/57', detail: 'Archive note: requires corrected-record context before reuse' },
   { year: '2024', event: '与 Materials Project 深度集成', detail: 'Real-time DFT pre-screening and structure prediction' },
   { year: '2025', event: '扩展至多元化合物空间', detail: 'Carbon nitrides, phosphates, and halide perovskites' },
   { year: '2026', event: '全球 12 个实验室接入', detail: 'Open-source SDL framework adopted worldwide' },
@@ -122,7 +122,7 @@ const VALIDATION_POINTS = [
   {
     title: '合成成功率',
     value: '78%',
-    desc: '41 种目标材料中 32 种成功合成，成功率高于传统实验室的 60-70%',
+    desc: '旧版示例数据已弃用；正式页面请使用原始 41/58 与 Nature 修正 36/57 的并列表述',
     status: 'positive' as const,
   },
   {
@@ -172,7 +172,7 @@ export default function CaseStudySection() {
           </h2>
           <p className="text-[#8a92a3] max-w-2xl leading-relaxed">
             以 <TermTooltip term="A-Lab">A-Lab</TermTooltip> 为核心案例，深度解析自主实验室如何从概念走向现实。
-            2023 年 <TermTooltip term="Nature">Nature</TermTooltip> 论文展示了 17 天内自主合成 41 种新材料的里程碑成果。
+            2023 年 <TermTooltip term="Nature">Nature</TermTooltip> 论文展示了 17 天自动化固态合成系统；正式页面需区分原始 41/58 声称、Nature 修正 36/57 与后续争议。
           </p>
         </motion.div>
 

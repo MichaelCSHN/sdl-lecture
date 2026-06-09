@@ -33,6 +33,7 @@ import {
 import {
   Field,
   MetricRow,
+  TaskModeSummary,
   buttonClassName,
   inputClassName,
   plotConfig,
@@ -71,7 +72,7 @@ const HELP = {
 
 const METRIC_OPTIONS: Array<{ key: LedMetricKey; label: string }> = [
   { key: 'matchError', label: '匹配误差' },
-  { key: 'spectralRmse', label: 'Spectral RMSE' },
+  { key: 'spectralRmse', label: '光谱均方根误差（Spectral RMSE）' },
   { key: 'sam', label: 'SAM' },
   { key: 'cost', label: '总成本' },
   { key: 'power', label: '总功耗' },
@@ -213,7 +214,7 @@ export default function LedCaseView() {
             `iter ${record.iteration}<br>${metricLabel(paretoX)}: ${record.metricValues[paretoX].toFixed(4)}<br>${metricLabel(paretoY)}: ${record.metricValues[paretoY].toFixed(4)}`
         ),
         hovertemplate: '%{text}<extra></extra>',
-        name: 'All observations',
+        name: '全部观测点',
       },
       front:
         front.length > 0
@@ -224,7 +225,7 @@ export default function LedCaseView() {
               mode: 'lines+markers' as const,
               line: { color: '#00f5d4', width: 2 },
               marker: { size: 6, color: '#00f5d4' },
-              name: 'Pareto front',
+              name: 'Pareto 前沿',
             }
           : null,
     };
@@ -269,19 +270,51 @@ export default function LedCaseView() {
     rerender();
   }, [ensureSession, rerender]);
 
+  const taskSummary = {
+    modeLabel:
+      taskMode === 'single'
+        ? '单目标（Single Objective）'
+        : taskMode === 'weighted'
+          ? '线性组合（Weighted Sum）'
+          : 'Pareto 前沿（Pareto Frontier）',
+    objectiveLabel:
+      taskMode === 'single'
+        ? `针对目标光谱 ${selectedTarget.name}，直接优化 ${metricLabel(singleMetric)}。`
+        : taskMode === 'weighted'
+          ? '最小化由匹配质量、成本、功耗、通道数和寿命惩罚共同构成的加权分数。'
+          : `跟踪 ${metricLabel(paretoX)} 与 ${metricLabel(paretoY)} 之间的非支配权衡。`,
+    strategyLabel:
+      taskMode === 'pareto'
+        ? '先读目标空间中的前沿，再看是哪些通道组合和光谱形状形成了这些权衡。'
+        : '把标量分数历史和启用通道一起看，才能知道优化器在牺牲什么。',
+    takeaway:
+      taskMode === 'single'
+        ? '这个模式最适合展示系统只关心一个运行 KPI 时会发生什么。'
+        : taskMode === 'weighted'
+          ? '这是更接近工程实际的定标设定：优化器只看一个总分，但原始指标会说明这个总分是用成本、功耗还是硬件复杂度换来的。'
+          : '这是决策支持设定：优化器不再隐藏权衡，而是直接返回一条可选折中前沿。',
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
       <div className="lg:col-span-1 space-y-3">
         <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-3">
-          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-1.5">CASE BACKGROUND</div>
+          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-1.5">案例背景（Case Background）</div>
           <p className="text-[10px] text-[#8a92a3] leading-5">
             现在 `LED calibration` 也和 `Branin`、`Thin-Film` 使用同一套优化会话。不同之处只剩下黑盒本身：这里的黑盒是
             多通道 LED 光谱合成数字孪生。
           </p>
         </div>
 
+        <TaskModeSummary
+          modeLabel={taskSummary.modeLabel}
+          objectiveLabel={taskSummary.objectiveLabel}
+          strategyLabel={taskSummary.strategyLabel}
+          takeaway={taskSummary.takeaway}
+        />
+
         <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-3 space-y-3">
-          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest">Problem setup</div>
+          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest">问题设定（Problem Setup）</div>
 
           <Field
             label="匹配模式"
@@ -289,7 +322,7 @@ export default function LedCaseView() {
             control={
               <select value={matchMode} onChange={(event) => setMatchMode(event.target.value as MatchMode)} className={selectClassName}>
                 <option value="spectral">光谱匹配（Spectral RMSE）</option>
-                <option value="band">Band-response 匹配</option>
+                <option value="band">波段响应匹配（Band-response）</option>
               </select>
             }
           />
@@ -329,7 +362,7 @@ export default function LedCaseView() {
                   : 'bg-[rgba(67,97,238,0.06)] text-[#5a6377] border-[rgba(67,97,238,0.1)]'
               }`}
             >
-              {useSynthetic ? 'ON' : 'OFF'}
+              {useSynthetic ? '开' : '关'}
             </button>
           </div>
           <p className="text-[8px] text-[#5a6377] leading-relaxed">{HELP.synthetic}</p>
@@ -341,7 +374,7 @@ export default function LedCaseView() {
               <select value={taskMode} onChange={(event) => setTaskMode(event.target.value as TaskMode)} className={selectClassName}>
                 <option value="single">单目标</option>
                 <option value="weighted">线性组合</option>
-                <option value="pareto">Pareto</option>
+                    <option value="pareto">帕累托（Pareto）</option>
               </select>
             }
           />
@@ -433,7 +466,7 @@ export default function LedCaseView() {
           )}
 
           <div className="border-t border-[rgba(67,97,238,0.1)] pt-2">
-            <div className="text-[9px] text-[#4361ee] font-mono mb-2">SDL method setup</div>
+            <div className="text-[9px] text-[#4361ee] font-mono mb-2">SDL 方法设置（SDL Method Setup）</div>
             <div className="space-y-2">
               <Field
                 label="代理模型"
@@ -458,7 +491,7 @@ export default function LedCaseView() {
                     <option value="EI">Expected Improvement (EI)</option>
                     <option value="UCB">Upper Confidence Bound (UCB)</option>
                     <option value="PI">Probability of Improvement (PI)</option>
-                    <option value="Random">Random baseline</option>
+                    <option value="Random">随机基线（Random baseline）</option>
                   </select>
                 }
               />
@@ -494,10 +527,10 @@ export default function LedCaseView() {
             <RotateCcw className="w-3 h-3" /> 重置
           </button>
           <button onClick={runOne} disabled={autoRunning} className={buttonClassName('primary', autoRunning)}>
-            <Play className="w-3 h-3" /> Run 1
+            <Play className="w-3 h-3" /> 运行 1 步
           </button>
           <button onClick={runFive} disabled={autoRunning} className={buttonClassName('secondary', autoRunning)}>
-            <Play className="w-3 h-3" /> Run 5
+            <Play className="w-3 h-3" /> 运行 5 步
           </button>
           {autoRunning ? (
             <button onClick={stopAuto} className={buttonClassName('warning')}>
@@ -505,7 +538,7 @@ export default function LedCaseView() {
             </button>
           ) : (
             <button onClick={startAuto} className={buttonClassName('ghost')}>
-              <Play className="w-3 h-3" /> Auto
+              <Play className="w-3 h-3" /> 自动运行
             </button>
           )}
         </div>
@@ -516,8 +549,8 @@ export default function LedCaseView() {
           <MetricRow label="优化目标" value={session.state.objectiveLabel} highlight="cyan" />
           {bestRecord ? (
             <>
-              <MetricRow label="best scalar" value={bestRecord.scalarObjective.toFixed(4)} highlight="cyan" />
-              <MetricRow label={matchMode === 'band' ? 'Band RMSE' : 'Match error'} value={bestRecord.metricValues.matchError.toFixed(4)} />
+              <MetricRow label="当前最佳标量值" value={bestRecord.scalarObjective.toFixed(4)} highlight="cyan" />
+              <MetricRow label={matchMode === 'band' ? '波段 RMSE（Band RMSE）' : '匹配误差（Match Error）'} value={bestRecord.metricValues.matchError.toFixed(4)} />
               <MetricRow label="总成本" value={`¥${bestRecord.metricValues.cost.toFixed(1)}`} />
               <MetricRow label="总功耗" value={`${bestRecord.metricValues.power.toFixed(2)} W`} />
               <MetricRow label="通道数" value={`${bestRecord.metricValues.channelCount.toFixed(0)}`} />
@@ -557,39 +590,39 @@ export default function LedCaseView() {
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               <div className="glass-panel rounded-lg border border-[rgba(43,108,176,0.25)] p-4">
-                <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">Recommended next setting</div>
+                <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">下一推荐设置（Recommended Next Setting）</div>
                 {recommendation && recommendationEval ? (
                   <div className="space-y-1.5 text-[11px] font-mono">
-                    <MetricRow label={matchMode === 'band' ? 'Band RMSE' : 'Match error'} value={recommendationEval.matchErrorValue.toFixed(4)} highlight="cyan" />
-                    <MetricRow label="Spectral RMSE" value={recommendationEval.rmse.toFixed(4)} />
+                    <MetricRow label={matchMode === 'band' ? '波段 RMSE（Band RMSE）' : '匹配误差（Match Error）'} value={recommendationEval.matchErrorValue.toFixed(4)} highlight="cyan" />
+                    <MetricRow label="光谱均方根误差（Spectral RMSE）" value={recommendationEval.rmse.toFixed(4)} />
                     <MetricRow label="SAM" value={recommendationEval.samVal.toFixed(4)} />
                     <MetricRow label="总成本" value={`¥${recommendationEval.totalCost.toFixed(1)}`} />
                     <MetricRow label="总功耗" value={`${recommendationEval.totalPower.toFixed(2)} W`} />
                     <MetricRow label="通道数" value={`${recommendationEval.channelCount}`} />
-                    <MetricRow label="Predicted mean" value={recommendation.predictedMean.toFixed(4)} />
-                    <MetricRow label="Predicted std" value={recommendation.predictedStd.toFixed(4)} />
-                    <MetricRow label="Acquisition" value={`${recommendation.acquisitionType} = ${recommendation.acquisitionValue.toFixed(5)}`} />
+                    <MetricRow label="预测均值（Predicted Mean）" value={recommendation.predictedMean.toFixed(4)} />
+                    <MetricRow label="预测标准差（Predicted Std）" value={recommendation.predictedStd.toFixed(4)} />
+                    <MetricRow label="采集函数值（Acquisition）" value={`${recommendation.acquisitionType} = ${recommendation.acquisitionValue.toFixed(5)}`} />
                     <div className="pt-2 border-t border-[rgba(67,97,238,0.1)] text-[10px] text-[#8a92a3] leading-5">
                       <p>{recommendation.explanation}</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-[10px] text-[#5a6377] font-mono">No recommendation yet.</div>
+                  <div className="text-[10px] text-[#5a6377] font-mono">尚无推荐设置。</div>
                 )}
               </div>
 
               <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] overflow-hidden">
                 <div className="px-4 py-2 border-b border-[rgba(67,97,238,0.1)]">
-                  <span className="text-[9px] font-mono text-[#8a92a3] tracking-widest">History ({history.length})</span>
+                  <span className="text-[9px] font-mono text-[#8a92a3] tracking-widest">历史记录（History, {history.length}）</span>
                 </div>
                 {history.length === 0 ? (
-                  <div className="px-4 py-6 text-[10px] text-[#5a6377] text-center font-mono">Click Run 1 to start.</div>
+                  <div className="px-4 py-6 text-[10px] text-[#5a6377] text-center font-mono">点击“运行 1 步”开始。</div>
                 ) : (
                   <div className="max-h-64 overflow-y-auto">
                     <table className="w-full text-[10px] font-mono border-collapse">
                       <thead className="sticky top-0" style={{ background: 'rgba(6,22,42,0.98)' }}>
                         <tr className="border-b border-[rgba(67,97,238,0.15)]">
-                          {['#', 'Match', 'Cost', 'Power', 'Count', 'Scalar'].map((header) => (
+                          {['#', '匹配', '成本', '功耗', '通道数', '标量值'].map((header) => (
                             <th key={header} className="py-1.5 px-2 text-left text-[#8a92a3] font-normal">
                               {header}
                             </th>
@@ -706,7 +739,7 @@ function LedPlots({
       mode: 'lines+markers' as const,
       line: { color: '#00f5d4', width: 1.6 },
       marker: { size: 4 },
-      name: 'Scalar objective',
+      name: '标量目标（Scalar Objective）',
     },
   ];
 
@@ -790,7 +823,7 @@ function LedPlots({
           <Plot
             data={paretoData.front ? [paretoData.history, paretoData.front] : [paretoData.history]}
             layout={{
-              title: { text: 'Objective space', font: { color: '#d0d4dc', size: 12 } },
+              title: { text: '目标空间（Objective Space）', font: { color: '#d0d4dc', size: 12 } },
               xaxis: { title: { text: metricLabel(paretoX), font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
               yaxis: { title: { text: metricLabel(paretoY), font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
               paper_bgcolor: 'transparent',
@@ -808,7 +841,7 @@ function LedPlots({
             data={bandCompareData}
             layout={{
               barmode: 'group' as const,
-              title: { text: 'Band-response 对比', font: { color: '#d0d4dc', size: 12 } },
+              title: { text: '波段响应对比（Band-response）', font: { color: '#d0d4dc', size: 12 } },
               xaxis: { color: '#8a92a3' },
               yaxis: { title: { text: '平均响应', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
               paper_bgcolor: 'transparent',
@@ -825,9 +858,9 @@ function LedPlots({
           <Plot
             data={historyData}
             layout={{
-              title: { text: 'Scalar objective over iterations', font: { color: '#d0d4dc', size: 12 } },
+              title: { text: '标量目标（Scalar Objective）随迭代变化', font: { color: '#d0d4dc', size: 12 } },
               xaxis: { title: { text: '迭代', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
-              yaxis: { title: { text: 'Scalar objective', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
+              yaxis: { title: { text: '标量目标（Scalar Objective）', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
               paper_bgcolor: 'transparent',
               plot_bgcolor: 'rgba(0,13,29,0.5)',
               font: { color: '#8a92a3', size: 10 },
@@ -893,12 +926,12 @@ function buildLedCaseDef(
     metrics: [
       {
         key: 'matchError',
-        label: matchMode === 'band' ? 'Band RMSE' : 'Match error',
+        label: matchMode === 'band' ? '波段 RMSE（Band RMSE）' : '匹配误差（Match Error）',
         direction: 'min',
         range: [0, 1],
         accessor: (evaluation) => evaluation.matchErrorValue,
       },
-      { key: 'spectralRmse', label: 'Spectral RMSE', direction: 'min', range: [0, 1], accessor: (evaluation) => evaluation.rmse },
+      { key: 'spectralRmse', label: '光谱均方根误差（Spectral RMSE）', direction: 'min', range: [0, 1], accessor: (evaluation) => evaluation.rmse },
       { key: 'sam', label: 'SAM', direction: 'min', range: [0, Math.PI / 2], accessor: (evaluation) => evaluation.samVal },
       { key: 'cost', label: '总成本', direction: 'min', range: [0, maxCost], accessor: (evaluation) => evaluation.totalCost },
       { key: 'power', label: '总功耗', direction: 'min', range: [0, maxPower], accessor: (evaluation) => evaluation.totalPower },

@@ -48,7 +48,7 @@ export default function ResearchWorkflowExplorer({
                 {step.number}
               </div>
               <div className="text-lg font-semibold text-[#d0d4dc] leading-tight mb-1">{step.titleCn}</div>
-              <div className="text-xs font-mono text-[#8a92a3]">{step.titleEn}</div>
+              <div className="text-xs font-mono text-[#8a92a3]">（{step.titleEn}）</div>
             </button>
           );
         })}
@@ -59,7 +59,7 @@ export default function ResearchWorkflowExplorer({
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 mb-3">
             <span className="text-3xl md:text-4xl font-semibold text-[#111111]">{activeStep.number}.</span>
             <h3 className="text-3xl md:text-4xl font-semibold text-[#111111] leading-tight">{activeStep.titleCn}</h3>
-            <span className="text-2xl md:text-3xl text-[#7a7a73] leading-tight">{activeStep.titleEn}</span>
+            <span className="text-lg md:text-xl text-[#7a7a73] leading-tight">（{activeStep.titleEn}）</span>
           </div>
           <p className="max-w-5xl text-lg leading-9 text-[#4a4a44]">{activeStep.summary}</p>
         </div>

@@ -2,11 +2,13 @@ import { NavLink, useLocation } from 'react-router';
 import {
   Beaker,
   BookOpen,
+  BrainCircuit,
   DraftingCompass,
   FlaskConical,
   Grid3X3,
   Menu,
   Network,
+  Sparkles,
   Video,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -16,13 +18,15 @@ const MAIN_ITEMS = [
   { to: '/', label: '首页', icon: Grid3X3, exact: true },
   { to: '/foundations', label: '基础', icon: BookOpen },
   { to: '/a-lab', label: 'A-Lab', icon: FlaskConical },
-  { to: '/case-studio', label: '演示', icon: Beaker },
+  { to: '/case-studio', label: '案例', icon: Beaker },
   { to: '/methods', label: '工作流', icon: Network },
 ];
 
 const MORE_ITEMS = [
   { to: '/course', label: '课程地图', icon: Grid3X3 },
-  { to: '/design-studio', label: 'Design Studio', icon: DraftingCompass },
+  { to: '/ai-methods', label: 'AI/ML 方法', icon: BrainCircuit },
+  { to: '/frontiers', label: '前沿（SOTA）', icon: Sparkles },
+  { to: '/design-studio', label: '设计工作室（Design Studio）', icon: DraftingCompass },
   { to: '/resources', label: '资源', icon: BookOpen },
 ];
 
@@ -44,9 +48,7 @@ export default function MobileNav() {
       >
         <div className="flex items-center justify-around px-1 py-1.5">
           {MAIN_ITEMS.map((item) => {
-            const isActive = item.exact
-              ? location.pathname === item.to
-              : location.pathname.startsWith(item.to);
+            const isActive = item.exact ? location.pathname === item.to : location.pathname.startsWith(item.to);
             return (
               <NavLink
                 key={item.to}
@@ -95,9 +97,7 @@ export default function MobileNav() {
                     to={item.to}
                     onClick={() => setMenuOpen(false)}
                     className={`flex items-center gap-2.5 px-3 py-2 rounded text-sm font-mono transition-colors no-underline ${
-                      isActive
-                        ? 'text-[#00f5d4] bg-[rgba(0,245,212,0.06)]'
-                        : 'text-[#5a6377]'
+                      isActive ? 'text-[#00f5d4] bg-[rgba(0,245,212,0.06)]' : 'text-[#5a6377]'
                     }`}
                   >
                     <item.icon className="w-4 h-4" />
@@ -106,14 +106,14 @@ export default function MobileNav() {
                 );
               })}
 
-              {/* Lecture mode toggle */}
               <div className="border-t border-[rgba(67,97,238,0.12)] pt-2 mt-1">
                 <button
-                  onClick={() => { toggleLectureMode(); setMenuOpen(false); }}
+                  onClick={() => {
+                    toggleLectureMode();
+                    setMenuOpen(false);
+                  }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-sm font-mono transition-colors ${
-                    isLectureMode
-                      ? 'text-amber-300 bg-[rgba(183,121,31,0.12)]'
-                      : 'text-[#5a6377] hover:text-amber-400'
+                    isLectureMode ? 'text-amber-300 bg-[rgba(183,121,31,0.12)]' : 'text-[#5a6377] hover:text-amber-400'
                   }`}
                 >
                   <Video className="w-4 h-4" />

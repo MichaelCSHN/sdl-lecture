@@ -3,6 +3,8 @@ import AppShell from '@/layouts/AppShell';
 import HomePage from '@/pages/HomePage';
 import CoursePage from '@/pages/CoursePage';
 import FoundationsPage from '@/pages/FoundationsPage';
+import AIMethodsPage from '@/pages/AIMethodsPage';
+import FrontiersPage from '@/pages/FrontiersPage';
 import ALabPage from '@/pages/ALabPage';
 import CaseStudioPage from '@/pages/CaseStudioPage';
 import MethodsPage from '@/pages/MethodsPage';
@@ -20,6 +22,8 @@ const routes = [
       { index: true, element: <HomePage /> },
       { path: 'course', element: <CoursePage /> },
       { path: 'foundations', element: <FoundationsPage /> },
+      { path: 'ai-methods', element: <AIMethodsPage /> },
+      { path: 'frontiers', element: <FrontiersPage /> },
       { path: 'paradigms', element: <ParadigmsPage /> },
       { path: 'a-lab', element: <ALabPage /> },
       { path: 'case-studio', element: <CaseStudioPage /> },

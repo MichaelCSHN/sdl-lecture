@@ -9,10 +9,15 @@ export interface QuizQuestion {
 export const quizQuestions: QuizQuestion[] = [
   {
     id: 1,
-    question: 'A-Lab 在 17 天内成功合成了多少种新材料？',
-    options: ['17 种', '41 种', '100 种', '365 种'],
-    correct: 1,
-    explanation: 'A-Lab 在 2023 年的演示实验中，17 天内成功合成了 41 种新材料，其中绝大多数是全新发现的化合物。',
+    question: '讨论 A-Lab 结果时，最稳妥的事实口径是什么？',
+    options: [
+      '直接沿用原始 41/58 声称作为最终结论',
+      '只说机器人连续运行 17 天，不讨论材料结果',
+      '区分原始声称 41/58、Nature 修正记录 36/57 和后续争议',
+      '把所有争议都视为无关细节',
+    ],
+    correct: 2,
+    explanation: 'A-Lab 的课堂表述应区分原论文原始声称、Nature 当前修正记录和后续再分析争议，不能把原始 41/58 声称当作最终结论。',
   },
   {
     id: 2,
@@ -35,10 +40,10 @@ export const quizQuestions: QuizQuestion[] = [
   },
   {
     id: 4,
-    question: '以下哪种表征技术已被 A-Lab 实现全自动化？',
+    question: 'A-Lab 案例中，最需要审查的关键表征证据是什么？',
     options: ['透射电镜（TEM）', 'X射线衍射（XRD）', '原子力显微镜（AFM）', '核磁共振（NMR）'],
     correct: 1,
-    explanation: 'A-Lab 目前实现了 XRD 的全自动原位表征。TEM、AFM 和 NMR 由于样品制备复杂或测量时间长，尚未完全自动化。',
+    explanation: 'A-Lab 依赖自动 XRD 与后续判相来判断合成结果，因此 XRD 证据、结构解释和独立验证是审查重点。',
   },
   {
     id: 5,

@@ -65,6 +65,39 @@ export function MetricRow({
   );
 }
 
+export function TaskModeSummary({
+  modeLabel,
+  objectiveLabel,
+  strategyLabel,
+  takeaway,
+}: {
+  modeLabel: string;
+  objectiveLabel: string;
+  strategyLabel: string;
+  takeaway: string;
+}) {
+  return (
+    <div className="rounded-lg border border-[rgba(0,245,212,0.16)] bg-[rgba(0,245,212,0.05)] p-3">
+      <div className="mb-2 text-[9px] font-mono tracking-widest text-[#00f5d4]">任务摘要（Task Summary）</div>
+      <div className="grid gap-2 md:grid-cols-3">
+        <div>
+          <div className="text-[9px] font-mono text-[#5a6377]">模式（Mode）</div>
+          <div className="text-[10px] leading-5 text-[#d0d4dc]">{modeLabel}</div>
+        </div>
+        <div>
+          <div className="text-[9px] font-mono text-[#5a6377]">目标（Objective）</div>
+          <div className="text-[10px] leading-5 text-[#d0d4dc]">{objectiveLabel}</div>
+        </div>
+        <div>
+          <div className="text-[9px] font-mono text-[#5a6377]">读图提示（Reading Cue）</div>
+          <div className="text-[10px] leading-5 text-[#d0d4dc]">{strategyLabel}</div>
+        </div>
+      </div>
+      <p className="mt-3 text-[10px] leading-5 text-[#8a92a3]">{takeaway}</p>
+    </div>
+  );
+}
+
 export function buttonClassName(kind: 'primary' | 'secondary' | 'danger' | 'warning' | 'ghost', disabled = false) {
   const base = 'inline-flex items-center gap-1 px-3 py-1.5 rounded text-[10px] font-mono border transition-colors';
   if (disabled) return `${base} opacity-50 cursor-not-allowed border-[rgba(67,97,238,0.08)] text-[#5a6377]`;

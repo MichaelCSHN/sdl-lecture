@@ -18,6 +18,7 @@ import type { SurrogateModel } from '@/lib/calibrationEngine';
 import {
   Field,
   MetricRow,
+  TaskModeSummary,
   buttonClassName,
   inputClassName,
   plotConfig,
@@ -208,10 +209,10 @@ export default function ThinFilmCaseView() {
         },
         text: history.map(
           (record) =>
-            `iter ${record.iteration}<br>${metricLabel(paretoX)}: ${record.metricValues[paretoX].toFixed(4)}<br>${metricLabel(paretoY)}: ${record.metricValues[paretoY].toFixed(4)}`
+            `迭代 ${record.iteration}<br>${metricLabel(paretoX)}: ${record.metricValues[paretoX].toFixed(4)}<br>${metricLabel(paretoY)}: ${record.metricValues[paretoY].toFixed(4)}`
         ),
         hovertemplate: '%{text}<extra></extra>',
-        name: 'All observations',
+        name: '全部观测点',
       },
       front:
         front.length > 0
@@ -222,7 +223,7 @@ export default function ThinFilmCaseView() {
               mode: 'lines+markers' as const,
               line: { color: '#00f5d4', width: 2 },
               marker: { size: 6, color: '#00f5d4' },
-              name: 'Pareto front',
+              name: 'Pareto 前沿',
             }
           : null,
     };
@@ -251,7 +252,7 @@ export default function ThinFilmCaseView() {
       mode: 'lines+markers' as const,
       line: { color: '#00f5d4', width: 1.6 },
       marker: { size: 4 },
-      name: 'Scalar objective',
+      name: '标量目标（Scalar Objective）',
     },
   ];
 
@@ -338,19 +339,51 @@ export default function ThinFilmCaseView() {
     URL.revokeObjectURL(url);
   }, [paretoX, paretoY, session.state.paretoFront]);
 
+  const taskSummary = {
+    modeLabel:
+      taskMode === 'single'
+        ? '单目标（Single Objective）'
+        : taskMode === 'weighted'
+          ? '线性组合（Weighted Sum）'
+          : 'Pareto 前沿（Pareto Frontier）',
+    objectiveLabel:
+      taskMode === 'single'
+        ? `在模拟器上直接优化 ${metricLabel(singleMetric)}。`
+        : taskMode === 'weighted'
+          ? '把吸收、透过、反射和厚度合成为一个标量设计分数。'
+          : `跟踪 ${metricLabel(paretoX)} 与 ${metricLabel(paretoY)} 之间的非支配权衡。`,
+    strategyLabel:
+      taskMode === 'pareto'
+        ? '必须同时看 Pareto 图和膜层结构，因为前沿只有结合物理设计才有意义。'
+        : '先读标量目标轨迹，再看光谱和层结构，判断这个分数到底奖励了什么。',
+    takeaway:
+      taskMode === 'single'
+        ? '这个模式最适合展示当单一光学目标主导时，模拟器黑盒会怎样响应。'
+        : taskMode === 'weighted'
+          ? '这是工程设计设定：优化器由一个总分驱动，但光谱图会暴露哪个物理要求被打折。'
+          : '这是权衡探索设定：前沿展示的是一族膜层方案，而不是假装存在一个普适唯一最优设计。',
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
       <div className="lg:col-span-1 space-y-3">
         <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-3">
-          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-1.5">REALISTIC CASE</div>
+          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-1.5">真实案例（Realistic Case）</div>
           <p className="text-[10px] text-[#8a92a3] leading-5">
             这个案例背后是真实的薄膜传输矩阵模拟器，不是手写 toy function。你现在可以把它当成一个可切换任务定义的
             SDL 黑盒：优化对象不变，目标定义和推荐策略可切换。
           </p>
         </div>
 
+        <TaskModeSummary
+          modeLabel={taskSummary.modeLabel}
+          objectiveLabel={taskSummary.objectiveLabel}
+          strategyLabel={taskSummary.strategyLabel}
+          takeaway={taskSummary.takeaway}
+        />
+
         <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-3 space-y-3">
-          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest">Problem setup</div>
+          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest">问题设定（Problem Setup）</div>
 
           <Field
             label="任务模式"
@@ -359,7 +392,7 @@ export default function ThinFilmCaseView() {
               <select value={taskMode} onChange={(event) => setTaskMode(event.target.value as TaskMode)} className={selectClassName}>
                 <option value="single">单目标</option>
                 <option value="weighted">线性组合</option>
-                <option value="pareto">Pareto</option>
+                    <option value="pareto">帕累托（Pareto）</option>
               </select>
             }
           />
@@ -455,7 +488,7 @@ export default function ThinFilmCaseView() {
           )}
 
           <div className="border-t border-[rgba(67,97,238,0.1)] pt-2">
-            <div className="text-[9px] text-[#4361ee] font-mono mb-2">SDL method setup</div>
+            <div className="text-[9px] text-[#4361ee] font-mono mb-2">SDL 方法设置（SDL Method Setup）</div>
             <div className="space-y-2">
               <Field
                 label="代理模型"
@@ -480,7 +513,7 @@ export default function ThinFilmCaseView() {
                     <option value="EI">Expected Improvement (EI)</option>
                     <option value="UCB">Upper Confidence Bound (UCB)</option>
                     <option value="PI">Probability of Improvement (PI)</option>
-                    <option value="Random">Random baseline</option>
+                    <option value="Random">随机基线（Random baseline）</option>
                   </select>
                 }
               />
@@ -537,10 +570,10 @@ export default function ThinFilmCaseView() {
             <RotateCcw className="w-3 h-3" /> 重置
           </button>
           <button onClick={runOne} disabled={autoRunning} className={buttonClassName('primary', autoRunning)}>
-            <Play className="w-3 h-3" /> Run 1
+            <Play className="w-3 h-3" /> 运行 1 步
           </button>
           <button onClick={runFive} disabled={autoRunning} className={buttonClassName('secondary', autoRunning)}>
-            <Play className="w-3 h-3" /> Run 5
+            <Play className="w-3 h-3" /> 运行 5 步
           </button>
           {autoRunning ? (
             <button onClick={stopAuto} className={buttonClassName('warning')}>
@@ -548,7 +581,7 @@ export default function ThinFilmCaseView() {
             </button>
           ) : (
             <button onClick={startAuto} className={buttonClassName('ghost')}>
-              <Play className="w-3 h-3" /> Auto
+              <Play className="w-3 h-3" /> 自动运行
             </button>
           )}
         </div>
@@ -559,7 +592,7 @@ export default function ThinFilmCaseView() {
           <MetricRow label="优化目标" value={session.state.objectiveLabel} highlight="cyan" />
           {bestRecord ? (
             <>
-              <MetricRow label="best scalar" value={bestRecord.scalarObjective.toFixed(4)} highlight="cyan" />
+              <MetricRow label="当前最佳标量值" value={bestRecord.scalarObjective.toFixed(4)} highlight="cyan" />
               <MetricRow label="Legacy objective" value={bestRecord.metricValues.legacyObjective.toFixed(4)} />
               <MetricRow label="A(650-700)" value={bestRecord.metricValues.avgInBandAbsorption.toFixed(4)} />
               <MetricRow label="T(out-of-band)" value={bestRecord.metricValues.avgOutOfBandTransmission.toFixed(4)} />
@@ -572,7 +605,7 @@ export default function ThinFilmCaseView() {
 
         {taskMode === 'pareto' && (
           <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-3 text-[10px] space-y-2">
-            <div className="text-[#8a92a3] font-mono mb-1.5">Pareto stats</div>
+            <div className="text-[#8a92a3] font-mono mb-1.5">Pareto 统计（Pareto Stats）</div>
             <MetricRow label="前沿点数" value={`${session.state.paretoFront.length}`} highlight="blue" />
             <MetricRow label="Hypervolume" value={currentHypervolume.toFixed(4)} highlight="cyan" />
             <button onClick={exportParetoFront} disabled={session.state.paretoFront.length === 0} className={buttonClassName('ghost', session.state.paretoFront.length === 0)}>
@@ -586,16 +619,16 @@ export default function ThinFilmCaseView() {
         <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] overflow-hidden">
           <div className="px-4 py-2 border-b border-[rgba(67,97,238,0.1)] flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#8a92a3]">
-              Spectrum and stack | {displayMetrics ? (spectrumView === 'best' ? 'best observed design' : 'recommended design') : 'no design yet'}
+              光谱与层结构（Spectrum and Stack）| {displayMetrics ? (spectrumView === 'best' ? '当前最佳观测设计' : '当前推荐设计') : '尚无设计'}
             </span>
-            <span className="text-[10px] font-mono text-[#5a6377]">{history.length} experiments</span>
+            <span className="text-[10px] font-mono text-[#5a6377]">{history.length} 次实验</span>
           </div>
 
           {!displayMetrics ? (
-            <div className="flex items-center justify-center h-80 text-[10px] text-[#8a92a3]">Run one experiment to initialize the spectrum view.</div>
+            <div className="flex items-center justify-center h-80 text-[10px] text-[#8a92a3]">先运行一次实验以初始化光谱视图。</div>
           ) : (
             <div className="p-3 space-y-3">
-              <Suspense fallback={<div className="h-80 flex items-center justify-center text-[10px] text-[#8a92a3]">Loading chart...</div>}>
+              <Suspense fallback={<div className="h-80 flex items-center justify-center text-[10px] text-[#8a92a3]">正在加载图表…</div>}>
                 <Plot
                   data={[
                     {
@@ -630,16 +663,16 @@ export default function ThinFilmCaseView() {
                     margin: { t: 28, r: 10, b: 40, l: 50 },
                     height: 320,
                     title: {
-                      text: spectrumView === 'best' ? 'Best observed spectrum' : 'Recommended spectrum preview',
+                      text: spectrumView === 'best' ? '当前最佳观测光谱' : '推荐设计光谱预览',
                       font: { color: '#d0d4dc', size: 12 },
                     },
                     xaxis: {
-                      title: { text: 'Wavelength (nm)', font: { color: '#8a92a3' } },
+                      title: { text: '波长（Wavelength, nm）', font: { color: '#8a92a3' } },
                       gridcolor: 'rgba(67,97,238,0.08)',
                       color: '#8a92a3',
                     },
                     yaxis: {
-                      title: { text: 'R / T / A', font: { color: '#8a92a3' } },
+                      title: { text: '反射 / 透过 / 吸收（R / T / A）', font: { color: '#8a92a3' } },
                       range: [0, 1],
                       gridcolor: 'rgba(67,97,238,0.08)',
                       color: '#8a92a3',
@@ -663,7 +696,7 @@ export default function ThinFilmCaseView() {
               </Suspense>
 
               <div className="rounded-lg border border-[rgba(67,97,238,0.1)] bg-[rgba(0,13,29,0.35)] p-3">
-                <div className="text-[10px] font-mono text-[#8a92a3] mb-2">Symmetric stack layout</div>
+                <div className="text-[10px] font-mono text-[#8a92a3] mb-2">对称层结构（Symmetric Stack Layout）</div>
                 <div className="flex items-end gap-2 overflow-x-auto pb-1">
                   {layerStack.map((layer, index) => (
                     <div key={`${layer.label}-${index}`} className="min-w-[52px] text-center">
@@ -689,32 +722,32 @@ export default function ThinFilmCaseView() {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-4">
-            <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">Current best</div>
+            <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">当前最佳（Current Best）</div>
             {bestRecord ? (
               <div className="space-y-1.5 text-[11px] font-mono">
-                <MetricRow label="Legacy objective" value={bestRecord.metricValues.legacyObjective.toFixed(4)} highlight="cyan" />
+                <MetricRow label="传统目标（Legacy Objective）" value={bestRecord.metricValues.legacyObjective.toFixed(4)} highlight="cyan" />
                 <MetricRow label="A(650-700)" value={bestRecord.metricValues.avgInBandAbsorption.toFixed(4)} highlight="yellow" />
                 <MetricRow label="T(400-620)" value={bestRecord.metricValues.avgShortPassTransmission.toFixed(4)} />
                 <MetricRow label="T(730-1100)" value={bestRecord.metricValues.avgLongPassTransmission.toFixed(4)} />
                 <MetricRow label="R(650-700)" value={bestRecord.metricValues.avgInBandReflectance.toFixed(4)} />
-                <MetricRow label="Total thickness" value={`${bestRecord.metricValues.totalThicknessNm.toFixed(1)} nm`} />
+                <MetricRow label="总厚度（Total Thickness）" value={`${bestRecord.metricValues.totalThicknessNm.toFixed(1)} nm`} />
               </div>
             ) : (
-              <div className="text-[10px] text-[#5a6377] font-mono">No observed design yet.</div>
+              <div className="text-[10px] text-[#5a6377] font-mono">尚无已观测设计。</div>
             )}
           </div>
 
           <div className="glass-panel rounded-lg border border-[rgba(43,108,176,0.25)] p-4">
-            <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">Recommended next design</div>
+            <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">下一推荐设计（Recommended Next Design）</div>
             {recommendation && recommendationEval ? (
               <div className="space-y-1.5 text-[11px] font-mono">
                 {recommendation.params.map((value, index) => (
                   <MetricRow key={index} label={THIN_FILM_CASE.params[index].nameEn} value={`${value.toFixed(1)} nm`} highlight={index === 3 ? 'yellow' : 'blue'} />
                 ))}
-                <MetricRow label="Predicted mean" value={recommendation.predictedMean.toFixed(4)} />
-                <MetricRow label="Predicted std" value={recommendation.predictedStd.toFixed(4)} />
-                <MetricRow label="Acquisition" value={`${recommendation.acquisitionType} = ${recommendation.acquisitionValue.toFixed(5)}`} />
-                <MetricRow label="Legacy objective" value={recommendationEval.objective.toFixed(4)} />
+                <MetricRow label="预测均值（Predicted Mean）" value={recommendation.predictedMean.toFixed(4)} />
+                <MetricRow label="预测标准差（Predicted Std）" value={recommendation.predictedStd.toFixed(4)} />
+                <MetricRow label="采集函数值（Acquisition）" value={`${recommendation.acquisitionType} = ${recommendation.acquisitionValue.toFixed(5)}`} />
+                <MetricRow label="传统目标（Legacy Objective）" value={recommendationEval.objective.toFixed(4)} />
                 <MetricRow label="A(650-700)" value={recommendationEval.avgInBandAbsorption.toFixed(4)} />
                 <MetricRow label="T(out-of-band)" value={((recommendationEval.avgShortPassTransmission + recommendationEval.avgLongPassTransmission) / 2).toFixed(4)} />
                 <div className="pt-2 border-t border-[rgba(67,97,238,0.1)] text-[10px] text-[#8a92a3] leading-5">
@@ -722,7 +755,7 @@ export default function ThinFilmCaseView() {
                 </div>
               </div>
             ) : (
-              <div className="text-[10px] text-[#5a6377] font-mono">No recommendation yet.</div>
+              <div className="text-[10px] text-[#5a6377] font-mono">尚无推荐设计。</div>
             )}
           </div>
         </div>
@@ -730,13 +763,13 @@ export default function ThinFilmCaseView() {
         {taskMode === 'pareto' && (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-4 text-[10px] text-[#8a92a3] leading-5">
-              <div className="text-[9px] font-mono tracking-widest mb-3">Pareto notes</div>
+              <div className="text-[9px] font-mono tracking-widest mb-3">Pareto 说明（Pareto Notes）</div>
               <p>当前前沿显示的是原始物理指标，不是内部随机标量化之后的临时标量值。</p>
               <p>Hypervolume 越大，表示在当前参考点 `[1.05, 1.05]` 下，前沿整体覆盖范围越好。</p>
               <p>导出的 CSV 包含前沿点的膜厚参数和全部关键指标，便于课后分析或做对比图。</p>
             </div>
 
-            <Suspense fallback={<div className="h-56 flex items-center justify-center text-[10px] text-[#8a92a3]">Loading chart...</div>}>
+            <Suspense fallback={<div className="h-56 flex items-center justify-center text-[10px] text-[#8a92a3]">正在加载图表…</div>}>
               <Plot
                 data={[
                   {
@@ -750,8 +783,8 @@ export default function ThinFilmCaseView() {
                   },
                 ]}
                 layout={{
-                  title: { text: 'Hypervolume over iterations', font: { color: '#d0d4dc', size: 12 } },
-                  xaxis: { title: { text: 'Pareto updates', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
+                  title: { text: 'Hypervolume 随迭代变化', font: { color: '#d0d4dc', size: 12 } },
+                  xaxis: { title: { text: 'Pareto 更新次数', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
                   yaxis: { title: { text: 'Hypervolume', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
                   paper_bgcolor: 'transparent',
                   plot_bgcolor: 'rgba(0,13,29,0.5)',
@@ -768,12 +801,12 @@ export default function ThinFilmCaseView() {
         )}
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <Suspense fallback={<div className="h-72 flex items-center justify-center text-[10px] text-[#8a92a3]">Loading chart...</div>}>
+          <Suspense fallback={<div className="h-72 flex items-center justify-center text-[10px] text-[#8a92a3]">正在加载图表…</div>}>
             {taskMode === 'pareto' ? (
               <Plot
                 data={paretoData.front ? [paretoData.history, paretoData.front] : [paretoData.history]}
                 layout={{
-                  title: { text: 'Objective space', font: { color: '#d0d4dc', size: 12 } },
+                  title: { text: '目标空间（Objective Space）', font: { color: '#d0d4dc', size: 12 } },
                   xaxis: { title: { text: metricLabel(paretoX), font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
                   yaxis: { title: { text: metricLabel(paretoY), font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
                   paper_bgcolor: 'transparent',
@@ -790,9 +823,9 @@ export default function ThinFilmCaseView() {
               <Plot
                 data={scalarHistoryData}
                 layout={{
-                  title: { text: `${session.state.objectiveLabel} over iterations`, font: { color: '#d0d4dc', size: 12 } },
-                  xaxis: { title: { text: 'Iteration', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
-                  yaxis: { title: { text: 'Scalar objective', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
+                  title: { text: `${session.state.objectiveLabel} 随迭代变化`, font: { color: '#d0d4dc', size: 12 } },
+                  xaxis: { title: { text: '迭代（Iteration）', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
+                  yaxis: { title: { text: '标量目标（Scalar Objective）', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
                   paper_bgcolor: 'transparent',
                   plot_bgcolor: 'rgba(0,13,29,0.5)',
                   font: { color: '#8a92a3', size: 10 },
@@ -808,16 +841,16 @@ export default function ThinFilmCaseView() {
 
           <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] overflow-hidden">
             <div className="px-4 py-2 border-b border-[rgba(67,97,238,0.1)]">
-              <span className="text-[9px] font-mono text-[#8a92a3] tracking-widest">History ({history.length})</span>
+              <span className="text-[9px] font-mono text-[#8a92a3] tracking-widest">历史记录（History, {history.length}）</span>
             </div>
             {history.length === 0 ? (
-              <div className="px-4 py-6 text-[10px] text-[#5a6377] text-center font-mono">Click Run 1 to start the design loop.</div>
+              <div className="px-4 py-6 text-[10px] text-[#5a6377] text-center font-mono">点击“运行 1 步”开始设计闭环。</div>
             ) : (
               <div className="max-h-60 overflow-y-auto">
                 <table className="w-full text-[10px] font-mono border-collapse">
                   <thead className="sticky top-0" style={{ background: 'rgba(6,22,42,0.98)' }}>
                     <tr className="border-b border-[rgba(67,97,238,0.15)]">
-                      {['#', 'Cap', 'TiO2', 'Spacer', 'Cr', 'A_in', 'T_out', 'Scalar'].map((header) => (
+                      {['#', 'Cap', 'TiO2', 'Spacer', 'Cr', 'A_in', 'T_out', '标量值'].map((header) => (
                         <th key={header} className="py-1.5 px-2 text-left text-[#8a92a3] font-normal">
                           {header}
                         </th>

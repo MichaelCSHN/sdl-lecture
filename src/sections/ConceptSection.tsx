@@ -54,7 +54,7 @@ const SDL_MILESTONES = [
   { year: '2020', event: 'Olympus 基准框架', desc: 'SDL 实验数据集与基准测试平台' },
   { year: '2021', event: 'BayBE 开源', desc: 'Merck 发布材料科学专用 BO 工具箱' },
   { year: '2022', event: 'Honegumi 上线', desc: 'BO 代码生成器，专为实验科学设计' },
-  { year: '2023', event: 'A-Lab Nature', desc: '17天41种新材料，SDL里程碑' },
+  { year: '2023', event: 'A-Lab Nature', desc: '17天自动化合成；原始 41/58，修正记录 36/57' },
   { year: '2023', event: 'Coscientist Nature', desc: 'LLM驱动自主化学研究' },
   { year: '2024', event: 'Atlas 发布', desc: 'SDL的"大脑"，新一代BO库' },
   { year: '2025', event: 'AC 微课程', desc: '多伦多大学SDL认证课程' },

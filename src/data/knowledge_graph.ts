@@ -18,14 +18,14 @@ export interface KGEdge {
 
 export const kgNodes: KGNode[] = [
   // Core SDL concepts
-  { id: 'sdl', label: '自主实验室', labelEn: 'Self-driving Lab', type: 'concept', description: '集成AI决策、机器人执行和自动数据分析的闭环实验系统', descriptionEn: 'Closed-loop experimental system integrating AI decision-making, robotic execution, and automated data analysis', wikiUrl: 'https://zh.wikipedia.org/wiki/自主实验室', wikiUrlEn: 'https://en.wikipedia.org/wiki/Self-driving_lab' },
+  { id: 'sdl', label: '自主实验室', labelEn: 'Self-driving Lab', type: 'concept', description: '集成AI决策、机器人执行和自动数据分析的闭环实验系统', descriptionEn: 'Closed-loop experimental system integrating AI decision-making, robotic execution, and automated data analysis' },
   { id: 'bo', label: '贝叶斯优化', labelEn: 'Bayesian Optimization', type: 'method', description: '通过概率代理模型指导实验方向的高效优化算法', descriptionEn: 'Efficient optimization algorithm using probabilistic surrogate models to guide experiments', wikiUrl: 'https://zh.wikipedia.org/wiki/贝叶斯优化', wikiUrlEn: 'https://en.wikipedia.org/wiki/Bayesian_optimization' },
   { id: 'gp', label: '高斯过程', labelEn: 'Gaussian Process', type: 'method', description: 'BO中最常用的概率代理模型，定义函数上的概率分布', descriptionEn: 'Probabilistic surrogate model commonly used in BO, defines a distribution over functions', wikiUrl: 'https://zh.wikipedia.org/wiki/高斯过程', wikiUrlEn: 'https://en.wikipedia.org/wiki/Gaussian_process' },
   { id: 'acq', label: '采集函数', labelEn: 'Acquisition Function', type: 'concept', description: '决定BO下一次实验采样位置的策略函数', descriptionEn: 'Strategy function that determines the next sampling location in BO' },
-  { id: 'ht', label: '高通量实验', labelEn: 'High-throughput', type: 'concept', description: '同时并行处理大量实验样本的技术路线', descriptionEn: 'Technology approach that processes large numbers of experimental samples in parallel', wikiUrl: 'https://zh.wikipedia.org/wiki/高通量筛选', wikiUrlEn: 'https://en.wikipedia.org/wiki/High-throughput_screening' },
+  { id: 'ht', label: '高通量实验', labelEn: 'High-throughput', type: 'concept', description: '同时并行处理大量实验样本的技术路线', descriptionEn: 'Technology approach that processes large numbers of experimental samples in parallel', wikiUrlEn: 'https://en.wikipedia.org/wiki/High-throughput_screening' },
   { id: 'dft', label: '密度泛函理论', labelEn: 'DFT', type: 'method', description: '计算材料电子结构的量子力学方法', descriptionEn: 'Quantum mechanical method for calculating electronic structure of materials', wikiUrl: 'https://zh.wikipedia.org/wiki/密度泛函理论', wikiUrlEn: 'https://en.wikipedia.org/wiki/Density_functional_theory' },
   { id: 'dmtal', label: 'DMTA-L闭环', labelEn: 'Design-Make-Test-Analyze-Learn', type: 'concept', description: 'SDL闭环的标准抽象：设计-合成-测试-分析-学习', descriptionEn: 'Standard abstraction of SDL closed loop' },
-  { id: 'robo', label: '实验室自动化', labelEn: 'Lab Automation', type: 'concept', description: '使用机器人和自动化设备执行实验操作', descriptionEn: 'Using robots and automated equipment to perform experimental operations', wikiUrl: 'https://zh.wikipedia.org/wiki/实验室自动化', wikiUrlEn: 'https://en.wikipedia.org/wiki/Laboratory_automation' },
+  { id: 'robo', label: '实验室自动化', labelEn: 'Lab Automation', type: 'concept', description: '使用机器人和自动化设备执行实验操作', descriptionEn: 'Using robots and automated equipment to perform experimental operations', wikiUrlEn: 'https://en.wikipedia.org/wiki/Laboratory_automation' },
 
   // Synthesis methods
   { id: 'synth', label: '材料合成', labelEn: 'Synthesis', type: 'process', description: '通过化学反应制备新材料的过程', descriptionEn: 'Process of preparing new materials through chemical reactions' },

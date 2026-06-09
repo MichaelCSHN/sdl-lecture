@@ -12,6 +12,7 @@ import type { SurrogateModel } from '@/lib/calibrationEngine';
 import {
   Field,
   MetricRow,
+  TaskModeSummary,
   buttonClassName,
   inputClassName,
   plotConfig,
@@ -219,7 +220,7 @@ export default function BraninCaseView() {
       mode: 'lines+markers' as const,
       line: { color: '#00f5d4', width: 1.6 },
       marker: { size: 4 },
-      name: 'Scalar objective',
+      name: '标量目标（Scalar Objective）',
     },
   ];
 
@@ -239,10 +240,10 @@ export default function BraninCaseView() {
         },
         text: history.map(
           (record) =>
-            `iter ${record.iteration}<br>${xKey}: ${record.metricValues[xKey].toFixed(4)}<br>${yKey}: ${record.metricValues[yKey].toFixed(4)}`
+            `迭代 ${record.iteration}<br>${xKey}: ${record.metricValues[xKey].toFixed(4)}<br>${yKey}: ${record.metricValues[yKey].toFixed(4)}`
         ),
         hovertemplate: '%{text}<extra></extra>',
-        name: 'All observations',
+        name: '全部观测点',
       },
       front:
         front.length > 0
@@ -253,7 +254,7 @@ export default function BraninCaseView() {
               mode: 'lines+markers' as const,
               line: { color: '#00f5d4', width: 2 },
               marker: { size: 6, color: '#00f5d4' },
-              name: 'Pareto front',
+              name: 'Pareto 前沿',
             }
           : null,
     };
@@ -295,25 +296,57 @@ export default function BraninCaseView() {
   const heatmapTitle =
     taskMode === 'single'
       ? singleMetric === 'branin'
-        ? 'Decision space · Branin surface'
-        : 'Decision space · Currin surface'
+        ? '决策空间（Decision Space）· Branin 曲面'
+        : '决策空间（Decision Space）· Currin 曲面'
       : taskMode === 'weighted'
-        ? 'Decision space · weighted scalar objective'
-        : 'Decision space · Branin surface (Pareto view uses objective plot)';
+        ? '决策空间（Decision Space）· 线性组合标量目标'
+        : '决策空间（Decision Space）· Branin 曲面（Pareto 模式请结合目标空间图）';
+
+  const taskSummary = {
+    modeLabel:
+      taskMode === 'single'
+        ? '单目标（Single Objective）'
+        : taskMode === 'weighted'
+          ? '线性组合（Weighted Sum）'
+          : 'Pareto 前沿（Pareto Frontier）',
+    objectiveLabel:
+      taskMode === 'single'
+        ? `直接优化 ${singleMetric === 'branin' ? 'Branin' : 'Currin'}。`
+        : taskMode === 'weighted'
+          ? `最小化归一化后的加权损失，其中 Branin 权重为 ${weights.branin.toFixed(2)}，Currin 权重为 ${weights.currin.toFixed(2)}。`
+          : `跟踪 ${paretoX} 与 ${paretoY} 之间的非支配权衡。`,
+    strategyLabel:
+      taskMode === 'pareto'
+        ? '先读目标空间中的前沿，再结合决策空间中的搜索路径。'
+        : '先读标量目标历史，再比较不同代理模型或采集函数下的路径变化。',
+    takeaway:
+      taskMode === 'single'
+        ? '这是最适合教学的干净设定：同一决策空间里，只改变目标指标，就会出现不同搜索轨迹。'
+        : taskMode === 'weighted'
+          ? '这是工程折中设定：优化器只看一个标量目标，但两个原始指标仍然清楚展示权衡。'
+          : '这是无偏好设定：推荐来自标量化子问题，但解释必须回到原始双目标空间。',
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
       <div className="lg:col-span-1 space-y-3">
         <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-3">
-          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-1.5">CASE BACKGROUND</div>
+          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-1.5">案例背景（Case Background）</div>
           <p className="text-[10px] text-[#8a92a3] leading-5">
             Branin 负责经典 BO 教学，Currin 提供第二目标。这样同一个 2D 参数空间里可以切换单目标、线性组合和 Pareto
             三种任务，而不必换案例。
           </p>
         </div>
 
+        <TaskModeSummary
+          modeLabel={taskSummary.modeLabel}
+          objectiveLabel={taskSummary.objectiveLabel}
+          strategyLabel={taskSummary.strategyLabel}
+          takeaway={taskSummary.takeaway}
+        />
+
         <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-3 space-y-3">
-          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest">Problem setup</div>
+          <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest">问题设定（Problem Setup）</div>
 
           <Field
             label="任务模式"
@@ -322,7 +355,7 @@ export default function BraninCaseView() {
               <select value={taskMode} onChange={(event) => setTaskMode(event.target.value as TaskMode)} className={selectClassName}>
                 <option value="single">单目标</option>
                 <option value="weighted">线性组合</option>
-                <option value="pareto">Pareto</option>
+                    <option value="pareto">帕累托（Pareto）</option>
               </select>
             }
           />
@@ -402,7 +435,7 @@ export default function BraninCaseView() {
           )}
 
           <div className="border-t border-[rgba(67,97,238,0.1)] pt-2">
-            <div className="text-[9px] text-[#4361ee] font-mono mb-2">SDL method setup</div>
+            <div className="text-[9px] text-[#4361ee] font-mono mb-2">SDL 方法设置（SDL Method Setup）</div>
             <div className="space-y-2">
               <Field
                 label="代理模型"
@@ -428,7 +461,7 @@ export default function BraninCaseView() {
                     <option value="EI">Expected Improvement (EI)</option>
                     <option value="UCB">Upper Confidence Bound (UCB)</option>
                     <option value="PI">Probability of Improvement (PI)</option>
-                    <option value="Random">Random baseline</option>
+                    <option value="Random">随机基线（Random baseline）</option>
                   </select>
                 }
               />
@@ -475,10 +508,10 @@ export default function BraninCaseView() {
             <RotateCcw className="w-3 h-3" /> 重置
           </button>
           <button onClick={runOne} disabled={autoRunning} className={buttonClassName('primary', autoRunning)}>
-            <Play className="w-3 h-3" /> Run 1
+            <Play className="w-3 h-3" /> 运行 1 步
           </button>
           <button onClick={runFive} disabled={autoRunning} className={buttonClassName('secondary', autoRunning)}>
-            <Play className="w-3 h-3" /> Run 5
+            <Play className="w-3 h-3" /> 运行 5 步
           </button>
           {autoRunning ? (
             <button onClick={stopAuto} className={buttonClassName('warning')}>
@@ -486,7 +519,7 @@ export default function BraninCaseView() {
             </button>
           ) : (
             <button onClick={startAuto} className={buttonClassName('ghost')}>
-              <Play className="w-3 h-3" /> Auto
+              <Play className="w-3 h-3" /> 自动运行
             </button>
           )}
         </div>
@@ -497,7 +530,7 @@ export default function BraninCaseView() {
           <MetricRow label="优化目标" value={session.state.objectiveLabel} highlight="cyan" />
           {bestRecord ? (
             <>
-              <MetricRow label="best scalar" value={bestRecord.scalarObjective.toFixed(4)} highlight="cyan" />
+              <MetricRow label="当前最佳标量值" value={bestRecord.scalarObjective.toFixed(4)} highlight="cyan" />
               <MetricRow label="Branin" value={bestRecord.metricValues.branin.toFixed(4)} />
               <MetricRow label="Currin" value={bestRecord.metricValues.currin.toFixed(4)} />
               <MetricRow label="at (x₁, x₂)" value={`(${bestRecord.params[0].toFixed(2)}, ${bestRecord.params[1].toFixed(2)})`} />
@@ -512,7 +545,7 @@ export default function BraninCaseView() {
         <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] overflow-hidden">
           <div className="px-4 py-2 border-b border-[rgba(67,97,238,0.1)] flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#8a92a3]">{heatmapTitle}</span>
-            <span className="text-[10px] font-mono text-[#5a6377]">{history.length} experiments</span>
+            <span className="text-[10px] font-mono text-[#5a6377]">{history.length} 次实验</span>
           </div>
 
           <svg width="100%" viewBox={`0 0 ${SVG_W} ${SVG_H}`} style={{ display: 'block' }}>
@@ -632,13 +665,13 @@ export default function BraninCaseView() {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           {recommendation && recommendationEval ? (
             <div className="glass-panel rounded-lg border border-[rgba(43,108,176,0.25)] p-4">
-              <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">Recommended next point</div>
+              <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">下一推荐点（Recommended Next Point）</div>
               <div className="space-y-1.5 text-[11px] font-mono mb-3">
                 <MetricRow label="x₁" value={recommendation.params[0].toFixed(3)} highlight="blue" />
                 <MetricRow label="x₂" value={recommendation.params[1].toFixed(3)} highlight="blue" />
-                <MetricRow label="Predicted mean" value={recommendation.predictedMean.toFixed(4)} />
-                <MetricRow label="Predicted std" value={recommendation.predictedStd.toFixed(4)} />
-                <MetricRow label="Acquisition" value={`${recommendation.acquisitionType} = ${recommendation.acquisitionValue.toFixed(5)}`} />
+                <MetricRow label="预测均值（Predicted Mean）" value={recommendation.predictedMean.toFixed(4)} />
+                <MetricRow label="预测标准差（Predicted Std）" value={recommendation.predictedStd.toFixed(4)} />
+                <MetricRow label="采集函数值（Acquisition）" value={`${recommendation.acquisitionType} = ${recommendation.acquisitionValue.toFixed(5)}`} />
                 <MetricRow label="Branin" value={recommendationEval.branin.toFixed(4)} />
                 <MetricRow label="Currin" value={recommendationEval.currin.toFixed(4)} />
               </div>
@@ -653,7 +686,7 @@ export default function BraninCaseView() {
           )}
 
           <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] p-4">
-            <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">Task summary</div>
+            <div className="text-[9px] font-mono text-[#8a92a3] tracking-widest mb-3">任务说明（Task Summary）</div>
             <div className="space-y-1.5 text-[10px] text-[#8a92a3] leading-5">
               <p>单目标：选择 Branin 或 Currin 其中之一，观察不同目标函数如何改变搜索轨迹。</p>
               <p>线性组合：把两个目标归一化后加权求和，适合讲“目标定义改变最优点”。</p>
@@ -663,12 +696,12 @@ export default function BraninCaseView() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <Suspense fallback={<div className="h-72 flex items-center justify-center text-[10px] text-[#8a92a3]">Loading chart...</div>}>
+          <Suspense fallback={<div className="h-72 flex items-center justify-center text-[10px] text-[#8a92a3]">正在加载图表…</div>}>
             {taskMode === 'pareto' ? (
               <Plot
                 data={paretoData.front ? [paretoData.history, paretoData.front] : [paretoData.history]}
                 layout={{
-                  title: { text: 'Objective space', font: { color: '#d0d4dc', size: 12 } },
+                  title: { text: '目标空间（Objective Space）', font: { color: '#d0d4dc', size: 12 } },
                   xaxis: { title: { text: paretoX === 'branin' ? 'Branin' : 'Currin', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
                   yaxis: { title: { text: paretoY === 'branin' ? 'Branin' : 'Currin', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
                   paper_bgcolor: 'transparent',
@@ -685,9 +718,9 @@ export default function BraninCaseView() {
               <Plot
                 data={historyPlotData}
                 layout={{
-                  title: { text: `${session.state.objectiveLabel} over iterations`, font: { color: '#d0d4dc', size: 12 } },
-                  xaxis: { title: { text: 'Iteration', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
-                  yaxis: { title: { text: 'Scalar objective', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
+                  title: { text: `${session.state.objectiveLabel} 随迭代变化`, font: { color: '#d0d4dc', size: 12 } },
+                  xaxis: { title: { text: '迭代（Iteration）', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
+                  yaxis: { title: { text: '标量目标（Scalar Objective）', font: { color: '#8a92a3' } }, gridcolor: 'rgba(67,97,238,0.08)', color: '#8a92a3' },
                   paper_bgcolor: 'transparent',
                   plot_bgcolor: 'rgba(0,13,29,0.5)',
                   font: { color: '#8a92a3', size: 10 },
@@ -703,16 +736,16 @@ export default function BraninCaseView() {
 
           <div className="glass-panel rounded-lg border border-[rgba(67,97,238,0.15)] overflow-hidden">
             <div className="px-4 py-2 border-b border-[rgba(67,97,238,0.1)]">
-              <span className="text-[9px] font-mono text-[#8a92a3] tracking-widest">History ({history.length})</span>
+              <span className="text-[9px] font-mono text-[#8a92a3] tracking-widest">历史记录（History, {history.length}）</span>
             </div>
             {history.length === 0 ? (
-              <div className="px-4 py-6 text-[10px] text-[#5a6377] text-center font-mono">Click Run 1 to start.</div>
+              <div className="px-4 py-6 text-[10px] text-[#5a6377] text-center font-mono">点击“运行 1 步”开始。</div>
             ) : (
               <div className="max-h-64 overflow-y-auto">
                 <table className="w-full text-[10px] font-mono border-collapse">
                   <thead className="sticky top-0" style={{ background: 'rgba(6,22,42,0.98)' }}>
                     <tr className="border-b border-[rgba(67,97,238,0.15)]">
-                      {['#', 'x₁', 'x₂', 'Branin', 'Currin', 'Scalar'].map((header) => (
+                      {['#', 'x₁', 'x₂', 'Branin', 'Currin', '标量值'].map((header) => (
                         <th key={header} className="py-1.5 px-2 text-left text-[#8a92a3] font-normal">
                           {header}
                         </th>

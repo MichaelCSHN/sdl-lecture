@@ -1,10 +1,14 @@
 /**
- * LectureContext — global state for lecture mode navigation.
+ * LectureContext: 讲者模式的全局状态。
  *
- * Activated via: URL param ?mode=lecture, or the "讲者模式" toggle in TopNav.
- * Keyboard shortcuts (global, only in lecture mode):
- *   ArrowRight / Space → next node
- *   ArrowLeft          → prev node
+ * 激活方式：
+ * 1. URL 参数 `?mode=lecture`
+ * 2. 顶部或底部导航中的“讲者模式”开关
+ *
+ * 快捷键：
+ * - `ArrowRight` / `Space`：下一节点
+ * - `ArrowLeft`：上一节点
+ * - `r`：触发讲者模式重置事件
  */
 
 import {
@@ -25,18 +29,22 @@ export interface LectureNode {
 }
 
 export const LECTURE_NODES: LectureNode[] = [
-  { id: 1,  title: '课程介绍与学习目标',           path: '/' },
-  { id: 2,  title: '实验的本质与地位',              path: '/foundations', hash: '#intro' },
-  { id: 3,  title: 'MSE 实验图谱',                  path: '/foundations', hash: '#mse-map' },
-  { id: 4,  title: '从 OFAT 到 DOE 到 SDL',         path: '/foundations', hash: '#ofat-to-sdl' },
-  { id: 5,  title: 'SDL 闭环步进演示',              path: '/foundations', hash: '#interactive-loop' },
-  { id: 6,  title: 'Surrogate · Uncertainty · AF',  path: '/foundations', hash: '#sdl-concepts' },
-  { id: 7,  title: 'Acquisition Function 探索器',   path: '/foundations', hash: '#interactive-af' },
-  { id: 8,  title: 'A-Lab 问题定义与系统组成',      path: '/a-lab', hash: '#problem' },
-  { id: 9,  title: 'A-Lab 执行闭环与关键结果',      path: '/a-lab', hash: '#results' },
-  { id: 10, title: 'A-Lab 争议与再分析',            path: '/a-lab', hash: '#controversy' },
-  { id: 11, title: 'Branin 函数 · 2D 基准演示',     path: '/case-studio' },
-  { id: 12, title: 'LED 光谱定标 · 多通道多目标',   path: '/case-studio' },
+  { id: 1, title: '课程介绍与学习目标', path: '/' },
+  { id: 2, title: '实验的本质与地位', path: '/foundations', hash: '#intro' },
+  { id: 3, title: 'MSE 实验图谱', path: '/foundations', hash: '#mse-map' },
+  { id: 4, title: '从 OFAT 到 DOE 再到 SDL', path: '/foundations', hash: '#ofat-to-sdl' },
+  { id: 5, title: 'SDL 闭环步进演示', path: '/foundations', hash: '#interactive-loop' },
+  { id: 6, title: '代理模型（Surrogate）、不确定度（Uncertainty）与采集函数（AF）', path: '/foundations', hash: '#sdl-concepts' },
+  { id: 7, title: '采集函数探索器（Acquisition Function Explorer）', path: '/foundations', hash: '#interactive-af' },
+  { id: 8, title: 'AI/ML 方法全景：模型、代理与机器人', path: '/ai-methods' },
+  { id: 9, title: 'SOTA/前沿：代表系统与现实边界', path: '/frontiers' },
+  { id: 10, title: 'A-Lab 问题定义与系统组成', path: '/a-lab', hash: '#problem' },
+  { id: 11, title: 'A-Lab 执行闭环与关键结果', path: '/a-lab', hash: '#results' },
+  { id: 12, title: 'A-Lab 争议、再分析与 Nature 勘误', path: '/a-lab', hash: '#controversy' },
+  { id: 13, title: 'GP-BO 解释与交互演示', path: '/sdl-demo' },
+  { id: 14, title: 'Branin 函数：2D 基准与 GP-BO 演示', path: '/case-studio' },
+  { id: 15, title: 'LED calibration：多通道多目标案例', path: '/case-studio' },
+  { id: 16, title: 'Optical Thin-Film：物理模拟 Pareto 案例', path: '/case-studio' },
 ];
 
 interface LectureContextValue {
@@ -72,8 +80,9 @@ export function LectureProvider({ children }: { children: ReactNode }) {
       if (!node) return;
       navigate(node.path);
       if (node.hash) {
+        const hash = node.hash;
         setTimeout(() => {
-          document.querySelector(node.hash!)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 150);
       } else {
         setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 80);
@@ -117,8 +126,14 @@ export function LectureProvider({ children }: { children: ReactNode }) {
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as Element)?.tagName;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
-      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goNext(); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        goNext();
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goPrev();
+      }
       if (e.key.toLowerCase() === 'r') {
         e.preventDefault();
         window.dispatchEvent(new CustomEvent('lecture:reset'));
@@ -130,8 +145,16 @@ export function LectureProvider({ children }: { children: ReactNode }) {
 
   return (
     <LectureContext.Provider
-      value={{ isLectureMode, toggleLectureMode, currentNode, totalNodes: LECTURE_NODES.length,
-               currentNodeDef: LECTURE_NODES[currentNode], goNext, goPrev, goToNode }}
+      value={{
+        isLectureMode,
+        toggleLectureMode,
+        currentNode,
+        totalNodes: LECTURE_NODES.length,
+        currentNodeDef: LECTURE_NODES[currentNode],
+        goNext,
+        goPrev,
+        goToNode,
+      }}
     >
       {children}
     </LectureContext.Provider>

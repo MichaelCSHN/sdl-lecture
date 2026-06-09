@@ -5,12 +5,14 @@ import { useLecture } from '@/contexts/LectureContext';
 const NAV_ITEMS = [
   { to: '/', label: '首页', exact: true },
   { to: '/course', label: '课程地图' },
-  { to: '/methods', label: '8 步工作流' },
-  { to: '/foundations', label: 'Foundations' },
-  { to: '/design-studio', label: 'Design Studio' },
+  { to: '/foundations', label: '基础（Foundations）' },
+  { to: '/ai-methods', label: 'AI/ML 方法' },
+  { to: '/frontiers', label: '前沿（SOTA）' },
   { to: '/a-lab', label: 'A-Lab' },
-  { to: '/case-studio', label: 'Case Studio' },
-  { to: '/resources', label: 'Resources' },
+  { to: '/case-studio', label: '案例工作台（Case Studio）' },
+  { to: '/methods', label: '8 步工作流' },
+  { to: '/design-studio', label: '设计工作室' },
+  { to: '/resources', label: '资源（Resources）' },
 ];
 
 export default function TopNav() {
@@ -52,7 +54,6 @@ export default function TopNav() {
         ))}
       </nav>
 
-      {/* Lecture mode toggle */}
       <button
         onClick={toggleLectureMode}
         title={isLectureMode ? '退出讲者模式' : '进入讲者模式'}
