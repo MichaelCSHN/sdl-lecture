@@ -1,7 +1,8 @@
 # Claude Code Task 01: Phase 1 Reset
 
-状态：ready  
-日期：2026-06-04
+状态：completed  
+日期：2026-06-04  
+更新：2026-06-09
 
 ## 1. 任务目标
 
@@ -87,3 +88,46 @@
 2. 修改内容
 3. 构建结果
 4. 下一步计划
+
+## 8. 验收结论
+
+Phase 1 目标已完成，项目已从单页讲座结构迁移为 route-based 课程应用。
+
+已确认项：
+
+1. 统一 `AppShell` 已落地。
+2. 首页、课程页、Foundations、A-Lab、Case Studio 等页面级结构已建立。
+3. `src/sections/` 中的 legacy section 已从主入口移出，仅作为内容复用来源保留。
+4. 项目已配置 GitHub Actions 部署链路，主分支推送时由 `.github/workflows/deploy.yml` 执行 `npm run build:github` 并发布到 GitHub Pages。
+
+## 9. 当前实现状态快照
+
+当前已实现路由：
+
+1. `/`
+2. `/course`
+3. `/foundations`
+4. `/a-lab`
+5. `/case-studio`
+6. `/methods`
+7. `/design-studio`
+8. `/resources`
+
+当前额外扩展路由：
+
+1. `/paradigms`
+2. `/sdl-demo`
+3. `/led-calibration`
+
+对应实现位置：
+
+1. 路由定义：`src/app/router.tsx`
+2. 应用壳层：`src/layouts/AppShell.tsx`
+3. 页面目录：`src/pages/`
+4. 复用内容与算法：`src/components/`、`src/lib/`、`src/data/`
+
+## 10. 进入下一阶段前的建议
+
+1. 以 GitHub Actions 结果作为发布验证基准，不再要求本地构建作为日常状态更新前提。
+2. 下一阶段优先处理页面内容一致性、导航收口和 demo 资产体积控制。
+3. `plotly` 相关产物体积较大，后续应考虑代码分割或懒加载。
