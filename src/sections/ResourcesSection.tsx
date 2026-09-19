@@ -66,6 +66,42 @@ const PAPERS = [
     highlight: false,
     bibtex: '',
   },
+  {
+    title: 'Toward self-driving laboratory 2.0 for chemistry and materials discovery',
+    authors: 'Lee H, Yoo HJ, Jang HS, et al.',
+    journal: 'Materials Horizons 13(10), 4712-4739 (2026)',
+    doi: '10.1039/d5mh01984b',
+    url: 'https://pubs.rsc.org/mh/article/13/10/4712/1226991/Toward-self-driving-laboratory-2-0-for-chemistry',
+    highlight: true,
+    bibtex: `@article{lee2026sdl2,\n  title={Toward self-driving laboratory 2.0 for chemistry and materials discovery},\n  author={Lee, Heeseung and others},\n  journal={Materials Horizons},\n  volume={13},\n  number={10},\n  pages={4712--4739},\n  year={2026},\n  doi={10.1039/d5mh01984b}\n}`,
+  },
+  {
+    title: "Autonomous 'self-driving' laboratories: a review of technology and policy implications",
+    authors: 'Royal Society Open Science',
+    journal: 'Royal Society Open Science 12(7), 250646 (2025)',
+    doi: '10.1098/rsos.250646',
+    url: 'https://doi.org/10.1098/rsos.250646',
+    highlight: false,
+    bibtex: `@article{rsos2025sdl,\n  title={Autonomous self-driving laboratories: a review of technology and policy implications},\n  journal={Royal Society Open Science},\n  volume={12},\n  number={7},\n  year={2025},\n  doi={10.1098/rsos.250646}\n}`,
+  },
+  {
+    title: 'AlabOS: A python-based reconfigurable workflow management framework for autonomous laboratories',
+    authors: 'Fei Y, Rendy B, Kumar R, et al.',
+    journal: 'Digital Discovery 3(11), 2275-2288 (2024)',
+    doi: '10.1039/D4DD00129J',
+    url: 'https://doi.org/10.1039/D4DD00129J',
+    highlight: false,
+    bibtex: `@article{fei2024alabos,\n  title={AlabOS: A python-based reconfigurable workflow management framework for autonomous laboratories},\n  author={Fei, Yuxing and others},\n  journal={Digital Discovery},\n  volume={3},\n  number={11},\n  pages={2275--2288},\n  year={2024},\n  doi={10.1039/D4DD00129J}\n}`,
+  },
+  {
+    title: 'Author Correction: An autonomous laboratory for the accelerated synthesis of inorganic materials',
+    authors: 'Szymanski NJ, Rendy B, Fei Y, et al.',
+    journal: 'Nature 650, E1 (2026)',
+    doi: '10.1038/s41586-025-09992-y',
+    url: 'https://www.nature.com/articles/s41586-025-09992-y',
+    highlight: false,
+    bibtex: `@article{szymanski2026correction,\n  title={Author Correction: An autonomous laboratory for the accelerated synthesis of inorganic materials},\n  author={Szymanski, Nathan J and others},\n  journal={Nature},\n  volume={650},\n  pages={E1},\n  year={2026},\n  doi={10.1038/s41586-025-09992-y}\n}`,
+  },
 ];
 
 const TOOLS = [
@@ -77,6 +113,7 @@ const TOOLS = [
   { label: 'self-driving-lab-demo', url: 'https://github.com/sparks-baird/self-driving-lab-demo', desc: '教学演示包' },
   { label: 'EDBO+', url: 'https://www.edbowebapp.com/', desc: '多目标BO反应优化' },
   { label: 'AC Microcourses', url: 'https://ac-microcourses.readthedocs.io/', desc: 'SDL认证课程' },
+  { label: 'AlabOS', url: 'https://github.com/CederGroupHub/alabos', desc: 'A-Lab 工作流管理框架' },
   { label: 'Awesome SDL', url: 'https://github.com/AccelerationConsortium/awesome-self-driving-labs', desc: '资源合集' },
   { label: 'Awesome BO', url: 'https://github.com/materials-data-facility/awesome-bayesian-optimization', desc: 'BO资源合集' },
 ];

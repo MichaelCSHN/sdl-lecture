@@ -23,14 +23,32 @@ const FRONTIER_EVENTS = [
   {
     year: '2024-2025',
     title: 'CAMEO、HELAO 与开放平台',
-    body: '同步辐射、主动学习和开源实验操作系统推动 SDL 从单点展示走向可复用基础设施。',
+    body: '同步辐射、主动学习和开源实验操作系统推动 SDL 从单点展示走向可复用基础设施。AlabOS 开源发布（Digital Discovery 2024）。',
     route: '/resources',
+  },
+  {
+    year: '2026-01',
+    title: 'A-Lab 作者更正',
+    body: 'Nature 发表 Author Correction：合成成功数从 41/58 修正为 36/57，"novel"改为"new to the prediction platform"。',
+    route: '/a-lab',
+  },
+  {
+    year: '2026-03',
+    title: 'Nature 专题: Inside the SDL revolution',
+    body: 'Nature 发表专题报道，SDL 进入主流科学视野。同期 LBNL 宣布 Materials Foundry（A-Lab 的湿化学互补平台）。',
+    route: '/resources',
+  },
+  {
+    year: '2026-05',
+    title: 'SDL 2.0 框架 (Materials Horizons)',
+    body: 'Lee et al. 提出 SDL 2.0 六大特征：可互操作 (Interoperable)、协作 (Collaborative)、泛化 (Generalizable)、编排 (Orchestrated)、安全 (Safe)、创造性 (Creative)。',
+    route: '/frontiers',
   },
 ];
 
 const REALITY_CHECKS = [
   ['速度', '机器人和在线表征能提升实验节奏', '速度会同步放大测量误差和错误判断'],
-  ['自主性', 'L0-L5 框架帮助描述自动化程度', '当前系统多数仍依赖人类定义目标和边界'],
+  ['自主性', 'L0-L5 框架已正式提出 (Royal Society Open Science, 2025)', '当前系统多数仍在 L2-L3，完全自主 (L5) 需要可靠性验证突破'],
   ['新颖性', '数据库与生成模型能扩大候选空间', '“新结构”不等于“新材料”，更不等于“已验证发现”'],
   ['可复现性', '开源代码和自动日志让复核更可行', '硬件差异、样品制备和表征判读仍会改变结论'],
 ];
@@ -40,7 +58,7 @@ const TRL_ITEMS = [
   { name: '粉末与固态合成机器人', level: 'TRL 4-6', note: '称量、混合、静电、团聚和炉体差异仍是工程瓶颈。' },
   { name: '在线 XRD / 光谱表征', level: 'TRL 5-7', note: '速度优势明显，但结构解释和多模态验证仍需要谨慎。' },
   { name: 'LLM 实验代理', level: 'TRL 3-5', note: '适合规划和编排，距离可靠自主科研仍有安全与验证距离。' },
-  { name: '多中心 SDL 网络', level: 'TRL 3-5', note: '潜力大，但标准接口、数据协议和跨平台复现尚未稳定。' },
+  { name: '多中心 SDL 网络', level: 'TRL 3-5', note: '潜力大；MCP（AI 代理接口）与 SiLA2（仪器控制）正在成为互操作标准。' },
 ];
 
 const DATABASES = [
@@ -56,7 +74,7 @@ export default function FrontiersPage() {
       <section className="mb-10">
         <div className="text-[#00f5d4] font-mono text-xs tracking-widest mb-3">SOTA/前沿（Frontiers）</div>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#f3f6fb] mb-4">
-          2023-2025：材料 SDL 的爆发、修正与现实边界
+          2023-2026：材料 SDL 的爆发、修正与现实边界
         </h1>
         <p className="text-sm text-[#8a92a3] leading-7 max-w-3xl">
           读前沿系统时，最重要的不是记住系统名，而是判断它推进了哪一层能力，又在哪些环节仍依赖人类定义目标、

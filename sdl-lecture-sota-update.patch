@@ -1,0 +1,125 @@
+diff --git a/src/pages/FrontiersPage.tsx b/src/pages/FrontiersPage.tsx
+index e69ad64..5390c35 100644
+--- a/src/pages/FrontiersPage.tsx
++++ b/src/pages/FrontiersPage.tsx
+@@ -23,14 +23,32 @@ const FRONTIER_EVENTS = [
+   {
+     year: '2024-2025',
+     title: 'CAMEO、HELAO 与开放平台',
+-    body: '同步辐射、主动学习和开源实验操作系统推动 SDL 从单点展示走向可复用基础设施。',
++    body: '同步辐射、主动学习和开源实验操作系统推动 SDL 从单点展示走向可复用基础设施。AlabOS 开源发布（Digital Discovery 2024）。',
+     route: '/resources',
+   },
++  {
++    year: '2026-01',
++    title: 'A-Lab 作者更正',
++    body: 'Nature 发表 Author Correction：合成成功数从 41/58 修正为 36/57，"novel"改为"new to the prediction platform"。',
++    route: '/a-lab',
++  },
++  {
++    year: '2026-03',
++    title: 'Nature 专题: Inside the SDL revolution',
++    body: 'Nature 发表专题报道，SDL 进入主流科学视野。同期 LBNL 宣布 Materials Foundry（A-Lab 的湿化学互补平台）。',
++    route: '/resources',
++  },
++  {
++    year: '2026-05',
++    title: 'SDL 2.0 框架 (Materials Horizons)',
++    body: 'Lee et al. 提出 SDL 2.0 六大特征：可互操作 (Interoperable)、协作 (Collaborative)、泛化 (Generalizable)、编排 (Orchestrated)、安全 (Safe)、创造性 (Creative)。',
++    route: '/frontiers',
++  },
+ ];
+ 
+ const REALITY_CHECKS = [
+   ['速度', '机器人和在线表征能提升实验节奏', '速度会同步放大测量误差和错误判断'],
+-  ['自主性', 'L0-L5 框架帮助描述自动化程度', '当前系统多数仍依赖人类定义目标和边界'],
++  ['自主性', 'L0-L5 框架已正式提出 (Royal Society Open Science, 2025)', '当前系统多数仍在 L2-L3，完全自主 (L5) 需要可靠性验证突破'],
+   ['新颖性', '数据库与生成模型能扩大候选空间', '“新结构”不等于“新材料”，更不等于“已验证发现”'],
+   ['可复现性', '开源代码和自动日志让复核更可行', '硬件差异、样品制备和表征判读仍会改变结论'],
+ ];
+@@ -40,7 +58,7 @@ const TRL_ITEMS = [
+   { name: '粉末与固态合成机器人', level: 'TRL 4-6', note: '称量、混合、静电、团聚和炉体差异仍是工程瓶颈。' },
+   { name: '在线 XRD / 光谱表征', level: 'TRL 5-7', note: '速度优势明显，但结构解释和多模态验证仍需要谨慎。' },
+   { name: 'LLM 实验代理', level: 'TRL 3-5', note: '适合规划和编排，距离可靠自主科研仍有安全与验证距离。' },
+-  { name: '多中心 SDL 网络', level: 'TRL 3-5', note: '潜力大，但标准接口、数据协议和跨平台复现尚未稳定。' },
++  { name: '多中心 SDL 网络', level: 'TRL 3-5', note: '潜力大；MCP（AI 代理接口）与 SiLA2（仪器控制）正在成为互操作标准。' },
+ ];
+ 
+ const DATABASES = [
+@@ -56,7 +74,7 @@ export default function FrontiersPage() {
+       <section className="mb-10">
+         <div className="text-[#00f5d4] font-mono text-xs tracking-widest mb-3">SOTA/前沿（Frontiers）</div>
+         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-[#f3f6fb] mb-4">
+-          2023-2025：材料 SDL 的爆发、修正与现实边界
++          2023-2026：材料 SDL 的爆发、修正与现实边界
+         </h1>
+         <p className="text-sm text-[#8a92a3] leading-7 max-w-3xl">
+           读前沿系统时，最重要的不是记住系统名，而是判断它推进了哪一层能力，又在哪些环节仍依赖人类定义目标、
+diff --git a/src/sections/ChallengesSection.tsx b/src/sections/ChallengesSection.tsx
+index c7a9a46..83aec77 100644
+--- a/src/sections/ChallengesSection.tsx
++++ b/src/sections/ChallengesSection.tsx
+@@ -164,7 +164,7 @@ function SDLAnalysisPanel() {
+ }
+ 
+ const FUTURE_ROADMAP = [
+-  { year: '2026', title: '标准化接口', desc: '统一 SDL 数据格式与 API 规范', status: 'current' },
++  { year: '2026', title: '标准化接口 + SDL 2.0', desc: 'MCP/SiLA2 互操作标准落地；SDL 2.0 六特征框架 (Mater. Horiz.)；LBNL Materials Foundry 启动', status: 'current' },
+   { year: '2027', title: '多智能体协同', desc: '多个 LLM Agent 分工执行复杂实验', status: 'planned' },
+   { year: '2028', title: '数字孪生集成', desc: '虚实结合的完全仿真预实验', status: 'planned' },
+   { year: '2029', title: '云端网络', desc: '全球分布式 SDL 协同发现', status: 'planned' },
+diff --git a/src/sections/ResourcesSection.tsx b/src/sections/ResourcesSection.tsx
+index 591ae43..aeda1a5 100644
+--- a/src/sections/ResourcesSection.tsx
++++ b/src/sections/ResourcesSection.tsx
+@@ -66,6 +66,42 @@ const PAPERS = [
+     highlight: false,
+     bibtex: '',
+   },
++  {
++    title: 'Toward self-driving laboratory 2.0 for chemistry and materials discovery',
++    authors: 'Lee H, Yoo HJ, Jang HS, et al.',
++    journal: 'Materials Horizons 13(10), 4712-4739 (2026)',
++    doi: '10.1039/d5mh01984b',
++    url: 'https://pubs.rsc.org/mh/article/13/10/4712/1226991/Toward-self-driving-laboratory-2-0-for-chemistry',
++    highlight: true,
++    bibtex: `@article{lee2026sdl2,\n  title={Toward self-driving laboratory 2.0 for chemistry and materials discovery},\n  author={Lee, Heeseung and others},\n  journal={Materials Horizons},\n  volume={13},\n  number={10},\n  pages={4712--4739},\n  year={2026},\n  doi={10.1039/d5mh01984b}\n}`,
++  },
++  {
++    title: "Autonomous 'self-driving' laboratories: a review of technology and policy implications",
++    authors: 'Royal Society Open Science',
++    journal: 'Royal Society Open Science 12(7), 250646 (2025)',
++    doi: '10.1098/rsos.250646',
++    url: 'https://doi.org/10.1098/rsos.250646',
++    highlight: false,
++    bibtex: `@article{rsos2025sdl,\n  title={Autonomous self-driving laboratories: a review of technology and policy implications},\n  journal={Royal Society Open Science},\n  volume={12},\n  number={7},\n  year={2025},\n  doi={10.1098/rsos.250646}\n}`,
++  },
++  {
++    title: 'AlabOS: A python-based reconfigurable workflow management framework for autonomous laboratories',
++    authors: 'Fei Y, Rendy B, Kumar R, et al.',
++    journal: 'Digital Discovery 3(11), 2275-2288 (2024)',
++    doi: '10.1039/D4DD00129J',
++    url: 'https://doi.org/10.1039/D4DD00129J',
++    highlight: false,
++    bibtex: `@article{fei2024alabos,\n  title={AlabOS: A python-based reconfigurable workflow management framework for autonomous laboratories},\n  author={Fei, Yuxing and others},\n  journal={Digital Discovery},\n  volume={3},\n  number={11},\n  pages={2275--2288},\n  year={2024},\n  doi={10.1039/D4DD00129J}\n}`,
++  },
++  {
++    title: 'Author Correction: An autonomous laboratory for the accelerated synthesis of inorganic materials',
++    authors: 'Szymanski NJ, Rendy B, Fei Y, et al.',
++    journal: 'Nature 650, E1 (2026)',
++    doi: '10.1038/s41586-025-09992-y',
++    url: 'https://www.nature.com/articles/s41586-025-09992-y',
++    highlight: false,
++    bibtex: `@article{szymanski2026correction,\n  title={Author Correction: An autonomous laboratory for the accelerated synthesis of inorganic materials},\n  author={Szymanski, Nathan J and others},\n  journal={Nature},\n  volume={650},\n  pages={E1},\n  year={2026},\n  doi={10.1038/s41586-025-09992-y}\n}`,
++  },
+ ];
+ 
+ const TOOLS = [
+@@ -77,6 +113,7 @@ const TOOLS = [
+   { label: 'self-driving-lab-demo', url: 'https://github.com/sparks-baird/self-driving-lab-demo', desc: '教学演示包' },
+   { label: 'EDBO+', url: 'https://www.edbowebapp.com/', desc: '多目标BO反应优化' },
+   { label: 'AC Microcourses', url: 'https://ac-microcourses.readthedocs.io/', desc: 'SDL认证课程' },
++  { label: 'AlabOS', url: 'https://github.com/CederGroupHub/alabos', desc: 'A-Lab 工作流管理框架' },
+   { label: 'Awesome SDL', url: 'https://github.com/AccelerationConsortium/awesome-self-driving-labs', desc: '资源合集' },
+   { label: 'Awesome BO', url: 'https://github.com/materials-data-facility/awesome-bayesian-optimization', desc: 'BO资源合集' },
+ ];

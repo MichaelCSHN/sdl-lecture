@@ -164,7 +164,7 @@ function SDLAnalysisPanel() {
 }
 
 const FUTURE_ROADMAP = [
-  { year: '2026', title: '标准化接口', desc: '统一 SDL 数据格式与 API 规范', status: 'current' },
+  { year: '2026', title: '标准化接口 + SDL 2.0', desc: 'MCP/SiLA2 互操作标准落地；SDL 2.0 六特征框架 (Mater. Horiz.)；LBNL Materials Foundry 启动', status: 'current' },
   { year: '2027', title: '多智能体协同', desc: '多个 LLM Agent 分工执行复杂实验', status: 'planned' },
   { year: '2028', title: '数字孪生集成', desc: '虚实结合的完全仿真预实验', status: 'planned' },
   { year: '2029', title: '云端网络', desc: '全球分布式 SDL 协同发现', status: 'planned' },
